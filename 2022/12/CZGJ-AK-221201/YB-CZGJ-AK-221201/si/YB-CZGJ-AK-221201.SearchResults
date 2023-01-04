@@ -1,0 +1,8 @@
+---- bcm_senor2_f Matches (7 in 5 files) ----
+Bcan.c:               bcm_senor2_f = (uint16_t)(((uint16_t)Bdata[3]<<8)+ Bdata[2]);
+Config.h (g:\workspace32\yb-czgj-ak-221201\source):#define VBATTEMPSOUTCE bcm_senor2_f //meter.MeterA4
+Displayhelper.c (g:\workspace32\yb-czgj-ak-221201\source):			//temp = bcm_senor2_f*0.01*Air2_Coef;
+Displayhelper.c (g:\workspace32\yb-czgj-ak-221201\source):            communicate_T123_data[5] = bcm_senor2_f;
+Displayhelper.c (g:\workspace32\yb-czgj-ak-221201\source):            communicate_T123_data[6] = bcm_senor2_f >> 8;
+MeterConfig.c (g:\workspace32\yb-czgj-ak-221201\source):uint16_t    bcm_senor2_f;   //front bcm senor pin A40
+MeterConfig.h (g:\workspace32\yb-czgj-ak-221201\source):extern uint16_t    bcm_senor2_f;   //front bcm senor pin A40

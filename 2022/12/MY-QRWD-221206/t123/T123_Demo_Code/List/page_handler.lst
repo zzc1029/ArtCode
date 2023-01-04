@@ -1,0 +1,309 @@
+C51 COMPILER V9.00   PAGE_HANDLER                                                          12/13/2022 09:00:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_HANDLER
+OBJECT MODULE PLACED IN .\Object\page_handler.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE Source\page_handler.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw
+                    -_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_handler.lst) OBJECT(.\Object\page_ha
+                    -ndler.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "page_start.h"
+   5          #include "page_main_internal.h"
+   6          #include "page_main_menus.h"
+   7          #include "page_meter_moudle.h"
+   8          #include "disp_config.h"
+   9          #if MODULE_FRONT_B40 || MODULE_FRONT_B50
+  10          #include "page_front_moudle.h"
+  11          #endif
+  12          #if MODULE_FRONT_B50
+              #include "page_front_moudle_out.h"
+              #endif
+  15          #if MODULE_REAR_B40 || MODULE_REAR_B50
+  16          #include "page_rear_moudle.h"
+  17          #endif
+  18          #if MODULE_REAR_B50
+              #include "page_rear_moudle_out.h"
+              #endif
+  21          #if MODULE_TOP_B40 || MODULE_TOP_B50
+              #include "page_top_moudle.h"
+              #endif
+  24          #if MODULE_TOP_B50
+              #include "page_top_moudle_out.h"
+              #endif
+  27          #if (PAGE_ADD > 0)
+  28          #include "page_surface1.h"
+  29          #endif
+  30          #if (PAGE_ADD > 1)
+  31          #include "page_surface2.h"
+  32          #endif
+  33          #if (PAGE_ADD > 2)
+  34          #include "page_surface3.h"
+  35          #endif
+  36          #if (PAGE_ADD > 3)
+  37          #include "page_surface4.h"
+  38          #endif
+  39          #if (PAGE_ADD > 4)
+  40          #include "page_surface5.h"
+  41          #endif
+  42          #if (PAGE_ADD > 5)
+  43          #include "page_surface6.h"
+  44          #endif
+  45          #if (PAGE_ADD > 6)
+  46          #include "page_surface7.h"
+  47          #endif
+  48          #if (PAGE_ADD > 7)
+  49          #include "page_surface8.h"
+  50          #endif
+  51          #if (PAGE_ADD > 8)
+  52          #include "page_surface9.h"
+  53          #endif
+C51 COMPILER V9.00   PAGE_HANDLER                                                          12/13/2022 09:00:39 PAGE 2   
+
+  54          #if (PAGE_ADD > 9)
+  55          #include "page_surface10.h"
+  56          #endif
+  57          #if (PAGE_ADD > 10)
+  58          #include "page_surface11.h"
+  59          #endif
+  60          #if (PAGE_ADD > 11)
+  61          #include "page_surface12.h"
+  62          #endif
+  63          #if (PAGE_ADD > 12)
+  64          #include "page_surface13.h"
+  65          #endif
+  66          #if (PAGE_ADD > 13)
+  67          #include "page_surface14.h"
+  68          #endif
+  69          #if (PAGE_ADD > 14)
+  70          #include "page_surface15.h"
+  71          #endif
+  72          #if (PAGE_ADD > 15)
+  73          #include "page_surface16.h"
+  74          #endif
+  75          #if (PAGE_ADD > 16)
+  76          #include "page_surface17.h"
+  77          #endif
+  78          #if (PAGE_ADD > 17)
+  79          #include "page_surface18.h"
+  80          #endif
+  81          #if (PAGE_ADD > 18)
+  82          #include "page_surface19.h"
+  83          #endif
+  84          #if (PAGE_ADD > 19)
+              #include "page_surface20.h"
+              #endif
+  87          #if (PAGE_ADD > 20)
+              #include "page_surface21.h"
+              #endif
+  90          
+  91          
+  92          
+  93          
+  94          
+  95          
+  96          #include "page_help_message.h"
+  97          #include "page_logo.h"
+  98          #include "page_parameter.h"
+  99          #include "page_video.h"
+ 100          #include "ignore_page.h"
+ 101          
+ 102          unsigned char tw_page_handler(unsigned char id, TW_EVENT* event)
+ 103          {
+ 104   1              unsigned char rc=0;
+ 105   1              switch(id)
+ 106   1              {
+ 107   2                      case ID_PAGE_START:
+ 108   2                              rc = page_start_process(event);
+ 109   2                      break;
+ 110   2                      case ID_PAGE_MAIN_INTERNAL:
+ 111   2                              rc = page_main_internal_process(event);
+ 112   2                      break;
+ 113   2                      case ID_PAGE_MAIN_MENUS:
+ 114   2                              rc = page_main_menus_process(event);
+ 115   2                      break;
+C51 COMPILER V9.00   PAGE_HANDLER                                                          12/13/2022 09:00:39 PAGE 3   
+
+ 116   2                      case ID_PAGE_METER_MOUDLE:
+ 117   2                              rc = page_meter_moudle_process(event);
+ 118   2                      break;
+ 119   2                      #if MODULE_FRONT_B40 || MODULE_FRONT_B50
+ 120   2                      case ID_PAGE_FRONT_MOUDLE:
+ 121   2                              rc = page_front_moudle_process(event);
+ 122   2                      break;
+ 123   2                      #endif
+ 124   2                      #if MODULE_FRONT_B50
+                              case ID_PAGE_FRONT_MOUDLE_OUT:
+                                      rc = page_front_moudle_out_process(event);
+                              break;
+                              #endif
+ 129   2                      #if MODULE_REAR_B40 || MODULE_REAR_B50
+ 130   2                      case ID_PAGE_REAR_MOUDLE:
+ 131   2                              rc = page_rear_moudle_process(event);
+ 132   2                      break;
+ 133   2                      #endif
+ 134   2                      #if MODULE_REAR_B50
+                              case ID_PAGE_REAR_MOUDLE_OUT:
+                                      rc = page_rear_moudle_out_process(event);
+                              break;
+                              #endif
+ 139   2                      #if MODULE_TOP_B40 || MODULE_TOP_B50
+                              case ID_PAGE_TOP_MOUDLE:
+                                      rc = page_top_moudle_process(event);
+                              break;
+                              #endif
+ 144   2                      #if MODULE_TOP_B50
+                              case ID_PAGE_TOP_MOUDLE_OUT:
+                                      rc = page_top_moudle_out_process(event);
+                              break;
+                              #endif
+ 149   2                      #if (PAGE_ADD > 0)
+ 150   2                      case ID_PAGE_SURFACE1:
+ 151   2                              rc = page_surface1_process(event);
+ 152   2                      break;
+ 153   2                      #endif
+ 154   2                      #if (PAGE_ADD > 1)
+ 155   2                      case ID_PAGE_SURFACE2:
+ 156   2                              rc = page_surface2_process(event);
+ 157   2                      break;
+ 158   2                      #endif
+ 159   2                      #if (PAGE_ADD > 2)
+ 160   2                      case ID_PAGE_SURFACE3:
+ 161   2                              rc = page_surface3_process(event);
+ 162   2                      break;
+ 163   2                      #endif
+ 164   2                      #if (PAGE_ADD > 3)
+ 165   2                      case ID_PAGE_SURFACE4:
+ 166   2                              rc = page_surface4_process(event);
+ 167   2                      break;
+ 168   2                      #endif
+ 169   2                      #if (PAGE_ADD > 4)
+ 170   2                      case ID_PAGE_SURFACE5:
+ 171   2                              rc = page_surface5_process(event);
+ 172   2                      break;
+ 173   2                      #endif
+ 174   2                      #if (PAGE_ADD > 5)
+ 175   2                      case ID_PAGE_SURFACE6:
+ 176   2                              rc = page_surface6_process(event);
+ 177   2                      break;
+C51 COMPILER V9.00   PAGE_HANDLER                                                          12/13/2022 09:00:39 PAGE 4   
+
+ 178   2                      #endif
+ 179   2                      #if (PAGE_ADD > 6)
+ 180   2                      case ID_PAGE_SURFACE7:
+ 181   2                              rc = page_surface7_process(event);
+ 182   2                      break;
+ 183   2                      #endif
+ 184   2                      #if (PAGE_ADD > 7)
+ 185   2                      case ID_PAGE_SURFACE8:
+ 186   2                              rc = page_surface8_process(event);
+ 187   2                      break;
+ 188   2                      #endif
+ 189   2                      #if (PAGE_ADD > 8)
+ 190   2                      case ID_PAGE_SURFACE9:
+ 191   2                              rc = page_surface9_process(event);
+ 192   2                      break;
+ 193   2                      #endif
+ 194   2                      #if (PAGE_ADD > 9)
+ 195   2                      case ID_PAGE_SURFACE10:
+ 196   2                              rc = page_surface10_process(event);
+ 197   2                      break;
+ 198   2                      #endif
+ 199   2                      #if (PAGE_ADD > 10)
+ 200   2                      case ID_PAGE_SURFACE11:
+ 201   2                              rc = page_surface11_process(event);
+ 202   2                      break;
+ 203   2                      #endif
+ 204   2                      #if (PAGE_ADD > 11)
+ 205   2                      case ID_PAGE_SURFACE12:
+ 206   2                              rc = page_surface12_process(event);
+ 207   2                      break;
+ 208   2                      #endif
+ 209   2                      #if (PAGE_ADD > 12)
+ 210   2                      case ID_PAGE_SURFACE13:
+ 211   2                              rc = page_surface13_process(event);
+ 212   2                      break;
+ 213   2                      #endif
+ 214   2                      #if (PAGE_ADD > 13)
+ 215   2                      case ID_PAGE_SURFACE14:
+ 216   2                              rc = page_surface14_process(event);
+ 217   2                      break;
+ 218   2                      #endif
+ 219   2                      #if (PAGE_ADD > 14)
+ 220   2                      case ID_PAGE_SURFACE15:
+ 221   2                              rc = page_surface15_process(event);
+ 222   2                      break;
+ 223   2                      #endif
+ 224   2                      #if (PAGE_ADD > 15)
+ 225   2                      case ID_PAGE_SURFACE16:
+ 226   2                              rc = page_surface16_process(event);
+ 227   2                      break;
+ 228   2                      #endif
+ 229   2                      #if (PAGE_ADD > 16)
+ 230   2                      case ID_PAGE_SURFACE17:
+ 231   2                              rc = page_surface17_process(event);
+ 232   2                      break;
+ 233   2                      #endif
+ 234   2                      #if (PAGE_ADD > 17)
+ 235   2                      case ID_PAGE_SURFACE18:
+ 236   2                              rc = page_surface18_process(event);
+ 237   2                      break;
+ 238   2                      #endif
+ 239   2                      #if (PAGE_ADD > 18)
+C51 COMPILER V9.00   PAGE_HANDLER                                                          12/13/2022 09:00:39 PAGE 5   
+
+ 240   2                      case ID_PAGE_SURFACE19:
+ 241   2                              rc = page_surface19_process(event);
+ 242   2                      break;
+ 243   2                      #endif
+ 244   2                      #if (PAGE_ADD > 19)
+                              case ID_PAGE_SURFACE20:
+                                      rc = page_surface20_process(event);
+                              break;
+                              #endif
+ 249   2                      #if (PAGE_ADD > 20)
+                              case ID_PAGE_SURFACE21:
+                                      rc = page_surface21_process(event);
+                              break;
+                              #endif
+ 254   2                      case ID_PAGE_HELP_MESSAGE:
+ 255   2                              rc = page_help_message_process(event);
+ 256   2                      break;
+ 257   2                      case ID_PAGE_LOGO:
+ 258   2                              rc = page_logo_process(event);
+ 259   2                      break;
+ 260   2                      case ID_PAGE_PARAMETER:
+ 261   2                              rc = page_parameter_process(event);
+ 262   2                      break;
+ 263   2                      case ID_PAGE_VIDEO:
+ 264   2                              rc = page_video_process(event);
+ 265   2                      break;
+ 266   2                      default:        /* put to nodify if no process this event */
+ 267   2                              rc = TW_RETURN_NO_PAGE;
+ 268   2                      break;
+ 269   2              }
+ 270   1      
+ 271   1              return rc;
+ 272   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    676    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

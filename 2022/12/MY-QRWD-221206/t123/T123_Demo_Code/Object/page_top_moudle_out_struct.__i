@@ -1,0 +1,1 @@
+"i51\page_top_moudle_out_struct.c" LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE (T123AI) DEBUG PRINT(.\List\page_top_moudle_out_struct.lst) TABS (2) OBJECT(.\Object\page_top_moudle_out_struct.obj)

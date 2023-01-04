@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.2136491809">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.2136491809" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GMakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="elf" artifactName="${ProjName}" buildProperties="" cleanCommand="@rm -rf" description="" errorParsers="org.eclipse.cdt.core.GMakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.2136491809" name="Release" parent="cdt.managedbuild.config.gnu.exe.release" postannouncebuildStep="" postbuildStep="../pack/pack.sh ${BuildArtifactFileBaseName}  ${ProjDirPath}" preannouncebuildStep="" prebuildStep="">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.2136491809." name="/" resourcePath="">
+						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.exe.release.1611128714" name="KungFu32 Tool" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+							<targetPlatform archList="all" id="cdt.managedbuild.target.gnu.platform.exe.release.2059031110" name="Release Platform" osList="solaris,linux,hpux,aix,qnx,win32" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
+							<builder buildPath="${workspace_loc:${ProjName}/${ConfigName}}" errorParsers="org.eclipse.cdt.core.GMakeErrorParser" id="cdt.managedbuild.target.gnu.builder.exe.release.517140849" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="KungFu32 构建器" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<tool command="@kf32-gcc" commandLinePattern="${COMMAND}  ${FLAGS} $&lt; -o ${OUTPUT}" errorParsers="" id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1534209216" name="C Compiler Release" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+								<option id="com.chipon32.chiponide.core.includepath.2089886277" name="Include Path(-I)" superClass="com.chipon32.chiponide.core.includepath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/system&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/system/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/driver&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/source&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${GPUTILS_EXPAND_INCLUDE_PATH}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${GPUTILS_BASIC_INCLUDE_PATH}&quot;"/>
+								</option>
+								<option id="com.chipon32.chiponide.core.nodels.1681517729" name="不删除中间文件i,s（文件生成顺序：预处理-&gt;i,编译-&gt;s,汇编-&gt;o）" superClass="com.chipon32.chiponide.core.nodels" value="true" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1553098112" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool command="@kf32-as" commandLinePattern="${COMMAND} ${FLAGS} ${INPUTS} ${OUTPUT_FLAG} ${OUTPUT}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.as.release.3494865" name="ChipON Assembler" superClass="cdt.managedbuild.tool.gnu.c.compiler.as.release">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input2.804356943" superClass="cdt.managedbuild.tool.gnu.assembler.input2"/>
+							</tool>
+							<tool command="@kf32-ld" commandLinePattern="${COMMAND} ${INPUTS} ${FLAGS} -o  &quot;${BuildArtifactFileBaseName}.elf&quot; -Map &quot;${BuildArtifactFileBaseName}.map&quot;" errorParsers="" id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1112466062" name="C Linker Release" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
+								<option id="com.chipon32.chiponide.core.option4.591868667" name="芯片脚本文件" superClass="com.chipon32.chiponide.core.option4" value="-T&quot;${ProjDirPath}/system/${CHIP_NAME}.ld&quot;" valueType="string"/>
+								<option id="com.chipon32.chiponide.core.option.checkcode.1401027539" name="APP应用不输出向量表7校验码(--kf32-nocheck)" superClass="com.chipon32.chiponide.core.option.checkcode" value="false" valueType="boolean"/>
+								<option id="com.chipon32.chiponide.core.option.disas2.349065480" name="反汇编不跳过0内容输出" superClass="com.chipon32.chiponide.core.option.disas2" value="true" valueType="boolean"/>
+								<option id="com.chipon32.chiponide.core.option.outhexfile.2039411504" name="生成目标可下载hex文件(--kf32-autoihex)" superClass="com.chipon32.chiponide.core.option.outhexfile" value="false" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.981022167" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_RELS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="StdPeriph" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1752729612">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1752729612" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GMakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="elf" artifactName="${ProjName}" buildProperties="" cleanCommand="@rm -rf" description="" errorParsers="org.eclipse.cdt.core.GMakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.debug.1752729612" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug" postbuildStep="rm  -r  &quot;${ProjDirPath}/bin&quot; &amp; mkdir &quot;${ProjDirPath}/bin&quot; ">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1752729612." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1131582336" name="KungFu32 Tool" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.1884308377" name="Debug Platform" osList="solaris,linux,hpux,aix,qnx,win32" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:${ProjName}/${ConfigName}}" id="cdt.managedbuild.target.gnu.builder.exe.debug.664082926" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="KungFu32 构建器" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cc.compiler.exe.debug.2024870177" name="C Compiler Debug" superClass="cdt.managedbuild.tool.gnu.cc.compiler.exe.debug">
+								<option id="com.chipon32.chiponide.core.includepath.687066473" name="Include Path(-I)" superClass="com.chipon32.chiponide.core.includepath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/source&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/driver&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/system/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/system&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${GPUTILS_EXPAND_INCLUDE_PATH}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${GPUTILS_BASIC_INCLUDE_PATH}&quot;"/>
+								</option>
+								<option id="com.chipon32.chiponide.core.define.867156023" name="符号声明( ABC(=1) )" superClass="com.chipon32.chiponide.core.define" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.282852045" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.as.debug.1191847349" name="ChipON Assembler" superClass="cdt.managedbuild.tool.gnu.c.compiler.as.debug">
+								<option id="com.chipon32.chiponide.core.asmDefineSymbols.545098686" name="符号定义( name=value )" superClass="com.chipon32.chiponide.core.asmDefineSymbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input2.1275227106" superClass="cdt.managedbuild.tool.gnu.assembler.input2"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.985101943" name="C Linker Debug" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
+								<option id="com.chipon32.chiponide.core.option4.91023926" name="芯片脚本文件" superClass="com.chipon32.chiponide.core.option4" value="-T&quot;${ProjDirPath}/system/${CHIP_NAME}.ld&quot;" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2088601259" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_RELS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="StdPeriph" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="BootApp.com.chipon32.chiponide.core.projectType.c.1112591108" name="KF32-C" projectType="com.chipon32.chiponide.core.projectType.c"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="false" problemReportingEnabled="false" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/${ProjName}"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>

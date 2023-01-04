@@ -1,0 +1,90 @@
+C51 COMPILER V9.00   PAGE_VIDEO                                                            12/13/2022 09:00:42 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_VIDEO
+OBJECT MODULE PLACED IN .\Object\page_video.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE Source\page_video.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_l
+                    -ib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_video.lst) OBJECT(.\Object\page_video.
+                    -obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          #include "videodetect.h"
+   8          
+   9          #include "page_video.h"
+  10          #include "display.h"
+  11          #include "tw_timer.h"
+  12          #include "mydrivers.h"
+  13          
+  14          unsigned char page_video_process (TW_EVENT* event)
+  15          {
+  16   1              switch(event->type)
+  17   1              {
+  18   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  19   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  20   2                              clear_unmark_area();
+  21   2                              IC_WritByte(TWIC_P1,0x63,0x00);
+  22   2                              clear_alarm_area();
+  23   2                              clear_mark_area();
+  24   2                              tw_td_draw(&main_video);
+  25   2                              sosd_td_enable();
+  26   2                              sosd_enable(DONT_LOAD);
+  27   2                              IC_WritByte(TWIC_P1,0x63,0xf0);
+  28   2                              
+  29   2                              IC_WritByte(TWIC_P0,0x0f,0x40);
+  30   2                              IC_WritByte(TWIC_P0,0x18,0x30);
+  31   2                              IC_WritByte(TWIC_P0,0x19,0x0c);
+  32   2      
+  33   2                              IC_WritByte(TWIC_P0,0x0f,0x00);
+  34   2                              IC_WritByte(TWIC_P0,0x19,0x80);
+  35   2                              IC_WritByte(TWIC_P1,0x13,0x06);
+  36   2      
+  37   2                              /* todo: Write Your Code Here */
+  38   2      
+  39   2                      break;
+  40   2                      case TW_EVENT_TYPE_TIMEOUT:
+  41   2                              tw_timer_close();
+  42   2                              clear_mark_area();
+  43   2                      break;
+  44   2      
+  45   2      
+  46   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  47   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  48   2      
+  49   2                              /* todo: Write Your Code Here */
+  50   2      
+  51   2                      break;
+  52   2      
+  53   2                      default:        /* put to nodify if no process this event */
+C51 COMPILER V9.00   PAGE_VIDEO                                                            12/13/2022 09:00:42 PAGE 2   
+
+  54   2                              return TW_RETURN_NO_PROCESS;
+  55   2      
+  56   2      
+  57   2              }
+  58   1              return TW_RETURN_NONE;
+  59   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    140    ----
+   CONSTANT SIZE    =     74    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

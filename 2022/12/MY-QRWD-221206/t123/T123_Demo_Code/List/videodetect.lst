@@ -1,0 +1,1402 @@
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE VIDEODETECT
+OBJECT MODULE PLACED IN .\Object\videodetect.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE ..\tw_lib\drivers\videodetect.c LARGE OMF2 BROWSE INCDIR(.\Include
+                    -File;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\videodetect.lst) OBJECT(.\Objec
+                    -t\videodetect.obj)
+
+line level    source
+
+   1          /**
+   2           *  @file   videodetect.c
+   3           *  @brief  Video Detect Driver
+   4           *  $Id: videodetect.c,v 1.13 2013/08/27 02:15:40 onejoe Exp $
+   5           *  $Author: onejoe $
+   6           *  $Revision: 1.13 $
+   7           *
+   8           *  Copyright (c) 2011 Terawins Inc. All rights reserved.
+   9           * 
+  10           *  @date   2011/08/12  ken     New file.
+  11           *
+  12           */
+  13          
+  14          #include <reg51.h>
+  15          #include <stdlib.h>
+  16          
+  17          #include "sys.h"
+  18          #include "iccontrol.h"
+  19          #include "reg_tw.h"
+  20          #include "panel.h"
+  21          #include "videodetect.h" 
+  22          #include "cq.h"
+  23          #ifdef CCIR656_DETECT
+              #include "ccir656detect.h"
+              #endif
+  26          /*
+  27          #ifdef VGA_DETECT
+  28              #include "VGAdetect.h"
+  29          #else
+  30              extern void Sync_Mode_Detect(void);
+  31          #endif
+  32          */
+  33          #define VD_Status_P2                    0x3a
+  34          #define VSYNC_PeriodH_P0                0x5b
+  35          #define HSYNC_PeriodH_P0        0x59
+  36          #define VSYNC_PeriodL_P0                0x5a
+  37          
+  38          unsigned char Signalset_times = 0;
+  39          SigState sigstate;
+  40          unsigned short code *VIDEODET_CVD_TAB;
+  41          unsigned short code *VIDEODET_YUV_TAB;
+  42          unsigned short code *VIDEODET_VGA_TAB;
+  43          static unsigned char ASigStd;
+  44          static unsigned char DSigStd;
+  45          static unsigned char VSigStd;
+  46          static unsigned char Pb;
+  47          static unsigned char Pr;
+  48          static unsigned char YPbPrBalance;
+  49          static unsigned char AUTO_DETECT=1;
+  50          /*
+  51           * 摘要 :static unsigned short GetVTotal(unsigned char mode)
+  52           *
+  53           * 描述 :取得vsync total lines
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 2   
+
+  54           *
+  55           * 参数 :unsigned char mode =>　mode =0 直接从　5a 5b计算, mode = 1 根据 vsync total xclk * 32 /hsync xclk
+             -计算
+  56           *
+  57           * 回传值 : 回传所计算的　1 vsync total lines
+  58           *
+  59           * 注意 : 无
+  60          */
+  61          static unsigned short GetVTotal(unsigned char mode)
+  62          {
+  63   1              unsigned short wTemp=1000;
+  64   1              unsigned short wpreTemp=0;
+  65   1              unsigned short VSyncCount=0;
+  66   1              unsigned long dwVSyncCount=0; 
+  67   1              unsigned short HSyncCount=0;
+  68   1              int i;
+  69   1      
+  70   1          if(mode == 0)
+  71   1          {
+  72   2                  wTemp=0;
+  73   2                  for(i=0; i<10; i++)
+  74   2                  {    
+  75   3                          twdDelay(50);
+  76   3                              wTemp = IC_ReadByte(TWIC_P0,0x5B);
+  77   3                          wTemp<<=8;
+  78   3                      wTemp|= IC_ReadByte(TWIC_P0,0x5A);
+  79   3                          if((wTemp<=wpreTemp+1)&&(wTemp>=wpreTemp-1))
+  80   3                          {
+  81   4                                  VSyncCount++;
+  82   4                                  if(VSyncCount>=5)
+  83   4                                          break;
+  84   4                          }
+  85   3                          else
+  86   3                          {
+  87   4                                  wpreTemp = wTemp;
+  88   4                                  VSyncCount = 0;
+  89   4                          }
+  90   3                  }
+  91   2                  return wpreTemp;
+  92   2          }
+  93   1              else
+  94   1              {
+  95   2                      wTemp = IC_ReadByte(TWIC_P0,0x50);
+  96   2                  IC_WritByte(TWIC_P0, 0x50, wTemp | 0x50);//Enable VSYNC counter & Hsync period
+  97   2                  wTemp = 50;
+  98   2                  while(wTemp--)
+  99   2                  {
+ 100   3                          twdDelay(30);
+ 101   3                           //V sync counter is done exit
+ 102   3                          if(IC_ReadByte(TWIC_P0,0x50)&0x20)  //V sync counter is done exit
+ 103   3                              break;
+ 104   3                  }
+ 105   2                      if (wTemp == 0)
+ 106   2                              return 0;
+ 107   2              
+ 108   2                      wTemp = IC_ReadByte(TWIC_P0,0x50);
+ 109   2                  wTemp &= 0xCF;                      //Disable Auto Position
+ 110   2                  IC_WritByte(TWIC_P0, 0x50, wTemp);
+ 111   2                      dwVSyncCount =  IC_ReadByte(TWIC_P0,0x53);
+ 112   2                  dwVSyncCount <<= 8;
+ 113   2                      dwVSyncCount |= IC_ReadByte(TWIC_P0,0x52);
+ 114   2                  dwVSyncCount <<= 8;
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 3   
+
+ 115   2                      dwVSyncCount |= IC_ReadByte(TWIC_P0,0x51);
+ 116   2                  wTemp=0;
+ 117   2              
+ 118   2                  for(i=0; i<10; i++)
+ 119   2                  {   
+ 120   3                              twdDelay(50);
+ 121   3                              HSyncCount = IC_ReadByte(TWIC_P0,0x59);
+ 122   3                          HSyncCount <<= 8;
+ 123   3                              HSyncCount += IC_ReadByte(TWIC_P0,0x58);
+ 124   3                          if((wTemp&0xFF00)==((HSyncCount)&0xFF00))
+ 125   3                                  break;
+ 126   3                          else
+ 127   3                                  wTemp = HSyncCount;
+ 128   3                  }
+ 129   2                  wTemp = dwVSyncCount * 32  / (HSyncCount);
+ 130   2                  //dbg(("YPbPr Active signal std is 0x%bx!", (unsigned short)wTemp) );
+ 131   2                  return wTemp;
+ 132   2              }
+ 133   1      } 
+ 134          
+ 135          /*
+ 136           * 摘要 :unsigned char DataInRage(unsigned short sData, unsigned short tData, unsigned char rData)
+ 137           *
+ 138           * 描述 :确认是否在范围内,一般用来计算vsync hsync跟标准讯号比较,是否在误差内
+ 139           *
+ 140           * 参数 :unsigned short sData (比较的参数一) 计算所得
+ 141           *       unsigned short tData (比较的参数二) 标准数字
+ 142           *       unsigned char rData  (所允许的误差值)
+ 143           *
+ 144           * 回传值 :　1: 在范围内　0:在范围外
+ 145           *
+ 146           * 注意 : 无
+ 147          */
+ 148          unsigned char DataInRage(unsigned short sData, unsigned short tData, unsigned char rData)
+ 149          {
+ 150   1              if((sData<(tData+rData))&&(sData>(tData-rData)))
+ 151   1                      return 1;
+ 152   1              else
+ 153   1                      return 0;
+ 154   1      }
+ 155          
+ 156          /*
+ 157           * 摘要 :void  GainSignal(void)
+ 158           *
+ 159           * 描述 :影像讯号处理程序
+ 160           *
+ 161           * 参数 :无
+ 162           *
+ 163           * 回传值 :无
+ 164           *
+ 165           * 注意 : 无
+ 166          */
+ 167          void  GainSignal(void)
+ 168          {       
+ 169   1          unsigned short regTEMP;
+ 170   1              unsigned char temp_freerun=0;
+ 171   1              unsigned char temp_mode=0;
+ 172   1              unsigned char temp=0;
+ 173   1              unsigned char temp_status=0;
+ 174   1              unsigned char temp_syncchange=0;
+ 175   1              unsigned char tmpSync;
+ 176   1      
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 4   
+
+ 177   1              //DBG_PRINT("\r  GAIN SIGNAL\n\r");
+ 178   1          temp_freerun = IC_ReadByte(TWIC_P0,0x50)&0x04;
+ 179   1              if (sigstate.SigSrc == Src_NONE)
+ 180   1                      return;
+ 181   1              if (sigstate.SigSrc == Src_CVD)
+ 182   1              {
+ 183   2              
+ 184   2                  /*use freerun(P2_50[2] ) and P2_3A[0] to check signal loss */
+ 185   2                      if((IC_ReadByte(TWIC_P2,VD_Status_P2)&0x07 !=0x06))             
+ 186   2                      {
+ 187   3                              sigstate.SigActive = Signal_Lost;       
+ 188   3                              sigstate.DeteSignalType =sigLoss;
+ 189   3                              sigstate.DeteSignalTimes =0;
+ 190   3              
+ 191   3                              //DBG_PRINT("\rvd status=%bx   temp_freerun=%bx\n\r",IC_ReadByte(TWIC_P2,VD_Status_P2)&0x07,temp_freeru
+             -n);
+ 192   3                              /*Blabk screen or open panel => close blue panel */
+ 193   3                              //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+ 194   3                          if((IC_ReadByte(TWIC_P0,0x91)&0x80) )
+ 195   3                      {
+ 196   4                                       sigstate.SigStd=CVBS_UNKNOW;
+ 197   4                           /*blue screen*/
+ 198   4                                       ClosePanel(0x1D, 0xF0, 0x6C);
+ 199   4                                       //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 200   4                              }
+ 201   3                              return;
+ 202   3                  }           
+ 203   2                      
+ 204   2      
+ 205   2      #ifdef TwoSignalSystemMode
+ 206   2                      /* CVD HAVE SINGAL */
+ 207   2                      regTEMP = IC_ReadByte(TWIC_P0, VSYNC_PeriodH_P0);
+ 208   2                      regTEMP<<=8;
+ 209   2                      regTEMP |= IC_ReadByte(TWIC_P0, VSYNC_PeriodL_P0);
+ 210   2                      if(regTEMP > 0x180)
+ 211   2                      regTEMP /=2;
+ 212   2                      
+ 213   2                      if(DataInRage(regTEMP, 0x0107, 7))      //ntsc      
+ 214   2                          temp =NTSC_M;
+ 215   2                      else if(DataInRage(regTEMP, 0x0139, 7)) //pal           
+ 216   2                              temp =PAL_B; 
+ 217   2              
+ 218   2                  /*check standard stable*/
+ 219   2                  if((sigstate.DeteSignalTimes ==0) || (sigstate.DeteSignalType1 == temp))
+ 220   2                  {           
+ 221   3                      if (temp == PAL_B)
+ 222   3                                      twdDelay(10);   
+ 223   3                          sigstate.DeteSignalType1 = temp;
+ 224   3                              sigstate.DeteSignalTimes++;
+ 225   3              
+ 226   3                              if(sigstate.DeteSignalTimes>12 )
+ 227   3                              {
+ 228   4                                      sigstate.DeteSignalType = temp;
+ 229   4                          sigstate.DeteSignalTimes=0;
+ 230   4      #if 1
+ 231   4                                      if(sigstate.DeteSignalType!=sigstate.SigStd)
+ 232   4                                      {
+ 233   5                                      DBG_PRINT ("\r State.DeteSignalType = 0x%bx\n", sigstate.DeteSignalType);
+ 234   5                                      DBG_PRINT ("\r OK State.DeteSignalTimes = 0x%bx\n", sigstate.DeteSignalTimes);
+ 235   5                                      }
+ 236   4      #endif
+ 237   4                              }       
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 5   
+
+ 238   3                  }
+ 239   2                      else
+ 240   2                      {
+ 241   3                          sigstate.DeteSignalTimes=0;
+ 242   3                      }
+ 243   2                      
+ 244   2                  if(sigstate.DeteSignalType != sigstate.SigStd)
+ 245   2                  {
+ 246   3                      #if 0
+                              temp_status = IC_ReadByte(TWIC_P0, 0x50);
+                                      DBG_PRINT ("\r P0_50 = 0x%bx\n", temp_status);
+                              temp_status = IC_ReadByte(TWIC_P2, 0x41);
+                                      DBG_PRINT ("\r P2_41 = 0x%bx\n", temp_status);
+                                      temp_status = IC_ReadByte(TWIC_P0, 0x5A);
+                                      DBG_PRINT ("\r P0_5A = 0x%bx\n", temp_status);
+                              temp_status = IC_ReadByte(TWIC_P0, 0x5B);
+                                      DBG_PRINT ("\r P0_5B = 0x%bx\n", temp_status);
+                                      #endif
+ 256   3              
+ 257   3                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 258   3                      {
+ 259   4                                  /*black screen*/
+ 260   4                                      ClosePanel(0x10, 0x80, 0x80);
+ 261   4                                      //DBG_PRINT("\r standard change close panel BLACK 3!!!\n\r");
+ 262   4                              }
+ 263   3                  }
+ 264   2                      else if(sigstate.DeteSignalType != sigLoss && (IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 265   2                      {
+ 266   3                              OpenPanel();
+ 267   3                      }
+ 268   2      #else
+                              regTEMP = IC_ReadByte(TWIC_P2,0x41)&0x07;
+              
+                              switch(regTEMP)
+                          {
+                                      case 0x00:
+                                                   temp =NTSC_M;
+                                                       break;
+                                                       
+                                      case 0x01:
+                                                       temp =PAL_B;
+                                                       break;
+                      
+                                      case 0x02:
+                                                       temp =PAL_M;
+                                                       break;
+                      
+                                      case 0x03:
+                                                       temp =PAL_N;
+                                                       break;
+                      
+                                      case 0x04:
+                                                       temp =SECAM;
+                                                       break;
+              
+                                      case 0x05:
+                                                       temp =NTSC_443;
+                                                       break;
+                                                       
+                                      default: 
+                                                      temp =sigLoss;
+                                                      break;
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 6   
+
+                              }       
+                              
+                              /*check standard stable*/
+                          if((sigstate.DeteSignalTimes ==0) || (sigstate.DeteSignalType1 == temp))
+                          {           
+                              if (temp == PAL_B)
+                                              twdDelay(100);  
+                                  sigstate.DeteSignalType1 = temp;
+                                      sigstate.DeteSignalTimes++;
+                                      twdDelay(100);
+                                      if(sigstate.DeteSignalTimes>12 )
+                                      {
+                                              sigstate.DeteSignalType = temp;
+                                  sigstate.DeteSignalTimes=0;
+              #if 1
+                                              if(sigstate.DeteSignalType!=sigstate.SigStd)
+                                              {
+                                              DBG_PRINT ("\r State.DeteSignalType = 0x%bx\n", sigstate.DeteSignalType);
+                                              DBG_PRINT ("\r OK State.DeteSignalTimes = 0x%bx\n", sigstate.DeteSignalTimes);
+                                              }
+              #endif
+                                      }       
+                          }
+                              else
+                              {
+                                  sigstate.DeteSignalTimes=0;
+                              }
+                              
+                              
+              #endif //ManySignalSystemMode
+ 330   2                      if(temp != sigstate.SigStd)
+ 331   2                                      {
+ 332   3                      #if 0
+                                                      temp_status = IC_ReadByte(TWIC_P0, 0x50);
+                                                      DBG_PRINT ("\r P0_50 = 0x%bx\n", temp_status);
+                                                      temp_status = IC_ReadByte(TWIC_P2, 0x41);
+                                                      DBG_PRINT ("\r P2_41 = 0x%bx\n", temp_status);
+                                                      temp_status = IC_ReadByte(TWIC_P0, 0x5A);
+                                                      DBG_PRINT ("\r P0_5A = 0x%bx\n", temp_status);
+                                                      temp_status = IC_ReadByte(TWIC_P0, 0x5B);
+                                                      DBG_PRINT ("\r P0_5B = 0x%bx\n", temp_status);
+                                      #endif
+ 342   3                              
+ 343   3                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 344   3                                              {
+ 345   4                                                      /*black screen*/
+ 346   4                                                      ClosePanel(0x10, 0x80, 0x80);
+ 347   4                                                      //DBG_PRINT("\r standard change close panel BLACK 3!!!\n\r");
+ 348   4                                              }
+ 349   3                                      }
+ 350   2      
+ 351   2                      return;
+ 352   2              }       
+ 353   1      
+ 354   1              else if (sigstate.SigSrc == Src_YUV)
+ 355   1              {
+ 356   2                      temp=IC_ReadByte(TWIC_P6,0x12)&0x0F;
+ 357   2                      IC_WritByte(TWIC_P6,0x12,0x3F);
+ 358   2                      /* NO SINGAL */
+ 359   2                      if( (temp&0x03)==0x03 ||  (temp&0x22)==0x02 )
+ 360   2              {
+ 361   3                  if(sigstate.SigActive != Signal_Lost)
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 7   
+
+ 362   3                  {
+ 363   4                      /*Close Panel*/ 
+ 364   4                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+ 365   4                              {
+ 366   5                                               sigstate.SigStd=YUV_UNKNOW;
+ 367   5                                      /*blue screen*/
+ 368   5                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 369   5                                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 370   5                              }
+ 371   4                  }
+ 372   3                      sigstate.SigActive = Signal_Lost; 
+ 373   3              }
+ 374   2                      /* HAVE SINGLE */
+ 375   2                      else
+ 376   2                      {
+ 377   3                              
+ 378   3                  if(sigstate.SigActive == Signal_Set)
+ 379   3                  {
+ 380   4                      tmpSync = IC_ReadByte(TWIC_P6,0x12)&0x0F;
+ 381   4                              IC_WritByte(TWIC_P6,0x12,0x3F); 
+ 382   4                              tmpSync = tmpSync&0x0C;
+ 383   4          
+ 384   4                              /*Sync change*/
+ 385   4                              if(tmpSync == 0x0C)
+ 386   4                              {
+ 387   5                                  /*Close Panel*/ 
+ 388   5                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 389   5                                      {
+ 390   6                                              /*black screen*/
+ 391   6                                                      ClosePanel(0x10, 0x80, 0x80);
+ 392   6                                                      //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+ 393   6                                      }
+ 394   5                                  
+ 395   5                              }
+ 396   4                                      else if((tmpSync&0x03)==0x03)
+ 397   4                                      {
+ 398   5                                              if(sigstate.SigActive != Signal_Lost)
+ 399   5                              {
+ 400   6                                      /*Close Panel*/ 
+ 401   6                                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+ 402   6                                              {
+ 403   7                                                      /*blue screen*/
+ 404   7                                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 405   7                                                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 406   7                                              }
+ 407   6                                       }
+ 408   5                                      sigstate.SigActive = Signal_Lost; 
+ 409   5                                      }
+ 410   4                              else
+ 411   4                              {
+ 412   5                                  /*Open Panel*/ 
+ 413   5                                      if((IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 414   5                                  {   
+ 415   6                                      if((sigstate.SigStd!=CVBS_UNKNOW)  && (sigstate.SigStd!=YUV_UNKNOW))
+ 416   6                                      {
+ 417   7                                  OpenPanel();         
+ 418   7                                      }
+ 419   6                                              
+ 420   6                                  }
+ 421   5                              }
+ 422   4                  }
+ 423   3          
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 8   
+
+ 424   3                      if(sigstate.SigActive == Signal_Lost)
+ 425   3                      {
+ 426   4      #ifdef YPBPR_COLOR_CALIBRATION                                          
+ 427   4                                      if (YPbPrBalance == 0)
+ 428   4                                      {
+ 429   5                                              YPbPr_ADC_Auto_offset_reset();
+ 430   5                                              YPbPr_ADC_Auto_offset();
+ 431   5                                              twdDelay(2000);
+ 432   5                                              Pb=IC_ReadByte(TWIC_P0, adc_blue_offset);
+ 433   5                                              Pr=IC_ReadByte(TWIC_P0, adc_red_offset);
+ 434   5                                              YPbPrBalance=1;
+ 435   5                                              sigstate.YUV_CALIBRATION = YPbPrBalance;
+ 436   5                                      //      VideoSave();
+ 437   5                                      }       
+ 438   4      #endif
+ 439   4                          sigstate.SigActive = Signal_Active;
+ 440   4                              /*Close Panel*/
+ 441   4                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80) || (IC_ReadByte(TWIC_P0,0x9D) == 0x10))
+ 442   4                          {
+ 443   5                              /*blue screen*/
+ 444   5                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 445   5                                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 446   5                                  }
+ 447   4                              
+ 448   4                      }
+ 449   3              }
+ 450   2                              
+ 451   2              }
+ 452   1      #ifdef VGA_DETECT       
+                      else if (sigstate.SigSrc == Src_VGA)
+                      {
+                      //DBG_PRINT("\r 1.sigstate.SigActive = 0x%d\n\r",(int)sigstate.SigActive);
+                              //twdDelay(500);
+                              
+                              temp=IC_ReadByte(TWIC_P6,0x12)&0x0F;
+                              IC_WritByte(TWIC_P6,0x12,0x3F);
+                              /* NO SINGAL */
+                              if( (temp&0x03)==0x03 ||  (temp&0x22)==0x02 )
+                      {
+                      //      Sync_Mode_Detect();
+                          if(sigstate.SigActive != Signal_Lost)
+                          {
+                              /*Close Panel*/ 
+                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+                                      {
+                                                       sigstate.SigStd=VGA_UNKNOW;
+                                              /*blue screen*/
+                                                      ClosePanel(0x1D, 0xF0, 0x6C);
+                                                      //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+                                      }
+                          }
+                              sigstate.SigActive = Signal_Lost; 
+                      }
+                              /* HAVE SINGLE */
+                              else
+                              {       
+                          if(sigstate.SigActive == Signal_Set)
+                          {
+                              //twdDelay(500);
+              #if 0                           
+                              tmpSync = IC_ReadByte(TWIC_P6,0x12)&0x0F;
+                                              //DBG_PRINT("\r -->tmpSync = 0x%x\n\r",(int)tmpSync);
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 9   
+
+                                      IC_WritByte(TWIC_P6,0x12,0x3F); 
+                                      tmpSync = tmpSync&0x0C;
+              #endif    
+                                      /*Sync change*/
+                                      if((temp && 0x08) || (temp && 0x04))
+                                      {
+                                          /*Close Panel*/ 
+                                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+                                              {
+                                                      /*black screen*/
+                                                              ClosePanel(0x10, 0x80, 0x80);
+                                                              //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+                                              }
+                                          sigstate.SigActive = Signal_Lost; 
+                                      }
+              #if 0                           
+                                              else if((tmpSync&0x03)==0x03)
+                                              {
+                                                      if(sigstate.SigActive != Signal_Lost)
+                                      {
+                                              /*Close Panel*/ 
+                                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+                                                      {
+                                                              /*blue screen*/
+                                                                      ClosePanel(0x1D, 0xF0, 0x6C);
+                                                                      //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+                                                      }
+                                               }
+                                              sigstate.SigActive = Signal_Lost; 
+                                              }
+              #endif
+                                      else
+                                      {
+                                          /*Open Panel*/ 
+                                              if((IC_ReadByte(TWIC_P0,0x91)&0x80))
+                                          {   
+                                              if((sigstate.SigStd!=CVBS_UNKNOW)  && (sigstate.SigStd!=YUV_UNKNOW))
+                                              {
+                                          OpenPanel();         
+                                              }
+                                                      
+                                          }
+                                      }
+                          }
+                              if(sigstate.SigActive == Signal_Lost)
+                              {
+                                  sigstate.SigActive = Signal_Active;
+                                              DBG_PRINT("1.SET Signal_Active\n");
+                                      /*Close Panel*/
+                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80) || (IC_ReadByte(TWIC_P0,0x9D) == 0x10))
+                                  {
+                                      /*blue screen*/
+                                                      ClosePanel(0x1D, 0xF0, 0x6C);
+                                          }
+                                      
+                              }
+                      }
+                                      
+                      }
+              #endif
+ 546   1      }
+ 547          /*
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 10  
+
+ 548           * 摘要 :static unsigned char YPbPr_modedetect(unsigned short Hsync_period, unsigned short Vsync_period)        
+ 549           *
+ 550           * 描述 :ypbpr讯号匹配
+ 551           *
+ 552           * 参数 :unsigned short Hsync_period : hsync total dots
+ 553           *　     unsigned short Vsync_period : vysnc total lines
+ 554           *
+ 555           * 回传值 :无
+ 556           *
+ 557           * 注意 : 无
+ 558          */
+ 559          static unsigned char YPbPr_modedetect(unsigned short Hsync_period, unsigned short Vsync_period)                                                                                 
+             -                        
+ 560          {
+ 561   1          unsigned char ypbprmode=0;
+ 562   1      
+ 563   1              if(DataInRage(Hsync_period,0xd688,0x20)&&DataInRage(Vsync_period,0x110,0x10))   
+ 564   1                      ypbprmode=YUV_480I;
+ 565   1          else if(DataInRage(Hsync_period,0x6B42,0x20)&&DataInRage(Vsync_period,0x20d,0x10))
+ 566   1                  ypbprmode=YUV_480P;
+ 567   1              else if(DataInRage(Hsync_period,0xd808,0x20)&&DataInRage(Vsync_period,0x140,0x10))
+ 568   1                      ypbprmode=YUV_576I;
+ 569   1              else if(DataInRage(Hsync_period,0x6c00,0x20)&&DataInRage(Vsync_period,0x271,0x10))
+ 570   1                      ypbprmode=YUV_576P;
+ 571   1              else if(DataInRage(Hsync_period,0x5a01,0x20)&&DataInRage(Vsync_period,0x2f3,0x10))
+ 572   1                      ypbprmode=YUV_720P_50;  
+ 573   1              else if(DataInRage(Hsync_period,0x4b14,0x20)&&DataInRage(Vsync_period,0x2f3,0x10))
+ 574   1                      ypbprmode=YUV_720P_60;
+ 575   1              else if(DataInRage(Hsync_period,0x7802,0x20)&&DataInRage(Vsync_period,0x241,0x10))
+ 576   1                      ypbprmode=YUV_1080I_50;
+ 577   1              else if(DataInRage(Hsync_period,0x6418,0x20)&&DataInRage(Vsync_period,0x241,0x10))      
+ 578   1                      ypbprmode=YUV_1080I_60;
+ 579   1              else
+ 580   1                      ypbprmode= YUV_UNKNOW;
+ 581   1      
+ 582   1              return ypbprmode;
+ 583   1      }
+ 584          #ifdef VGA_DETECT
+              /*
+               * 摘要 :static unsigned char VGA_modedetect(unsigned short Hsync_period, unsigned short Vsync_period)  
+               *
+               * 描述 :vga讯号匹配
+               *
+               * 参数 :unsigned short Hsync_period : hsync total dots
+               *　     unsigned short Vsync_period : vysnc total lines
+               *
+               * 回传值 :无
+               *
+               * 注意 : 无
+              */
+              static unsigned char VGA_modedetect(unsigned short Hsync_period, unsigned short Vsync_period)                                                                                                   
+             -        
+              {
+                  unsigned char vgamode=0;
+                     if(DataInRage(Hsync_period,0x6b3d,0x20)&&DataInRage(Vsync_period,0x20c,0x10))    
+                              vgamode=VGA_720_480;
+                      else if(DataInRage(Hsync_period,0x6bfe,0x20)&&DataInRage(Vsync_period,0x270,0x10))      
+                              vgamode=VGA_720_576;
+                      else if(DataInRage(Hsync_period,0x2908,0x20)&&DataInRage(Vsync_period,0x464,0x10))      
+                      {       vgamode=VGA_1920_1080;
+                              dbg(10, (">>>>> Main Menu page VGA\n\r"));}     
+                      else
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 11  
+
+                              vgamode= VGA_UNKNOW;
+              
+                      return vgamode;
+              
+              }
+              #endif
+ 614          /*
+ 615           * 摘要 :void SignalProcess()   
+ 616           *
+ 617           * 描述 :影像讯号处理程序
+ 618           *
+ 619           * 参数 :无
+ 620           *
+ 621           * 回传值 :无
+ 622           *
+ 623           * 注意 : 无
+ 624          */
+ 625          void SignalProcess()
+ 626          {
+ 627   1              unsigned short tmpData[2];
+ 628   1              unsigned char tmpStd=0; 
+ 629   1              unsigned char temp=0;
+ 630   1      
+ 631   1              if(sigstate.SigSrc == Src_NONE)
+ 632   1                      return;
+ 633   1              //DBG_PRINT ("\rSIGNAL PROCESS\n");
+ 634   1              if (sigstate.SigSrc == Src_CVD)
+ 635   1              {
+ 636   2      
+ 637   2                      if((sigstate.SigStd ==sigstate.DeteSignalType)) 
+ 638   2                      {
+ 639   3                              return; 
+ 640   3                      }
+ 641   2                      sigstate.SigStd =sigstate.DeteSignalType;
+ 642   2                      ASigStd = sigstate.SigStd;
+ 643   2                      //registry_write((unsigned long)&UserData, sizeof(UserData));
+ 644   2                      //VideoSave();
+ 645   2                      if (sigstate.SigStd != sigLoss)
+ 646   2                      {
+ 647   3                              if(sigstate.SigStd != CVBS_UNKNOW)
+ 648   3                              {
+ 649   4                                      //std=VIDEODET_CVD_TAB[sigstate.SigStd];
+ 650   4                                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+ 651   4                                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd+6], CQ_TRIGGER_VSYNC);
+ 652   4                                      //DBG_PRINT("2.SIGNAL ACT=%bd   SRC=%bd STD=%bd type=%bd\r\n",sigstate.SigActive,sigstate.SigSrc,sigstat
+             -e.SigStd,sigstate.DeteSignalType);
+ 653   4                                      DBG_PRINT("\r\nWrite CVBS TABLE__OK!!!\n\r");   
+ 654   4      //                              vde_soft_reset();
+ 655   4      //                              OpenPanel();
+ 656   4      //                              twdDelay(3000);
+ 657   4                              }
+ 658   3                      }
+ 659   2                      else
+ 660   2                      {
+ 661   3                              DBG_PRINT("\rWrite not Signal!!!\n\r"); 
+ 662   3                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+ 663   3                      {
+ 664   4                                       sigstate.SigStd=CVBS_UNKNOW;
+ 665   4                                      ClosePanel(0x1D, 0xF0, 0x6C);
+ 666   4                                      //DBG_PRINT("\r  close panel BLUE 2 !!!\n\r");
+ 667   4                              }
+ 668   3                      }
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 12  
+
+ 669   2                      
+ 670   2              }
+ 671   1              
+ 672   1              else if (sigstate.SigSrc == Src_YUV)
+ 673   1              {
+ 674   2                      if(sigstate.SigActive == Signal_Active)
+ 675   2              {
+ 676   3                               /* READ VSYNC PERIOD */
+ 677   3                      tmpData[1] = GetVTotal(0);
+ 678   3                      
+ 679   3                      twdDelay(800);
+ 680   3                      /* READ HSYNC PERIOD */
+ 681   3                      tmpData[0] = IC_ReadByte(TWIC_P0,0x59);
+ 682   3                      tmpData[0] <<=8;
+ 683   3                      tmpData[0] |= IC_ReadByte(TWIC_P0,0x58);
+ 684   3                      
+ 685   3                      tmpStd=YPbPr_modedetect(tmpData[0], tmpData[1]);
+ 686   3                      DBG_PRINT("YUV Active signal Htotal 0x%x  Vtotal 0x%x std is 0x%bx \n", (unsigned short)tmpData[0], 
+             -(unsigned short)tmpData[1], (unsigned char)tmpStd);
+ 687   3      
+ 688   3                        if( tmpStd != 0)
+ 689   3                      {
+ 690   4                          if( (sigstate.SigStd != tmpStd) || (sigstate.SigActive != Signal_Set))
+ 691   4                          {
+ 692   5                              /*Close Panel*/
+ 693   5                                  if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))       
+ 694   5                          {  
+ 695   6                              /*black screen*/
+ 696   6                                                      ClosePanel(0x10, 0x80, 0x80);
+ 697   6                                                      //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+ 698   6                          }
+ 699   5                                      
+ 700   5                              if(sigstate.SigSrc == Src_YUV)
+ 701   5                              {
+ 702   6                                  sigstate.SigStd = tmpStd;
+ 703   6                                              if(sigstate.SigStd != YUV_UNKNOW)
+ 704   6                                              {
+ 705   7                                                      WriteRegsTable((unsigned char*)VIDEODET_YUV_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+ 706   7                                                              WriteRegsTable((unsigned char*)VIDEODET_YUV_TAB[sigstate.SigStd+8], CQ_TRIGGER_VSYNC);          
+ 707   7                                                              DBG_PRINT ("\r YUV load table Active signal std is 0x%bx\n",tmpStd);
+ 708   7                                                      sigstate.SigActive = Signal_Set;
+ 709   7                                                              DSigStd = sigstate.SigStd;
+ 710   7                                                              //registry_write((unsigned long)&UserData, sizeof(UserData));
+ 711   7                                              //              VideoSave();
+ 712   7                                                              OpenPanel();
+ 713   7                                                              twdDelay(3000); 
+ 714   7                                              }
+ 715   6                                                      else
+ 716   6                                                      {
+ 717   7                                                              sigstate.SigActive = Signal_Lost;
+ 718   7                                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 719   7                                                              return;
+ 720   7                                                      }
+ 721   6                                              
+ 722   6                              }
+ 723   5                          }
+ 724   4                      }
+ 725   3                        
+ 726   3                      }
+ 727   2                      else if(sigstate.SigActive == Signal_Set)
+ 728   2              {
+ 729   3                      temp=IC_ReadByte(TWIC_P6,0x12)&0x0F;
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 13  
+
+ 730   3                              IC_WritByte(TWIC_P6,0x12,0x3F);
+ 731   3                              /* SINGAL CHANGE */
+ 732   3                              if( (temp&0x08)==0x08 || (temp&0x04)==0x04)
+ 733   3                      {
+ 734   4                              /*Close Panel*/ 
+ 735   4                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+ 736   4                          {
+ 737   5                                      /*blue screen*/
+ 738   5                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 739   5                                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 740   5                                  }
+ 741   4                              sigstate.SigActive = Signal_Lost; 
+ 742   4                      }
+ 743   3                              /* NO SINGAL */
+ 744   3                              if( (temp&0x03)==0x03 ||  (temp&0x22)==0x02 )
+ 745   3                      {
+ 746   4                          /*Close Panel*/ 
+ 747   4                                      if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+ 748   4                          {
+ 749   5                                              /*blue screen*/
+ 750   5                                              ClosePanel(0x1D, 0xF0, 0x6C);
+ 751   5                                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+ 752   5                                  }
+ 753   4                              sigstate.SigActive = Signal_Lost; 
+ 754   4                      }
+ 755   3      #if 0
+                                      //twdDelay(800);
+                                      /* READ HSYNC PERIOD */
+                                      tmpData[0] = IC_ReadByte(TWIC_P0,0x59);
+                                      tmpData[0] <<=8;
+                                      tmpData[0] |= IC_ReadByte(TWIC_P0,0x58);
+                                              
+                                      /* READ VSYNC PERIOD */
+                                      tmpData[1] =(Signalset_times==5)? GetVTotal(1):GetVTotal(0);
+                                      tmpStd=YPbPr_modedetect(tmpData[0], tmpData[1]);        
+                                      if( Signalset_times == 5 )      
+                                              Signalset_times=0;
+                                      else
+                                              Signalset_times++; 
+              
+                                      if(sigstate.SigStd != tmpStd)
+                                      {
+                                      sigstate.SigActive = Signal_Active;
+                                              DBG_PRINT("2. SET Signal_Active\n");
+                                              /*Close Panel*/ 
+                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+                                              {
+                                                      /*black screen*/
+                                                              ClosePanel(0x10, 0x80, 0x80);
+                                                              //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+                                              }
+                                      }                                                                       
+              #endif
+ 783   3                      }
+ 784   2              }
+ 785   1      #ifdef VGA_DETECT       
+                      else if (sigstate.SigSrc == Src_VGA)
+                  {
+                      //DBG_PRINT("\r sigstate.SigActive = 0x%d\n\r",(int)sigstate.SigActive);
+                              if(sigstate.SigActive == Signal_Active)
+                      {        
+              #ifdef AUTO_CAL_OUT_TIMING
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 14  
+
+                                      if (SrcVGAProcess(&tmpStd, 0))
+                                      {
+                                              sigstate.SigActive = Signal_Set;
+                                              sigstate.SigStd = tmpStd;
+                                              OpenPanel();
+                                      }
+              #else
+                                      /* READ VSYNC PERIOD */
+                                 tmpData[1] = GetVTotal(0);
+                                                         
+                                 twdDelay(800);
+                                 /* READ HSYNC PERIOD */
+                                 tmpData[0] = IC_ReadByte(TWIC_P0,0x59);
+                                 tmpData[0] <<=8;
+                                 tmpData[0] |= IC_ReadByte(TWIC_P0,0x58);
+              
+                                      tmpStd=VGA_modedetect(tmpData[0], tmpData[1]);
+                                      /* */           
+                                      if( tmpStd != 0)
+                              {
+                                  if( (sigstate.SigStd != tmpStd) || (sigstate.SigActive != Signal_Set))
+                                  {
+                                      /*Close Panel*/
+                                          if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))       
+                                  {  
+                                     
+                                              ClosePanel(0x1D, 0xF0, 0x80);
+                                                      //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+                                              //DBG_PRINT("\r temp_freerun close panel BLACK 1!!!\n\r");
+                                  }   
+                                      if(sigstate.SigSrc == Src_VGA)
+                                      {
+                                          sigstate.SigStd = tmpStd;
+                                                      if(sigstate.SigStd != VGA_UNKNOW)
+                                                      {
+                                                                      //ClosePanel(0x10, 0x80, 0x80);
+                                                                      //ClosePanel(0x1d, 0xf0, 0x80);
+                                                                 WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+                                                                      WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[sigstate.SigStd+3], CQ_TRIGGER_VSYNC);          
+                                                                      DBG_PRINT ("\r VGA load table Active signal std is 0x%bx\n",tmpStd);
+                                                                    sigstate.SigActive = Signal_Set;
+                                                                      VSigStd = sigstate.SigStd;
+                                                                      #if 0
+                                                                      RGBAutoADCGainOffset();
+                                                                      #endif 
+                                                                      //registry_write((unsigned long)&UserData, sizeof(UserData));
+                                                                      //VideoSave();
+                                                              twdDelay(50);
+                                                             OpenPanel();
+                                                                      DBG_PRINT("\r Write_VGATable !!!\n\r");
+                                                                       //  twdDelay(50);
+                                                                      
+                                                                      
+                                                      }
+                                                              else
+                                                              {
+                                                                      sigstate.SigActive = Signal_Lost;
+                                                                      ClosePanel(0x1D, 0xF0, 0x80);
+                                                                      return;
+                                                              }                                       
+                                      }
+                                  }
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 15  
+
+                              }       
+              #endif
+                               }
+                              else if(sigstate.SigActive == Signal_Set)
+                      {
+                              temp=IC_ReadByte(TWIC_P6,0x12)&0x0F;
+                                      IC_WritByte(TWIC_P6,0x12,0x3F);
+                                      /* SINGAL CHANGE */
+                                      if( (temp&0x08)==0x08 || (temp&0x04)==0x04)
+                              {
+                                      /*Close Panel*/ 
+                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+                                  {
+                                                      /*blue screen*/
+                                                      ClosePanel(0x1D, 0xF0, 0x6C);
+                                                      //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+                                          }
+                                      sigstate.SigActive = Signal_Lost; 
+                              }
+                                      /* NO SINGAL */
+                                      if( (temp&0x03)==0x03 ||  (temp&0x22)==0x02 )
+                              {
+                                      /*Close Panel*/ 
+                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80)||(IC_ReadByte(TWIC_P0, FRAME_CRED_CFG_REG) == 0x10))
+                                  {
+                                                      /*blue screen*/
+                                                      ClosePanel(0x1D, 0xF0, 0x6C);
+                                                      //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+                                          }
+                                      sigstate.SigActive = Signal_Lost; 
+                              }       
+              #ifndef AUTO_CAL_OUT_TIMING
+                                      //twdDelay(800);
+                                      /* READ HSYNC PERIOD */
+                                      tmpData[0] = IC_ReadByte(TWIC_P0,0x59);
+                                      tmpData[0] <<=8;
+                                      tmpData[0] |= IC_ReadByte(TWIC_P0,0x58);
+                                              
+                                      /* READ VSYNC PERIOD */
+                                      tmpData[1] =(Signalset_times==5)? GetVTotal(1):GetVTotal(0);
+                                      tmpStd=VGA_modedetect(tmpData[0], tmpData[1]);  
+              
+                                      
+                                      if( Signalset_times == 5 )      
+                                              Signalset_times=0;
+                                      else
+                                              Signalset_times++; 
+                                      if(sigstate.SigStd != tmpStd)
+                                      {
+                                      sigstate.SigActive = Signal_Active;
+                                              /*Close Panel*/ 
+                                              if(!(IC_ReadByte(TWIC_P0,0x91)&0x80))
+                                              {
+                                                      /*black screen*/
+                                                              ClosePanel(0x10, 0x80, 0x80);
+                                              }
+                                      }
+              #endif
+                              } 
+                      }       
+              #endif  
+ 915   1      }       
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 16  
+
+ 916          
+ 917          /*
+ 918           * 摘要 :void SignalProcess()   
+ 919           *
+ 920           * 描述 :影像讯号处理自动侦测
+ 921           *
+ 922           * 参数 :无
+ 923           *
+ 924           * 回传值 :无
+ 925           *
+ 926           * 注意 : 无
+ 927          */
+ 928          void SingalDetect(void)
+ 929          {       
+ 930   1              if(AUTO_DETECT)
+ 931   1              {
+ 932   2              GainSignal();
+ 933   2              SignalProcess();
+ 934   2              }
+ 935   1      }
+ 936          /*
+ 937           * 摘要 :void InitStateVal(void)
+ 938           *
+ 939           * 描述 :初始化sigstate　structure
+ 940           *
+ 941           * 参数 :无
+ 942           *
+ 943           * 回传值 :无
+ 944           *
+ 945           * 注意 : 无
+ 946          */
+ 947          void InitStateVal(void)
+ 948          {
+ 949   1              sigstate.SigActive = Signal_Lost;       
+ 950   1              sigstate.DeteSignalType =CVBS_UNKNOW;
+ 951   1              sigstate.DeteSignalType1 =CVBS_UNKNOW;
+ 952   1          sigstate.DeteSignalTimes =0;
+ 953   1              sigstate.YUV_CALIBRATION =0;
+ 954   1              
+ 955   1              sigstate.VGA_CALIBRATION =0;
+ 956   1              sigstate.VGA_CALIBRATION_Gain_R=0x80;
+ 957   1              sigstate.VGA_CALIBRATION_Gain_G=0x80;
+ 958   1              sigstate.VGA_CALIBRATION_Gain_B=0x80;
+ 959   1              sigstate.VGA_CALIBRATION_Offset_R=0x80;
+ 960   1              sigstate.VGA_CALIBRATION_Offset_G=0x80;
+ 961   1              sigstate.VGA_CALIBRATION_Offset_B=0x80;
+ 962   1      }
+ 963          /*
+ 964           * 摘要 :void YUVInit(void)
+ 965           *
+ 966           * 描述 :YUV初始化
+ 967           *
+ 968           * 参数 :无
+ 969           *
+ 970           * 回传值 :无
+ 971           *
+ 972           * 注意 : 无
+ 973          */
+ 974          void YUVInit(void)
+ 975          {
+ 976   1              dbg(0, ("DSigStd = 0x%bx\n\r",DSigStd));
+ 977   1              dbg(0, ("ASigStd = 0x%bx\n\r",ASigStd));
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 17  
+
+ 978   1              sigstate.SigSrc = Src_YUV;
+ 979   1              sigstate.SigStd=DSigStd;
+ 980   1              
+ 981   1              WriteRegsTable((unsigned char*)VIDEODET_YUV_TAB[0], CQ_TRIGGER_VSYNC);
+ 982   1              if ((sigstate.YUV_CALIBRATION == 0) && (YPbPrBalance == 1))
+ 983   1              {
+ 984   2                      IC_WritByte(TWIC_P0, adc_blue_offset,Pb);
+ 985   2                      IC_WritByte(TWIC_P0, adc_red_offset,Pr);
+ 986   2                      sigstate.YUV_CALIBRATION = 1;
+ 987   2              }
+ 988   1              if(sigstate.SigStd != YUV_UNKNOW)
+ 989   1              {
+ 990   2                      WriteRegsTable((unsigned char*)VIDEODET_YUV_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+ 991   2                      WriteRegsTable((unsigned char*)VIDEODET_YUV_TAB[sigstate.SigStd+8], CQ_TRIGGER_VSYNC);  
+ 992   2                      sigstate.SigActive = Signal_Set;
+ 993   2                      //OpenPanel();
+ 994   2                      twdDelay(3000); 
+ 995   2              }
+ 996   1              else
+ 997   1              {
+ 998   2                      if((IC_ReadByte(TWIC_P0,0x91)&0x80) )
+ 999   2                      {
+1000   3                              /*blue screen*/
+1001   3                              ClosePanel(0x1D, 0xF0, 0x6C);
+1002   3                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+1003   3                      }
+1004   2              }
+1005   1              IC_WritByte(TWIC_P0,0x3a,0x03);
+1006   1              IC_WritByte(TWIC_P0,0x3b,0x03);                                 
+1007   1              IC_WritByte(TWIC_P6,0x12,0x3F); 
+1008   1      
+1009   1      }
+1010          
+1011          /*
+1012           * 摘要 :void  VGA_Auto_xiaozhen_init(void)
+1013           *
+1014           * 描述 :VGA AUTO初始化
+1015           *
+1016           * 参数 :无
+1017           *
+1018           * 回传值 :无
+1019           *
+1020           * 注意 : 无
+1021          */
+1022          
+1023          void  VGA_Auto_xiaozhen_init(void)
+1024          {
+1025   1           
+1026   1              IC_WritByte(TWIC_P0, 0x07, sigstate.VGA_CALIBRATION_Gain_R);
+1027   1              IC_WritByte(TWIC_P0, 0x08, sigstate.VGA_CALIBRATION_Gain_G);
+1028   1              IC_WritByte(TWIC_P0, 0x09, sigstate.VGA_CALIBRATION_Gain_B);
+1029   1              IC_WritByte(TWIC_P0, 0x0a, sigstate.VGA_CALIBRATION_Offset_R);
+1030   1              IC_WritByte(TWIC_P0, 0x0b, sigstate.VGA_CALIBRATION_Offset_G);
+1031   1              IC_WritByte(TWIC_P0, 0x0c, sigstate.VGA_CALIBRATION_Offset_B);
+1032   1              
+1033   1      }
+1034          /*
+1035           * 摘要 :void VGAInit(void)
+1036           *
+1037           * 描述 :VGA 初始化
+1038           *
+1039           * 参数 :无
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 18  
+
+1040           *
+1041           * 回传值 :无
+1042           *
+1043           * 注意 : 无
+1044          */
+1045          
+1046          void VGAInit(void)
+1047          {
+1048   1              dbg(0, ("DSigStd = 0x%bx\n\r",DSigStd));
+1049   1              dbg(0, ("ASigStd = 0x%bx\n\r",ASigStd));
+1050   1              sigstate.SigSrc = Src_VGA;
+1051   1              sigstate.SigStd=VSigStd;//DSigStd;// 1
+1052   1              //sigstate.SigActive = Signal_Set;
+1053   1      
+1054   1      
+1055   1             /*VGA ×O?ˉD￡Oy?COa*/
+1056   1      #if 0
+                         if (sigstate.VGA_CALIBRATION ==0)
+                      {
+                            VGA_Auto_xiaozhen_init();
+                              DBG_PRINT("\r  VGAinit_CALIBATION!\n\r");  
+                      
+                      }
+              #endif  
+1064   1               
+1065   1      
+1066   1              
+1067   1              
+1068   1              #if 1 
+1069   1      
+1070   1              WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[0], CQ_TRIGGER_VSYNC);
+1071   1              //if ((sigstate.DeteSignalType !=sigLoss) || (sigstate.SigStd !=VGA_UNKNOW))
+1072   1              if(sigstate.SigStd != VGA_UNKNOW)
+1073   1              {
+1074   2                      //WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+1075   2                      WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+1076   2                      WriteRegsTable((unsigned char*)VIDEODET_VGA_TAB[sigstate.SigStd+1], CQ_TRIGGER_VSYNC);  
+1077   2                      sigstate.SigActive = Signal_Set;
+1078   2              
+1079   2                      twdDelay(100);  //3000
+1080   2                   DBG_PRINT("\r  sigstate.SigStd != VGA_UNKNOW  !!!\n\r");
+1081   2              }
+1082   1              else
+1083   1              {
+1084   2                      if((IC_ReadByte(TWIC_P0,0x91)&0x80) )
+1085   2                      {
+1086   3                              /*blue screen*/
+1087   3                              //ClosePanel(0x1D, 0xF0, 0x6C); 
+1088   3                                      //ClosePanel(0x10, 0x80, 0x80);
+1089   3                                              sigstate.SigActive = Signal_Set;
+1090   3                              DBG_PRINT("\r  VGAinit_close panel BLack  !!!\n\r");
+1091   3                      }
+1092   2              }
+1093   1              #endif
+1094   1              IC_WritByte(TWIC_P0,0x3a,0x03);
+1095   1              IC_WritByte(TWIC_P0,0x3b,0x03);
+1096   1              IC_WritByte(TWIC_P6,0x12,0x3F); 
+1097   1              //Sync_Mode_Detect();
+1098   1      } 
+1099          /*
+1100           * 摘要 :void CVDInit(void)
+1101           *
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 19  
+
+1102           * 描述 :CVD 初始化
+1103           *
+1104           * 参数 :无
+1105           *
+1106           * 回传值 :无
+1107           *
+1108           * 注意 : 无
+1109          */
+1110          void CVDInit(void)
+1111          {
+1112   1              sigstate.SigSrc = Src_CVD;
+1113   1              sigstate.SigStd=ASigStd;
+1114   1              dbg(2, ("data=%x %x\n",VIDEODET_CVD_TAB[0],VIDEODET_CVD_TAB[1]));
+1115   1              WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[0], CQ_TRIGGER_VSYNC);
+1116   1              twdDelay(300);  
+1117   1      #ifdef  TwoSignalSystemMode                             
+1118   1              if (sigstate.SigStd == CVBS_UNKNOW)
+1119   1                      sigstate.SigStd =NTSC_M;
+1120   1      #endif
+1121   1              if ((sigstate.DeteSignalType !=sigLoss) || (sigstate.SigStd !=CVBS_UNKNOW))
+1122   1              {
+1123   2                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+1124   2                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd+6], CQ_TRIGGER_VSYNC);                  
+1125   2                      twdDelay(3000);
+1126   2              }       
+1127   1              else
+1128   1              {
+1129   2                      if((IC_ReadByte(TWIC_P0,0x91)&0x80) )
+1130   2                      {
+1131   3                              /*blue screen*/
+1132   3                              ClosePanel(0x1D, 0xF0, 0x6C);
+1133   3                              //DBG_PRINT("\r  close panel BLUE  !!!\n\r");
+1134   3                      }
+1135   2                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd], CQ_TRIGGER_VSYNC);
+1136   2                      WriteRegsTable((unsigned char*)VIDEODET_CVD_TAB[sigstate.SigStd+6], CQ_TRIGGER_VSYNC);                  
+1137   2                      twdDelay(3000);
+1138   2              }
+1139   1      
+1140   1      }
+1141          
+1142          /* auto detection init */
+1143          /*
+1144           * 摘要 :void auto_detection_init(unsigned short code *IML_CVBS_TAB,unsigned short code *IML_YUV_TAB,unsig
+             -ned short code *IML_VGA_TAB)
+1145           *
+1146           * 描述 :AUTO DETECTION 初始化,并载入预设的TABLE
+1147           *
+1148           * 参数 :unsigned short code *IML_CVBS_TAB  =>cvbs预设tablre
+1149           *       unsigned short code *IML_YUV_TAB   =>yuv预设table
+1150           *       unsigned short code *IML_VGA_TAB   =>vga预设table
+1151           *
+1152           * 回传值 :无
+1153           *
+1154           * 注意 : 无
+1155          */
+1156          #if 1
+1157          void auto_detection_init(unsigned short code *IML_CVBS_TAB,unsigned short code *IML_YUV_TAB,unsigned short
+             - code *IML_VGA_TAB)
+1158          {
+1159   1              unsigned char i=0;
+1160   1              VIDEODET_YUV_TAB= IML_YUV_TAB;
+1161   1              VIDEODET_CVD_TAB= IML_CVBS_TAB;
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 20  
+
+1162   1              VIDEODET_VGA_TAB= IML_VGA_TAB;
+1163   1              dbg(2, ("YUV=%d CVD=%d\n VGA=%d\n",(int)sizeof(IML_YUV_TAB[0]),(int)sizeof(IML_CVBS_TAB[0]),(int)sizeof(I
+             -ML_VGA_TAB[0])));
+1164   1      }
+1165          #endif
+1166          /*
+1167           * 摘要 :void auto_detection_ctrl(unsigned char en)
+1168           *
+1169           * 描述 :是否允许AUTO DETECTION
+1170           *
+1171           * 参数 :unsigned char en　=> 1= 使能　0=关闭
+1172           *
+1173           * 回传值 :无
+1174           *
+1175           * 注意 : 无
+1176          */
+1177          void auto_detection_ctrl(unsigned char en)
+1178          {
+1179   1              if (en)
+1180   1              {
+1181   2                      AUTO_DETECT=1;
+1182   2              }
+1183   1              else
+1184   1              {
+1185   2                      AUTO_DETECT=0;
+1186   2                      sigstate.SigSrc = Src_NONE;
+1187   2              }
+1188   1      }
+1189          /*
+1190           * 摘要 :bit YPbPr_ADC_Auto_offset(void)
+1191           *
+1192           * 描述 :YPBPR ADC AUTO OFFSET 自动校正ADC
+1193           *
+1194           * 参数 :无
+1195           *
+1196           * 回传值 :　1=完成　0=失败
+1197           *
+1198           * 注意 : 无
+1199          */
+1200          #ifdef YPBPR_COLOR_CALIBRATION
+1201          bit YPbPr_ADC_Auto_offset(void)
+1202          {
+1203   1              bit rc=0;
+1204   1              IC_WritByte(TWIC_P0, adc_red_offset, 0x60);//adc red offset
+1205   1              IC_WritByte(TWIC_P0, adc_blue_offset, 0X60);//adc blue offset
+1206   1              
+1207   1              IC_WritByte(TWIC_P0,boundary_control,IC_ReadByte(TWIC_P0,boundary_control)|0X80);//boundary detect enable
+1208   1              
+1209   1              IC_WritByte(TWIC_P1, color_range_probe, 0XE1);//check range enable
+1210   1              IC_WritByte(TWIC_P1, color_probe_x_low, 0X0D);//probe x low byte 
+1211   1              IC_WritByte(TWIC_P1, color_porbe_x_high, 0X00);//probe x high byte
+1212   1              
+1213   1              IC_WritByte(TWIC_P1, color_probe_y_low, 0X78);//probe y low byte
+1214   1              IC_WritByte(TWIC_P1, color_porbe_y_high, 0X00);//probe y high byte
+1215   1      
+1216   1              IC_WritByte(TWIC_P1, color_probe_pixel_count, 0X10);//probe pixel count number
+1217   1      
+1218   1              IC_WritByte(TWIC_P3, auto_offset_low_boundary,  0X60);//setting low boundary
+1219   1              IC_WritByte(TWIC_P3, auto_offset_high_boundary, 0XFF);//setting high boundary
+1220   1              IC_WritByte(TWIC_P3, auto_offset_threshold, 0X10);//setting threshold
+1221   1              
+1222   1              IC_WritByte(TWIC_P3, auto_offset_setting, 0X08);//polarity setting
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 21  
+
+1223   1              IC_WritByte(TWIC_P3, auto_offset_setting, 0X09);//enable auto offset
+1224   1              if(IC_ReadByte(TWIC_P3,auto_offset_setting)&0x80)//check the status
+1225   1                      rc=1;//done
+1226   1              else
+1227   1                      rc=0;//fail
+1228   1              return rc;
+1229   1      }
+1230          /*
+1231           * 摘要 :bit YPbPr_ADC_Auto_offset(void)
+1232           *
+1233           * 描述 :YPBPR ADC AUTO RESET 自动校正ADC重置
+1234           *
+1235           * 参数 :无
+1236           *
+1237           * 回传值 :无
+1238           *
+1239           * 注意 : 无
+1240          */
+1241          void YPbPr_ADC_Auto_offset_reset(void)
+1242          {
+1243   1              if(IC_ReadByte(TWIC_P3,auto_offset_setting)&0x80);//check status if done 
+1244   1              {
+1245   2                      IC_WritByte(TWIC_P3,auto_offset_setting,IC_ReadByte(TWIC_P3,auto_offset_setting)&~0x01);//first clear bi
+             -t 1
+1246   2                      IC_WritByte(TWIC_P3,auto_offset_setting,0X82);//second setting reset bit enable
+1247   2                      IC_WritByte(TWIC_P3,auto_offset_setting,0X00);//second clear reset bit
+1248   2              }
+1249   1      }
+1250          #endif
+1251          
+1252          #if 0
+              void VideoSet(unsigned char _vASigStd,unsigned char _vDSigStd,unsigned char _Pb,unsigned char _Pr,unsigned
+             - char _YPbPrBalance)
+              {
+                      ASigStd = _vASigStd;
+                      DSigStd = _vDSigStd;
+                      VSigStd = _vVSigStd;
+                      Pb = _Pb;
+                      Pr = _Pr;
+                      YPbPrBalance = _YPbPrBalance;
+              }
+              #else
+1263          /*
+1264           * 摘要 :void VideoSet(unsigned char _vVSigStd,unsigned char _vASigStd,unsigned char _vDSigStd,unsigned ch
+             -ar _Pb,unsigned char _Pr,unsigned char _YPbPrBalance)
+1265           *
+1266           * 描述 :影像参数设置
+1267           *
+1268           * 参数 :unsigned char _vVSigStd　  =>VGA讯号源　如640X480
+1269                          unsigned char _vASigStd     =>CVBS讯号源　如NTSC PAL
+1270                          unsigned char _vDSigStd     =>YPBPR序号源　如480P
+1271                          unsigned char _Pb           =>adc_blue_offset
+1272                          unsigned char _Pr           =>adc_red_offset
+1273                          unsigned char _YPbPrBalance =>YPbPrBalance 是否AUTO OFFSET设定完毕　0:尚未　1:以校正
+1274           *
+1275           * 回传值 :无
+1276           *
+1277           * 注意 : 无
+1278          */
+1279          void VideoSet(unsigned char _vVSigStd,unsigned char _vASigStd,unsigned char _vDSigStd,unsigned char _Pb,un
+             -signed char _Pr,unsigned char _YPbPrBalance)
+1280          {
+C51 COMPILER V9.00   VIDEODETECT                                                           12/13/2022 09:00:39 PAGE 22  
+
+1281   1              ASigStd = _vASigStd;
+1282   1              DSigStd = _vDSigStd;
+1283   1              VSigStd = _vVSigStd;
+1284   1              Pb = _Pb;
+1285   1              Pr = _Pr;
+1286   1              YPbPrBalance = _YPbPrBalance;
+1287   1      }
+1288          #endif
+1289          #if 0
+              void VideoSave(void)
+              {       
+                      RUserData VideoData;
+                      
+                      VideoData.vASigStd=ASigStd;
+                      VideoData.vDSigStd=DSigStd;
+                      VideoData.Pb=Pb;
+                      VideoData.Pr=Pr;
+                      VideoData.YPbPrBalance=YPbPrBalance;//finish tag
+                      //registry_write((unsigned long)&VideoData, sizeof(VideoData));
+              }
+              #endif
+1302          /*
+1303           * 摘要 :void vde_soft_reset()
+1304           *
+1305           * 描述 :VDE SOFTWARE RESRT VDE重置
+1306           *
+1307           * 参数 :无
+1308           *
+1309           * 回传值 :无
+1310           *
+1311           * 注意 : 无
+1312          */
+1313          void vde_soft_reset()
+1314          {
+1315   1              IC_WritByte(TWIC_P2,0X3F,0X01);
+1316   1              twdDelay(200);
+1317   1              IC_WritByte(TWIC_P2,0X3F,0X00);
+1318   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3880    ----
+   CONSTANT SIZE    =    408    ----
+   XDATA SIZE       =     30      45
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

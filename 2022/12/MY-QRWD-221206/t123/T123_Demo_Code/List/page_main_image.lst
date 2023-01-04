@@ -1,0 +1,100 @@
+C51 COMPILER V9.00   PAGE_MAIN_IMAGE                                                       07/15/2015 17:01:05 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_MAIN_IMAGE
+OBJECT MODULE PLACED IN .\Object\page_main_image.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\page_main_image.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\s
+                    -ys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_main_image.lst) TABS(2) OBJECT(.\Object\pa
+                    -ge_main_image.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          #include "tw_timer.h"
+   8          
+   9          #include "page_main_image.h"
+  10          
+  11          unsigned char page_main_image_process (TW_EVENT* event)
+  12          {
+  13   1        switch(event->type)
+  14   1        {
+  15   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  16   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  17   2      
+  18   2            /* todo: Write Your Code Here */
+  19   2            tw_td_draw(&main_z);
+  20   2            sosd_td_enable();
+  21   2            sosd_enable(DONT_LOAD);
+  22   2            
+  23   2            //tw_spr_draw(&page_main_image_butterfly_sprige);
+  24   2            //tw_load_emu(ID_EMU_SP_BUTTERFLY_SPRIGE);
+  25   2            //tw_emu_trig();
+  26   2            //sosd_sp_enable(LOAD_LUT);
+  27   2            //tw_spr_draw(&page_main_image_sprite_camera);
+  28   2            //tw_load_emu(ID_SP_SPRITE_CAMERA);
+  29   2            //tw_emu_trig();
+  30   2            //sosd_sp_enable(LOAD_LUT);
+  31   2            
+  32   2      
+  33   2            tw_menu_draw(&page_main_image_osd2_0_menu);//OSD2³õÊ¼»¯
+  34   2            osd_enable();
+  35   2            //tw_icon_draw_adjpos(page_main_image_airc_0_4bp,2,2);
+  36   2            //
+  37   2            //tw_icon_draw_adjpos(page_main_image_airc_1_4bp,48,1);
+  38   2            //tw_icon_draw_adjpos(page_main_image_airc_2_4bp,0,19);
+  39   2            //tw_icon_draw_adjpos(page_main_image_airc_3_4bp,48,19);
+  40   2      
+  41   2          break;
+  42   2          case TW_EVENT_TYPE_TOUCH_DOWN:
+  43   2            tw_spr_draw(&page_main_image_butterfly_sprige);
+  44   2            tw_load_emu(ID_EMU_SP_BUTTERFLY_SPRIGE);
+  45   2            tw_emu_trig();
+  46   2            sosd_sp_enable(LOAD_LUT);
+  47   2            tw_icon_draw(&page_main_image_airc_0_4bp);
+  48   2            osd_enable();
+  49   2            tw_timer_open(200);
+  50   2      
+  51   2          break;
+  52   2          case TW_EVENT_TYPE_TIMEOUT:
+  53   2            sosd_sp_disable();
+C51 COMPILER V9.00   PAGE_MAIN_IMAGE                                                       07/15/2015 17:01:05 PAGE 2   
+
+  54   2            osd_disable();
+  55   2          break;
+  56   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  57   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  58   2      
+  59   2            /* todo: Write Your Code Here */
+  60   2      
+  61   2          break;
+  62   2      
+  63   2          default:  /* put to nodify if no process this event */
+  64   2            return TW_RETURN_NO_PROCESS;
+  65   2      
+  66   2      
+  67   2        }
+  68   1        return TW_RETURN_NONE;
+  69   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    114    ----
+   CONSTANT SIZE    =     79    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

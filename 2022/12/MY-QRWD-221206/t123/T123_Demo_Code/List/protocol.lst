@@ -1,0 +1,1014 @@
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PROTOCOL
+OBJECT MODULE PLACED IN .\Object\protocol.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SourceFile\protocol.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\sys;
+                    -..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\protocol.lst) TABS(2) OBJECT(.\Object\protocol.obj
+                    -)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "protocol.h"
+   3          #include "serial.h"
+   4          #include "Res.h"
+   5          
+   6          #include "page_main_internal.h"
+   7          
+   8          unsigned char parameter[5];
+   9          unsigned char status[4][8];   //状态信息
+  10          unsigned char status_module;
+  11          unsigned char set_position;
+  12          unsigned char set_action;
+  13          unsigned char set_cmd;      //功能确认寄存器
+  14          unsigned char system_page;    //当前页面
+  15          unsigned char TV_page;      //当前视频
+  16          unsigned char air_post_1;   //气压柱1
+  17          unsigned char air_post_2;   //气压柱2
+  18          bit buzzer;           //蜂鸣器状态
+  19          unsigned char fault_number;   //故障号码
+  20          
+  21          SYS_PARAMETER system_parameter_A2;
+  22          SYS_PARAMETER system_parameter_A3;
+  23          SYS_PARAMETER system_parameter_A4;
+  24          SYS_PARAMETER system_parameter_A13;
+  25          SYS_PARAMETER system_parameter_A14;
+  26          SYS_PARAMETER system_parameter_A5;
+  27          SYS_PARAMETER system_parameter_A15;
+  28          SYS_PARAMETER system_parameter_front_J5_2;
+  29          SYS_PARAMETER system_parameter_front_J5_3;
+  30          SYS_PARAMETER system_parameter_front_J5_4;
+  31          SYS_PARAMETER system_parameter_front_J5_5;
+  32          SYS_PARAMETER system_parameter_front_J6_1;
+  33          SYS_PARAMETER system_parameter_front_J6_4;
+  34          SYS_PARAMETER system_parameter_front_J6_5;
+  35          SYS_PARAMETER system_parameter_rear_J5_2;
+  36          SYS_PARAMETER system_parameter_rear_J5_3;
+  37          SYS_PARAMETER system_parameter_rear_J5_4;
+  38          SYS_PARAMETER system_parameter_rear_J5_5;
+  39          SYS_PARAMETER system_parameter_rear_J6_1;
+  40          SYS_PARAMETER system_parameter_rear_J6_4;
+  41          SYS_PARAMETER system_parameter_rear_J6_5;
+  42          SYS_PARAMETER system_parameter_top_J5_2;
+  43          SYS_PARAMETER system_parameter_top_J5_3;
+  44          SYS_PARAMETER system_parameter_top_J5_4;
+  45          SYS_PARAMETER system_parameter_top_J5_5;
+  46          SYS_PARAMETER system_parameter_top_J6_1;
+  47          SYS_PARAMETER system_parameter_top_J6_4;
+  48          SYS_PARAMETER system_parameter_top_J6_5;
+  49          
+  50          SYS_SIGNAL system_signal;
+  51          SYS_TIME system_time;
+  52          SYS_TIME system_temp_time;
+  53          SYS_MEILAGE system_meilage;
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 2   
+
+  54          S code fault_map[255] = 
+  55          {
+  56            {0x00,&page_main_internal_fault_red_0},
+  57            {0x01,&page_main_internal_fault_red_1},
+  58            {0x02,&page_main_internal_fault_red_2},
+  59            {0x03,&page_main_internal_fault_red_3},
+  60            {0x04,&page_main_internal_fault_red_4},
+  61            {0x05,&page_main_internal_fault_red_5},
+  62            {0x06,&page_main_internal_fault_red_6},
+  63            {0x07,&page_main_internal_fault_red_7},
+  64            {0x08,&page_main_internal_fault_red_8},
+  65            {0x09,&page_main_internal_fault_red_9},
+  66            {0x0a,&page_main_internal_fault_red_10},
+  67            {0x0b,&page_main_internal_fault_red_11},
+  68            {0x0c,&page_main_internal_fault_red_12},
+  69            {0x0d,&page_main_internal_fault_red_13},
+  70            {0x0e,&page_main_internal_fault_red_14},
+  71            {0x0f,&page_main_internal_fault_red_15},
+  72            {0x10,&page_main_internal_fault_red_16},
+  73            {0x11,&page_main_internal_fault_red_17},
+  74            {0x12,&page_main_internal_fault_red_18},
+  75            {0x13,&page_main_internal_fault_red_19},
+  76            {0x14,&page_main_internal_fault_red_20},
+  77            {0x15,&page_main_internal_fault_red_21},
+  78            {0x16,&page_main_internal_fault_red_22},
+  79            {0x17,&page_main_internal_fault_red_23},
+  80            {0x18,&page_main_internal_fault_red_24},
+  81            {0x19,&page_main_internal_fault_red_25},
+  82            {0x1a,&page_main_internal_fault_red_26},
+  83            {0x1b,&page_main_internal_fault_red_27},
+  84            {0x1c,&page_main_internal_fault_red_28},
+  85            {0x1d,&page_main_internal_fault_red_29},
+  86            {0x1e,&page_main_internal_fault_red_30},
+  87            {0x1f,&page_main_internal_fault_red_31},
+  88            {0x20,&page_main_internal_fault_red_32},
+  89            {0x21,&page_main_internal_fault_red_33},
+  90            {0x22,&page_main_internal_fault_red_34},
+  91            {0x23,&page_main_internal_fault_red_35},
+  92            {0x24,&page_main_internal_fault_red_36},
+  93            {0x25,&page_main_internal_fault_red_37},
+  94            {0x26,&page_main_internal_fault_red_38},
+  95            {0x27,&page_main_internal_fault_red_39},
+  96            {0x28,&page_main_internal_fault_red_40},
+  97            {0x29,&page_main_internal_fault_red_41},
+  98            {0x2a,&page_main_internal_fault_red_42},
+  99            {0x2b,&page_main_internal_fault_red_43},
+ 100            {0x2c,&page_main_internal_fault_red_44},
+ 101            {0x2d,&page_main_internal_fault_red_45},
+ 102            {0x2e,&page_main_internal_fault_red_46},
+ 103            {0x2f,&page_main_internal_fault_red_47},
+ 104            {0x30,&page_main_internal_fault_red_48},
+ 105            {0x31,&page_main_internal_fault_red_49},
+ 106            {0x32,&page_main_internal_fault_red_50},
+ 107            {0x33,&page_main_internal_fault_red_51},
+ 108            {0x34,&page_main_internal_fault_red_52},
+ 109            {0x35,&page_main_internal_fault_red_53},
+ 110            {0x36,&page_main_internal_fault_red_54},
+ 111            {0x37,&page_main_internal_fault_red_55},
+ 112            {0x38,&page_main_internal_fault_red_56},
+ 113            {0x39,&page_main_internal_fault_red_57},
+ 114            {0x3a,&page_main_internal_fault_red_58},
+ 115            {0x3b,&page_main_internal_fault_red_59},
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 3   
+
+ 116            {0x3c,&page_main_internal_fault_red_60},
+ 117            {0x3d,&page_main_internal_fault_red_61},
+ 118            {0x3e,&page_main_internal_fault_red_62},
+ 119            {0xc8,&page_main_internal_fault_yellow_0},
+ 120            {0xc9,&page_main_internal_fault_yellow_1},
+ 121            {0xca,&page_main_internal_fault_yellow_2},
+ 122            {0xcb,&page_main_internal_fault_yellow_3},
+ 123          };
+ 124          unsigned char code page_map[16][2] =
+ 125          {
+ 126            0x52,ID_PAGE_LOGO,//logo
+ 127            0x01,ID_PAGE_MAIN_INTERNAL,
+ 128            0x02,ID_PAGE_MAIN_MENUS,
+ 129            0x03,ID_PAGE_METER_MOUDLE,
+ 130            0x04,ID_PAGE_FRONT_MOUDLE,
+ 131            0x05,ID_PAGE_REAR_MOUDLE,
+ 132            0x06,ID_PAGE_TOP_MOUDLE,
+ 133            0x07,ID_PAGE_SET_SYSTEM,
+ 134            0x08,ID_PAGE_PASSWORD,
+ 135            0x09,ID_PAGE_PARAMETER,
+ 136            0x10,ID_PAGE_VERSION_MESSAGE,
+ 137            0x11,ID_PAGE_HELP_MESSAGE,
+ 138            0x12,ID_PAGE_RESERVE1,
+ 139            0x13,ID_PAGE_RESERVE2,
+ 140            0x14,ID_PAGE_RESERVE3,
+ 141            0x15,ID_PAGE_VIDEO,
+ 142          };
+ 143          extern unsigned char rev_buf[UART_BUFF_SIZE - 1];
+ 144          void uart1_rev_data(void)
+ 145          {
+ 146   1        unsigned char i;
+ 147   1        switch(rev_buf[1])
+ 148   1        {
+ 149   2          case _uart1_system_page:
+ 150   2            system_page = rev_buf[2];
+ 151   2            set_cmd = _uart1_system_page;
+ 152   2            break;
+ 153   2          case _uart1_TV:
+ 154   2            TV_page = rev_buf[2];
+ 155   2            set_cmd = _uart1_TV;
+ 156   2            break;
+ 157   2          case _uart1_buzzer:
+ 158   2            buzzer = rev_buf[2];
+ 159   2            set_cmd = _uart1_buzzer;
+ 160   2            break;
+ 161   2          case _uart1_fault:
+ 162   2            fault_number = rev_buf[2];
+ 163   2            set_cmd = _uart1_fault;
+ 164   2            break;
+ 165   2          case _uart1_signal:
+ 166   2            system_signal.position = rev_buf[2]; 
+ 167   2            system_signal.show = rev_buf[3]; 
+ 168   2            system_signal.number = rev_buf[4]; 
+ 169   2            system_signal.color = rev_buf[5]; 
+ 170   2            set_cmd = _uart1_signal;
+ 171   2            break;
+ 172   2          case _uart1_air:
+ 173   2            air_post_1 = rev_buf[2]; 
+ 174   2            air_post_2 = rev_buf[3]; 
+ 175   2            set_cmd = _uart1_air;
+ 176   2            break;
+ 177   2          case _uart1_time:
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 4   
+
+ 178   2            system_time.year = rev_buf[2];
+ 179   2            system_time.month = rev_buf[3];
+ 180   2            system_time.day = rev_buf[4];
+ 181   2            //system_time.week = rev_buf[5];
+ 182   2            system_time.hour = rev_buf[6];
+ 183   2            system_time.minute = rev_buf[7];
+ 184   2            system_time.second = rev_buf[8];
+ 185   2            set_cmd = _uart1_time;
+ 186   2            break;
+ 187   2          case _uart1_odo:
+ 188   2            system_meilage.odo[6] = rev_buf[2];
+ 189   2            system_meilage.odo[5] = rev_buf[3];
+ 190   2            system_meilage.odo[4] = rev_buf[4];
+ 191   2            system_meilage.odo[3] = rev_buf[5];
+ 192   2            system_meilage.odo[2] = rev_buf[6];
+ 193   2            system_meilage.odo[1] = rev_buf[7];
+ 194   2            system_meilage.odo[0] = rev_buf[8];
+ 195   2            set_cmd = _uart1_odo;
+ 196   2            break;
+ 197   2          case _uart1_trip:
+ 198   2            system_meilage.trip = rev_buf[2];
+ 199   2            system_meilage.trip <<= 8;
+ 200   2            system_meilage.trip |= rev_buf[3];
+ 201   2            set_cmd = _uart1_trip;
+ 202   2            break;
+ 203   2          case _uart1_status:
+ 204   2            status_module = rev_buf[2];
+ 205   2            for(i=0;i<7;i++)
+ 206   2              status[rev_buf[2]][i] = rev_buf[3 + i];
+ 207   2            set_cmd = _uart1_status;
+ 208   2            break;
+ 209   2          case _uart1_disp_data:
+ 210   2            for(i=0;i<5;i++)
+ 211   2              parameter[i] = rev_buf[2 + i];
+ 212   2            set_cmd = _uart1_disp_data;
+ 213   2            break;
+ 214   2          case _uart1_set_time:
+ 215   2            set_position = rev_buf[2];
+ 216   2            set_action = rev_buf[3];
+ 217   2            set_cmd = _uart1_set_time;
+ 218   2            break;
+ 219   2          default:
+ 220   2            break;
+ 221   2        }
+ 222   1      }
+ 223          
+ 224          void protocol_cmd_event(void)
+ 225          {
+ 226   1        unsigned char i,count;
+ 227   1        unsigned short status_buf[4];
+ 228   1        switch(set_cmd)
+ 229   1        {
+ 230   2          case _uart1_system_page:
+ 231   2            system_page = rev_buf[2];
+ 232   2            set_cmd = _uart1_system_page;
+ 233   2            break;
+ 234   2          case _uart1_TV:
+ 235   2            TV_page = rev_buf[2];
+ 236   2            set_cmd = _uart1_TV;
+ 237   2            break;
+ 238   2          case _uart1_buzzer:
+ 239   2            if(buzzer)
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 5   
+
+ 240   2              open_buzzer();
+ 241   2            else
+ 242   2              close_buzzer();
+ 243   2            break;
+ 244   2          case _uart1_fault:
+ 245   2            if(fault_number == 0xff)
+ 246   2              ;//osd_clear_block(0,18,48,2,page_main_internal_osd2_1_menu.addr,page_main_internal_osd2_1_menu.width)
+             -;
+ 247   2            else
+ 248   2              display_fault_message(fault_number);
+ 249   2            break;
+ 250   2          case _uart1_signal:
+ 251   2            system_signal.position = rev_buf[2]; 
+ 252   2            system_signal.show = rev_buf[3]; 
+ 253   2            system_signal.number = rev_buf[4]; 
+ 254   2            system_signal.color = rev_buf[5]; 
+ 255   2            set_cmd = _uart1_signal;
+ 256   2            break;
+ 257   2          case _uart1_air:
+ 258   2            if(check_page(system_page) == ID_PAGE_MAIN_INTERNAL)
+*** WARNING C206 IN LINE 258 OF SOURCEFILE\PROTOCOL.C: 'check_page': missing function-prototype
+*** ERROR C267 IN LINE 258 OF SOURCEFILE\PROTOCOL.C: 'check_page': requires ANSI-style prototype
+ 259   2              display_air(air_post_1,air_post_2);
+ 260   2            break;
+ 261   2          case _uart1_time:
+ 262   2            if(check_page(system_page) == ID_PAGE_MAIN_INTERNAL)
+ 263   2              display_time();
+ 264   2            break;
+ 265   2          case _uart1_odo:
+ 266   2          case _uart1_trip:
+ 267   2            if(check_page(system_page) == ID_PAGE_MAIN_INTERNAL)
+ 268   2              display_mileage();
+ 269   2            break;
+ 270   2          case _uart1_status:
+ 271   2            if((status_module == METER_MOUDLE) && (check_page(system_page) == ID_PAGE_METER_MODULE))
+*** ERROR C202 IN LINE 271 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_METER_MODULE': undefined identifier
+ 272   2            {
+ 273   3              tw_clear_icon(&page_main_internal_flag_state);
+*** ERROR C202 IN LINE 273 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 274   3              for(i=0;i<3;i++)
+ 275   3              {
+ 276   4                status_buf[i] = status[status_module][1 + i * 2];
+ 277   4                status_buf[i] = (status_buf[i] << 8) & 0xff00;
+ 278   4                status_buf[i] += status[status_module][i * 2];
+ 279   4              }
+ 280   3              for(i=0;i<3;i++)
+ 281   3              {
+ 282   4                for(count=0;count<16;count++)
+ 283   4                {
+ 284   5                  if(status_buf[i] & 0x01)
+ 285   5                  {
+ 286   6                    if(i == 0)
+ 287   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,1,2 + count);
+*** ERROR C202 IN LINE 287 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 288   6                    else if(i == 1)
+ 289   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,18,2 + count);
+*** ERROR C202 IN LINE 289 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 290   6                    else if(i == 2)
+ 291   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,1 + count);
+*** ERROR C202 IN LINE 291 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 292   6                  }
+ 293   5                  status_buf[i] >>= 1;
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 6   
+
+ 294   5                }
+ 295   4              }
+ 296   3            }
+ 297   2            if((status_module == FRONT_MOUDLE) && (check_page(system_page) == ID_PAGE_FRONT_MODULE))
+*** ERROR C202 IN LINE 297 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_FRONT_MODULE': undefined identifier
+ 298   2            {
+ 299   3              tw_clear_icon(&page_main_internal_flag_state);
+*** ERROR C202 IN LINE 299 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 300   3              for(i=0;i<4;i++)
+ 301   3              {
+ 302   4                status_buf[i] = status[status_module][1 + i * 2];
+ 303   4                status_buf[i] = (status_buf[i] << 8) & 0xff00;
+ 304   4                status_buf[i] += status[status_module][i * 2];
+ 305   4              }
+ 306   3              for(i=0;i<4;i++)
+ 307   3              {
+ 308   4                for(count=0;count<16;count++)
+ 309   4                {
+ 310   5                  if(status_buf[i] & 0x01)
+ 311   5                  {
+ 312   6                    if(i == 0)
+ 313   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,1,2 + count);
+*** ERROR C202 IN LINE 313 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 314   6                    else if(i == 1)
+ 315   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,18,2 + count);
+*** ERROR C202 IN LINE 315 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 316   6                    else if(i == 2)
+ 317   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,1 + count);
+*** ERROR C202 IN LINE 317 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 318   6                    else if(i == 3)
+ 319   6                    {
+ 320   7                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,17);
+*** ERROR C202 IN LINE 320 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 321   7                      break;
+ 322   7                    }
+ 323   6                  }
+ 324   5                  status_buf[i] >>= 1;
+ 325   5                }
+ 326   4              }
+ 327   3            }
+ 328   2            if((status_module == REAR_MOUDLE) && (check_page(system_page) == ID_PAGE_REAR_MODULE))
+*** ERROR C202 IN LINE 328 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_REAR_MODULE': undefined identifier
+ 329   2            {
+ 330   3              tw_clear_icon(&page_main_internal_flag_state);
+*** ERROR C202 IN LINE 330 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 331   3              for(i=0;i<4;i++)
+ 332   3              {
+ 333   4                status_buf[i] = status[status_module][1 + i * 2];
+ 334   4                status_buf[i] = (status_buf[i] << 8) & 0xff00;
+ 335   4                status_buf[i] += status[status_module][i * 2];
+ 336   4              }
+ 337   3              for(i=0;i<4;i++)
+ 338   3              {
+ 339   4                for(count=0;count<16;count++)
+ 340   4                {
+ 341   5                  if(status_buf[i] & 0x01)
+ 342   5                  {
+ 343   6                    if(i == 0)
+ 344   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,1,2 + count);
+*** ERROR C202 IN LINE 344 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 345   6                    else if(i == 1)
+ 346   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,18,2 + count);
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 7   
+
+*** ERROR C202 IN LINE 346 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 347   6                    else if(i == 2)
+ 348   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,1 + count);
+*** ERROR C202 IN LINE 348 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 349   6                    else if(i == 3)
+ 350   6                    {
+ 351   7                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,17);
+*** ERROR C202 IN LINE 351 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 352   7                      break;
+ 353   7                    }
+ 354   6                  }
+ 355   5                  status_buf[i] >>= 1;
+ 356   5                }
+ 357   4              }
+ 358   3            }
+ 359   2            if((status_module == TOP_MOUDLE) && (check_page(system_page) == ID_PAGE_TOP_MODULE))
+*** ERROR C202 IN LINE 359 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_TOP_MODULE': undefined identifier
+ 360   2            {
+ 361   3              tw_clear_icon(&page_main_internal_flag_state);
+*** ERROR C202 IN LINE 361 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 362   3              for(i=0;i<4;i++)
+ 363   3              {
+ 364   4                status_buf[i] = status[status_module][1 + i * 2];
+ 365   4                status_buf[i] = (status_buf[i] << 8) & 0xff00;
+ 366   4                status_buf[i] += status[status_module][i * 2];
+ 367   4              }
+ 368   3              for(i=0;i<4;i++)
+ 369   3              {
+ 370   4                for(count=0;count<16;count++)
+ 371   4                {
+ 372   5                  if(status_buf[i] & 0x01)
+ 373   5                  {
+ 374   6                    if(i == 0)
+ 375   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,1,2 + count);
+*** ERROR C202 IN LINE 375 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 376   6                    else if(i == 1)
+ 377   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,18,2 + count);
+*** ERROR C202 IN LINE 377 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 378   6                    else if(i == 2)
+ 379   6                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,1 + count);
+*** ERROR C202 IN LINE 379 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 380   6                    else if(i == 3)
+ 381   6                    {
+ 382   7                      display_osd2_1bp(page_main_internal_flag_state,GREEN,34,17);
+*** ERROR C202 IN LINE 382 OF SOURCEFILE\PROTOCOL.C: 'page_main_internal_flag_state': undefined identifier
+ 383   7                      break;
+ 384   7                    }
+ 385   6                  }
+ 386   5                  status_buf[i] >>= 1;
+ 387   5                }
+ 388   4              }
+ 389   3            }
+ 390   2            break;
+ 391   2          case _uart1_disp_data:
+ 392   2            switch(parameter[0])
+ 393   2            {
+ 394   3              case METER_MOUDLE:
+ 395   3                if(parameter[1] == 1)
+ 396   3                {
+ 397   4                  system_parameter_A2.type = parameter[2];
+ 398   4                  system_parameter_A2.value = parameter[3];
+ 399   4                  system_parameter_A2.value = (system_parameter_A2.value << 8) & 0xff00;
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 8   
+
+ 400   4                  system_parameter_A2.value |= parameter[4];
+ 401   4                }
+ 402   3                else if(parameter[1] == 2)
+ 403   3                {
+ 404   4                  system_parameter_A3.type = parameter[2];
+ 405   4                  system_parameter_A3.value = parameter[3];
+ 406   4                  system_parameter_A3.value = (system_parameter_A3.value << 8) & 0xff00;
+ 407   4                  system_parameter_A3.value |= parameter[4];
+ 408   4                }
+ 409   3                else if(parameter[1] == 3)
+ 410   3                {
+ 411   4                  system_parameter_A4.type = parameter[2];
+ 412   4                  system_parameter_A4.value = parameter[3];
+ 413   4                  system_parameter_A4.value = (system_parameter_A4.value << 8) & 0xff00;
+ 414   4                  system_parameter_A4.value |= parameter[4];
+ 415   4                }
+ 416   3                else if(parameter[1] == 4)
+ 417   3                {
+ 418   4                  system_parameter_A13.type = parameter[2];
+ 419   4                  system_parameter_A13.value = parameter[3];
+ 420   4                  system_parameter_A13.value = (system_parameter_A13.value << 8) & 0xff00;
+ 421   4                  system_parameter_A13.value |= parameter[4];
+ 422   4                }
+ 423   3                else if(parameter[1] == 5)
+ 424   3                {
+ 425   4                  system_parameter_A14.type = parameter[2];
+ 426   4                  system_parameter_A14.value = parameter[3];
+ 427   4                  system_parameter_A14.value = (system_parameter_A14.value << 8) & 0xff00;
+ 428   4                  system_parameter_A14.value |= parameter[4];
+ 429   4                }
+ 430   3                else if(parameter[1] == 6)
+ 431   3                {
+ 432   4                  system_parameter_A5.type = parameter[2];
+ 433   4                  system_parameter_A5.value = parameter[3];
+ 434   4                  system_parameter_A5.value = (system_parameter_A5.value << 8) & 0xff00;
+ 435   4                  system_parameter_A5.value |= parameter[4];
+ 436   4                }
+ 437   3                else if(parameter[1] == 7)
+ 438   3                {
+ 439   4                  system_parameter_A15.type = parameter[2];
+ 440   4                  system_parameter_A15.value = parameter[3];
+ 441   4                  system_parameter_A15.value = (system_parameter_A15.value << 8) & 0xff00;
+ 442   4                  system_parameter_A15.value |= parameter[4];
+ 443   4                }
+ 444   3                if(check_page(system_page) == ID_PAGE_METER_MODULE)
+*** ERROR C202 IN LINE 444 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_METER_MODULE': undefined identifier
+ 445   3                  display_value(47,10 + parameter[1],parameter[2],((unsigned short)parameter[3] << 8) | parameter[4]);
+ 446   3                break;
+ 447   3              case FRONT_MOUDLE:
+ 448   3                if(parameter[1] == 8)
+ 449   3                {
+ 450   4                  system_parameter_front_J5_2.type = parameter[2];
+ 451   4                  system_parameter_front_J5_2.value = parameter[3];
+ 452   4                  system_parameter_front_J5_2.value = (system_parameter_front_J5_2.value << 8) & 0xff00;
+ 453   4                  system_parameter_front_J5_2.value |= parameter[4];
+ 454   4                }
+ 455   3                else if(parameter[1] == 9)
+ 456   3                {
+ 457   4                  system_parameter_front_J5_3.type = parameter[2];
+ 458   4                  system_parameter_front_J5_3.value = parameter[3];
+ 459   4                  system_parameter_front_J5_3.value = (system_parameter_front_J5_3.value << 8) & 0xff00;
+ 460   4                  system_parameter_front_J5_3.value |= parameter[4];
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 9   
+
+ 461   4                }
+ 462   3                else if(parameter[1] == 10)
+ 463   3                {
+ 464   4                  system_parameter_front_J5_4.type = parameter[2];
+ 465   4                  system_parameter_front_J5_4.value = parameter[3];
+ 466   4                  system_parameter_front_J5_4.value = (system_parameter_front_J5_4.value << 8) & 0xff00;
+ 467   4                  system_parameter_front_J5_4.value |= parameter[4];
+ 468   4                }
+ 469   3                else if(parameter[1] == 11)
+ 470   3                {
+ 471   4                  system_parameter_front_J5_5.type = parameter[2];
+ 472   4                  system_parameter_front_J5_5.value = parameter[3];
+ 473   4                  system_parameter_front_J5_5.value = (system_parameter_front_J5_5.value << 8) & 0xff00;
+ 474   4                  system_parameter_front_J5_5.value |= parameter[4];
+ 475   4                }
+ 476   3                else if(parameter[1] == 12)
+ 477   3                {
+ 478   4                  system_parameter_front_J6_1.type = parameter[2];
+ 479   4                  system_parameter_front_J6_1.value = parameter[3];
+ 480   4                  system_parameter_front_J6_1.value = (system_parameter_front_J6_1.value << 8) & 0xff00;
+ 481   4                  system_parameter_front_J6_1.value |= parameter[4];
+ 482   4                }
+ 483   3                else if(parameter[1] == 13)
+ 484   3                {
+ 485   4                  system_parameter_front_J6_4.type = parameter[2];
+ 486   4                  system_parameter_front_J6_4.value = parameter[3];
+ 487   4                  system_parameter_front_J6_4.value = (system_parameter_front_J6_4.value << 8) & 0xff00;
+ 488   4                  system_parameter_front_J6_4.value |= parameter[4];
+ 489   4                }
+ 490   3                else if(parameter[1] == 14)
+ 491   3                {
+ 492   4                  system_parameter_front_J6_5.type = parameter[2];
+ 493   4                  system_parameter_front_J6_5.value = parameter[3];
+ 494   4                  system_parameter_front_J6_5.value = (system_parameter_front_J6_5.value << 8) & 0xff00;
+ 495   4                  system_parameter_front_J6_5.value |= parameter[4];
+ 496   4                }
+ 497   3                if(check_page(system_page) == ID_PAGE_PARAMETER_MODULE)
+*** ERROR C202 IN LINE 497 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_PARAMETER_MODULE': undefined identifier
+ 498   3                  display_value(11,4 + (parameter[1] - 8) * 2,parameter[2],((unsigned short)parameter[3] << 8) | param
+             -eter[4]);
+ 499   3                break;
+ 500   3              case REAR_MOUDLE:
+ 501   3                if(parameter[1] == 8)
+ 502   3                {
+ 503   4                  system_parameter_rear_J5_2.type = parameter[2];
+ 504   4                  system_parameter_rear_J5_2.value = parameter[3];
+ 505   4                  system_parameter_rear_J5_2.value = (system_parameter_rear_J5_2.value << 8) & 0xff00;
+ 506   4                  system_parameter_rear_J5_2.value |= parameter[4];
+ 507   4                }
+ 508   3                else if(parameter[1] == 9)
+ 509   3                {
+ 510   4                  system_parameter_rear_J5_3.type = parameter[2];
+ 511   4                  system_parameter_rear_J5_3.value = parameter[3];
+ 512   4                  system_parameter_rear_J5_3.value = (system_parameter_rear_J5_3.value << 8) & 0xff00;
+ 513   4                  system_parameter_rear_J5_3.value |= parameter[4];
+ 514   4                }
+ 515   3                else if(parameter[1] == 10)
+ 516   3                {
+ 517   4                  system_parameter_rear_J5_4.type = parameter[2];
+ 518   4                  system_parameter_rear_J5_4.value = parameter[3];
+ 519   4                  system_parameter_rear_J5_4.value = (system_parameter_rear_J5_4.value << 8) & 0xff00;
+ 520   4                  system_parameter_rear_J5_4.value |= parameter[4];
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 10  
+
+ 521   4                }
+ 522   3                else if(parameter[1] == 11)
+ 523   3                {
+ 524   4                  system_parameter_rear_J5_5.type = parameter[2];
+ 525   4                  system_parameter_rear_J5_5.value = parameter[3];
+ 526   4                  system_parameter_rear_J5_5.value = (system_parameter_rear_J5_5.value << 8) & 0xff00;
+ 527   4                  system_parameter_rear_J5_5.value |= parameter[4];
+ 528   4                }
+ 529   3                else if(parameter[1] == 12)
+ 530   3                {
+ 531   4                  system_parameter_rear_J6_1.type = parameter[2];
+ 532   4                  system_parameter_rear_J6_1.value = parameter[3];
+ 533   4                  system_parameter_rear_J6_1.value = (system_parameter_rear_J6_1.value << 8) & 0xff00;
+ 534   4                  system_parameter_rear_J6_1.value |= parameter[4];
+ 535   4                }
+ 536   3                else if(parameter[1] == 13)
+ 537   3                {
+ 538   4                  system_parameter_rear_J6_4.type = parameter[2];
+ 539   4                  system_parameter_rear_J6_4.value = parameter[3];
+ 540   4                  system_parameter_rear_J6_4.value = (system_parameter_rear_J6_4.value << 8) & 0xff00;
+ 541   4                  system_parameter_rear_J6_4.value |= parameter[4];
+ 542   4                }
+ 543   3                else if(parameter[1] == 14)
+ 544   3                {
+ 545   4                  system_parameter_rear_J6_5.type = parameter[2];
+ 546   4                  system_parameter_rear_J6_5.value = parameter[3];
+ 547   4                  system_parameter_rear_J6_5.value = (system_parameter_rear_J6_5.value << 8) & 0xff00;
+ 548   4                  system_parameter_rear_J6_5.value |= parameter[4];
+ 549   4                }
+ 550   3                if(check_page(system_page) == ID_PAGE_PARAMETER_MODULE)
+*** ERROR C202 IN LINE 550 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_PARAMETER_MODULE': undefined identifier
+ 551   3                  display_value(28,4 + (parameter[1] - 8) * 2,parameter[2],((unsigned short)parameter[3] << 8) | param
+             -eter[4]);
+ 552   3                break;
+ 553   3              case TOP_MOUDLE:
+ 554   3                if(parameter[1] == 8)
+ 555   3                {
+ 556   4                  system_parameter_top_J5_2.type = parameter[2];
+ 557   4                  system_parameter_top_J5_2.value = parameter[3];
+ 558   4                  system_parameter_top_J5_2.value = (system_parameter_top_J5_2.value << 8) & 0xff00;
+ 559   4                  system_parameter_top_J5_2.value |= parameter[4];
+ 560   4                }
+ 561   3                else if(parameter[1] == 9)
+ 562   3                {
+ 563   4                  system_parameter_top_J5_3.type = parameter[2];
+ 564   4                  system_parameter_top_J5_3.value = parameter[3];
+ 565   4                  system_parameter_top_J5_3.value = (system_parameter_top_J5_3.value << 8) & 0xff00;
+ 566   4                  system_parameter_top_J5_3.value |= parameter[4];
+ 567   4                }
+ 568   3                else if(parameter[1] == 10)
+ 569   3                {
+ 570   4                  system_parameter_top_J5_4.type = parameter[2];
+ 571   4                  system_parameter_top_J5_4.value = parameter[3];
+ 572   4                  system_parameter_top_J5_4.value = (system_parameter_top_J5_4.value << 8) & 0xff00;
+ 573   4                  system_parameter_top_J5_4.value |= parameter[4];
+ 574   4                }
+ 575   3                else if(parameter[1] == 11)
+ 576   3                {
+ 577   4                  system_parameter_top_J5_5.type = parameter[2];
+ 578   4                  system_parameter_top_J5_5.value = parameter[3];
+ 579   4                  system_parameter_top_J5_5.value = (system_parameter_top_J5_5.value << 8) & 0xff00;
+ 580   4                  system_parameter_top_J5_5.value |= parameter[4];
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 11  
+
+ 581   4                }
+ 582   3                else if(parameter[1] == 12)
+ 583   3                {
+ 584   4                  system_parameter_top_J6_1.type = parameter[2];
+ 585   4                  system_parameter_top_J6_1.value = parameter[3];
+ 586   4                  system_parameter_top_J6_1.value = (system_parameter_top_J6_1.value << 8) & 0xff00;
+ 587   4                  system_parameter_top_J6_1.value |= parameter[4];
+ 588   4                }
+ 589   3                else if(parameter[1] == 13)
+ 590   3                {
+ 591   4                  system_parameter_top_J6_4.type = parameter[2];
+ 592   4                  system_parameter_top_J6_4.value = parameter[3];
+ 593   4                  system_parameter_top_J6_4.value = (system_parameter_top_J6_4.value << 8) & 0xff00;
+ 594   4                  system_parameter_top_J6_4.value |= parameter[4];
+ 595   4                }
+ 596   3                else if(parameter[1] == 14)
+ 597   3                {
+ 598   4                  system_parameter_top_J6_5.type = parameter[2];
+ 599   4                  system_parameter_top_J6_5.value = parameter[3];
+ 600   4                  system_parameter_top_J6_5.value = (system_parameter_top_J6_5.value << 8) & 0xff00;
+ 601   4                  system_parameter_top_J6_5.value |= parameter[4];
+ 602   4                }
+ 603   3                if(check_page(system_page) == ID_PAGE_PARAMETER_MODULE)
+*** ERROR C202 IN LINE 603 OF SOURCEFILE\PROTOCOL.C: 'ID_PAGE_PARAMETER_MODULE': undefined identifier
+ 604   3                  display_value(45,4 + (parameter[1] - 8) * 2,parameter[2],((unsigned short)parameter[3] << 8) | param
+             -eter[4]);
+ 605   3                break;
+ 606   3              case MAIN_MOUDLE:
+ 607   3                break;
+ 608   3              default:
+ 609   3                break;
+ 610   3            }
+ 611   2            
+ 612   2            break;
+ 613   2          case _uart1_set_time:
+ 614   2            system_temp_time.year = system_time.year;
+ 615   2            system_temp_time.month = system_time.month;
+ 616   2            system_temp_time.day = system_time.day;
+ 617   2            system_temp_time.hour = system_time.hour;
+ 618   2            system_temp_time.minute = system_time.minute;
+ 619   2            system_temp_time.second = system_time.second;
+ 620   2            
+ 621   2            switch(set_position)
+ 622   2            {
+ 623   3              case 1:
+ 624   3                system_temp_time.year = set_action;
+ 625   3                break;
+ 626   3              case 2:
+ 627   3                system_temp_time.month = set_action;
+ 628   3                break;
+ 629   3              case 3:
+ 630   3                system_temp_time.day = set_action;
+ 631   3                break;
+ 632   3              case 4:
+ 633   3                system_temp_time.hour = set_action;
+ 634   3                break;
+ 635   3              case 5:
+ 636   3                system_temp_time.minute = set_action;
+ 637   3                break;
+ 638   3              case 6:
+ 639   3                system_temp_time.second = set_action;
+ 640   3                break;
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 12  
+
+ 641   3              case 7:
+ 642   3                system_time.year = system_temp_time.year;
+ 643   3                system_time.month = system_temp_time.month;
+ 644   3                system_time.day = system_temp_time.day;
+ 645   3                system_time.hour = system_temp_time.hour;
+ 646   3                system_time.minute = system_temp_time.minute;
+ 647   3                system_time.second = system_temp_time.second;
+ 648   3                break;
+ 649   3              default:
+ 650   3                break;
+ 651   3            }
+ 652   2            break;
+ 653   2          default:
+ 654   2            break;
+ 655   2        }
+ 656   1      }
+ 657          void clear_up_osd2(void)
+ 658          {
+ 659   1        osd_clear_block(0,0,50,18,page_main_internal_osd2_1_menu.addr,page_main_internal_osd2_1_menu.width);
+ 660   1      }
+ 661          unsigned char check_page(unsigned char page)
+ 662          {
+ 663   1        char i;
+ 664   1        for(i=0;i<15;i++)
+ 665   1        {
+ 666   2          if(page_map[i][0]==page)
+ 667   2            return page_map[i][1];
+ 668   2        }
+ 669   1        return 0;
+ 670   1      }
+ 671          
+ 672          void display_value(unsigned char x, unsigned char y, unsigned char data_type, unsigned short value)
+ 673          {
+ 674   1        unsigned char i,minus = 0,temp,clear_count,disp_count,BCD[5];
+ 675   1        BCD[4] = value / 10000;
+ 676   1        BCD[3] = (value % 10000) / 1000;
+ 677   1        BCD[2] = (value % 1000) / 100;
+ 678   1        BCD[1] = (value % 100) / 10;
+ 679   1        BCD[0] = value % 10;
+ 680   1        switch(data_type)
+ 681   1        {
+ 682   2          case 2:
+ 683   2            minus = 1;
+ 684   2          case 1:
+ 685   2            clear_count = 4;
+ 686   2            disp_count = 3;
+ 687   2            break;
+ 688   2          case 4:
+ 689   2            minus = 1;
+ 690   2          case 3:
+ 691   2            clear_count = 4;
+ 692   2            disp_count = 3;
+ 693   2            BCD[1] += 10;
+ 694   2            break;
+ 695   2          case 6:
+ 696   2            minus = 1;
+ 697   2          case 5:
+ 698   2            clear_count = 6;
+ 699   2            disp_count = 5;
+ 700   2            break;
+ 701   2          case 8:
+ 702   2            minus = 1;
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 13  
+
+ 703   2          case 7:
+ 704   2            clear_count = 6;
+ 705   2            disp_count = 5;
+ 706   2            BCD[1] += 10;
+ 707   2            break;
+ 708   2          default:
+ 709   2            break;
+ 710   2        }
+ 711   1        for(i=0;i<clear_count;i++)
+ 712   1          tw_osd_clear_char(x - i,y);
+ 713   1        if(BCD[1] < 10)
+ 714   1        {
+ 715   2          for(i=0;i<disp_count;i++)
+ 716   2          {
+ 717   3            if(BCD[i] > 0)
+ 718   3              temp = i;
+ 719   3          }
+ 720   2        }
+ 721   1        else
+ 722   1        {
+ 723   2          temp = 1;
+ 724   2          for(i=2;i<disp_count;i++)
+ 725   2          {
+ 726   3            if(BCD[i] > 0)
+ 727   3              temp = i;
+ 728   3          }
+ 729   2        }
+ 730   1        for(i=0;i<=temp;i++)
+ 731   1        {
+ 732   2          display_number(BCD[i],WHITE,x - i,y,0);
+ 733   2        }
+ 734   1        if(minus)
+ 735   1          display_number(20,WHITE,x - i,y,0);
+ 736   1      }
+ 737          void display_mileage(void)
+ 738          {
+ 739   1        unsigned char i,temp = 0,BCD[4];
+ 740   1        BCD[3] = system_meilage.trip / 1000;
+ 741   1        BCD[2] = (system_meilage.trip % 1000) / 100;
+ 742   1        BCD[1] = (system_meilage.trip % 100) / 10 + 10;
+ 743   1        BCD[0] = system_meilage.trip % 10;
+ 744   1        for(i=0;i<7;i++)
+ 745   1        {
+ 746   2          if(system_meilage.odo[i] > 0)
+ 747   2            temp = i;
+ 748   2        }
+ 749   1        for(i=0;i<=temp;i++)
+ 750   1        {
+ 751   2          display_number(system_meilage.odo[i],WHITE,46 - i,17,0);
+ 752   2        }
+ 753   1        temp = 1;
+ 754   1        for(i=2;i<4;i++)
+ 755   1        {
+ 756   2          if(BCD[i] > 0)
+ 757   2            temp = i;
+ 758   2        }
+ 759   1        for(i=0;i<=temp;i++)
+ 760   1        {
+ 761   2          display_number(BCD[i],WHITE,46 - i,16,0);
+ 762   2        }
+ 763   1      }
+ 764          void display_time(void)
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 14  
+
+ 765          {
+ 766   1        unsigned char BCD[10];
+ 767   1        display_number(2,WHITE,1,17,0);
+ 768   1        display_number(0,WHITE,2,17,0);
+ 769   1        BCD[0] = system_time.year / 10;
+ 770   1        BCD[1] = system_time.year % 10;
+ 771   1        BCD[2] = system_time.month / 10;
+ 772   1        BCD[3] = system_time.month % 10;
+ 773   1        BCD[4] = system_time.day / 10;
+ 774   1        BCD[5] = system_time.day % 10;
+ 775   1        BCD[6] = system_time.hour / 10;
+ 776   1        BCD[7] = system_time.hour % 10;
+ 777   1        BCD[8] = system_time.minute / 10;
+ 778   1        BCD[9] = system_time.minute % 10;
+ 779   1        display_number(BCD[0],WHITE,3,17,0);
+ 780   1        display_number(BCD[1],WHITE,4,17,0);
+ 781   1        display_number(BCD[2],WHITE,6,17,0);
+ 782   1        display_number(BCD[3],WHITE,7,17,0);
+ 783   1        display_number(BCD[4],WHITE,9,17,0);
+ 784   1        display_number(BCD[5],WHITE,10,17,0);
+ 785   1        display_number(BCD[6],WHITE,3,16,0);
+ 786   1        display_number(BCD[7],WHITE,4,16,0);
+ 787   1        display_number(BCD[8],WHITE,6,16,0);
+ 788   1        display_number(BCD[9],WHITE,7,16,0);
+ 789   1      }
+ 790          void display_air(unsigned char air1_height, unsigned char air2_height)
+ 791          {
+ 792   1        unsigned char i;
+ 793   1        unsigned char count_all,count_only,color1,color2;
+ 794   1        if(air1_height >= 52)
+ 795   1          color1 = GREEN;
+ 796   1        else
+ 797   1          color1 = RED;
+ 798   1        if(air2_height >= 52)
+ 799   1          color2 = GREEN;
+ 800   1        else
+ 801   1          color2 = RED;
+ 802   1        osd_clear_block(1,4,2,10,page_main_internal_osd2_1_menu.addr,page_main_internal_osd2_1_menu.width);
+ 803   1        if(air1_height <= 10)
+ 804   1        {
+ 805   2          if(air1_height)
+ 806   2          {
+ 807   3            _icon_draw(air1_height + air1_height - 1,color1,1,13,2,1,0);
+ 808   3          }
+ 809   2        }
+ 810   1        else
+ 811   1        {
+ 812   2          count_all = air1_height / 10;
+ 813   2          count_only = air1_height % 10;
+ 814   2          for(i=0;i<count_all;i++)
+ 815   2          {
+ 816   3            display_osd2_1bp(air(9),color1,1,13 - i);
+ 817   3          }
+ 818   2          _icon_draw(count_only + count_only - 1,color1,1,13 - i,2,1,0);
+ 819   2        }
+ 820   1        osd_clear_block(47,4,2,10,page_main_internal_osd2_1_menu.addr,page_main_internal_osd2_1_menu.width);
+ 821   1        if(air2_height <= 10)
+ 822   1        {
+ 823   2          if(air2_height)
+ 824   2          {
+ 825   3            _icon_draw(air2_height + air2_height - 1,color2,47,13,2,1,0);
+ 826   3          }
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 15  
+
+ 827   2        }
+ 828   1        else
+ 829   1        {
+ 830   2          count_all = air2_height / 10;
+ 831   2          count_only = air2_height % 10;
+ 832   2          for(i=0;i<count_all;i++)
+ 833   2          {
+ 834   3            display_osd2_1bp(air(9),color2,47,13 - i);
+ 835   3          }
+ 836   2          _icon_draw(count_only + count_only - 1,color2,47,13 - i,2,1,0);
+ 837   2        }
+ 838   1          
+ 839   1      }
+ 840          
+ 841          void display_air_1bp(struct tw_icon picon, unsigned char x, unsigned char y)
+ 842          {
+ 843   1        picon.x = x;
+ 844   1        picon.y = y;
+ 845   1        
+ 846   1      }
+ 847          /****************************************************************
+ 848          *index对应数字0-9的数字为0-9，显示"-" index=20，
+ 849          *index对应的带小数点的数字0.-9.为10-19
+ 850          *****************************************************************/
+ 851          void display_number(unsigned short index, unsigned char color, unsigned char x, unsigned char y, unsigned 
+             -char blinking)
+ 852          {
+ 853   1        _icon_draw(index + 41,color,x,y,1,1,blinking);
+ 854   1      }
+ 855          
+ 856          void display_osd2_1bp(struct tw_icon picon, unsigned char color, unsigned char x, unsigned char y)
+ 857          {
+ 858   1        picon.x = x;
+ 859   1        picon.y = y;
+ 860   1        picon.color = color;
+ 861   1        tw_icon_draw(&picon);
+ 862   1      }
+ 863          
+ 864          void display_fault_message(unsigned char fault_index)
+ 865          {
+ 866   1        struct tw_gicon gpicon;
+ 867   1        unsigned char i;
+ 868   1        if(fault_index >= 200)
+ 869   1        {
+ 870   2          display_osd2_4bp(page_main_internal_fault_flag_yellow,3,18);
+ 871   2        }
+ 872   1        else
+ 873   1        {
+ 874   2          display_osd2_4bp(page_main_internal_fault_flag_red,3,18);
+ 875   2        }
+ 876   1        for(i=0;i<254;i++)
+ 877   1        {
+ 878   2          if(fault_map[i].num == fault_index)
+ 879   2          {
+ 880   3            gpicon = *(fault_map[i].gicon);
+ 881   3            gpicon.x = 7;
+ 882   3            gpicon.y = 18;
+ 883   3            tw_gicon_draw(&gpicon);
+ 884   3            break;
+ 885   3          }
+ 886   2        }
+ 887   1      }
+C51 COMPILER V9.00   PROTOCOL                                                              08/24/2015 09:18:13 PAGE 16  
+
+ 888          
+ 889          void display_osd2_4bp(struct tw_gicon gpicon, unsigned char x, unsigned char y)
+ 890          {
+ 891   1        gpicon.x = x;
+ 892   1        gpicon.y = y;
+ 893   1        tw_gicon_draw(&gpicon);
+ 894   1      }
+ 895          
+ 896          void open_buzzer(void)
+ 897          {
+ 898   1      
+ 899   1        display_osd2_4bp(page_main_internal_buzzer,49,19);
+ 900   1          
+ 901   1      }
+ 902          void close_buzzer(void)
+ 903          {
+ 904   1        display_osd2_4bp(page_main_internal_unbuzzer,49,19);
+ 905   1      }
+ 906          
+ 907          /*
+ 908          void tw_icon_draw_adjpos(struct tw_icon picon, unsigned char color,unsigned char x,unsigned char y)
+ 909          {
+ 910            picon.x = x;
+ 911            picon.y = y;
+ 912            picon.color = color;
+ 913            tw_icon_draw(&picon);
+ 914          }*/
+ 915            /*
+ 916          void tw_gicon_draw_adjpos(unsigned char id_map,unsigned char x,unsigned char y)
+ 917          {
+ 918            struct tw_gicon* pgicon;
+ 919            unsigned short icon_id = 0;
+ 920            unsigned char color = 0;
+ 921            unsigned short tmp_addr = 0;
+ 922          
+ 923            //pgicon->gicon_id = fault_idmap[id_map][1];
+ 924            
+ 925              icon_id = check_gicon_id(fault_idmap[id_map][1]);
+ 926              if(!icon_id)
+ 927                  return;
+ 928              pgicon->gicon_id = fault_idmap[id_map][1];
+ 929              tmp_addr = pgicon->oram_addr;
+ 930          
+ 931              tw_load_icon(icon_id, &tmp_addr);
+ 932          
+ 933            color = check_color_config(pgicon->index, 0, pgicon->color);
+ 934            _icon_draw(pgicon->index, color, pgicon->x, pgicon->y, pgicon->width, pgicon->height, 0);
+ 935          }
+ 936          */
+ 937          
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  28 ERROR(S)

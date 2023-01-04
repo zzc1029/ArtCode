@@ -1,0 +1,71 @@
+C51 COMPILER V9.52.0.0   PAGE_TEST                                                         05/12/2016 09:19:00 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE PAGE_TEST
+OBJECT MODULE PLACED IN .\Object\page_test.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE Source\page_test.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\
+                    -tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_test.lst) TABS(2) OBJECT(.\Object\
+                    -page_test.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_test.h"
+   9          #include "display.h"
+  10          #include "mydrivers.h"
+  11          
+  12          unsigned char page_test_process (TW_EVENT* event)
+  13          {
+  14   1        switch(event->type)
+  15   1        {
+  16   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  17   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  18   2            tw_td_draw(&main_test);
+  19   2            sosd_td_enable();
+  20   2            sosd_enable(DONT_LOAD);
+  21   2            clear_mark_area();
+  22   2      
+  23   2            /* todo: Write Your Code Here */
+  24   2      
+  25   2          break;
+  26   2      
+  27   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  28   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  29   2      
+  30   2            /* todo: Write Your Code Here */
+  31   2      
+  32   2          break;
+  33   2      
+  34   2          default:  /* put to nodify if no process this event */
+  35   2            return TW_RETURN_NO_PROCESS;
+  36   2      
+  37   2      
+  38   2        }
+  39   1        return TW_RETURN_NONE;
+  40   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     40    ----
+   CONSTANT SIZE    =     73    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+C51 COMPILER V9.52.0.0   PAGE_TEST                                                         05/12/2016 09:19:00 PAGE 2   
+
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

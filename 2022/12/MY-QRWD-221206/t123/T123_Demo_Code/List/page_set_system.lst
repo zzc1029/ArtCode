@@ -1,0 +1,92 @@
+C51 COMPILER V9.52.0.0   PAGE_SET_SYSTEM                                                   05/12/2016 09:18:58 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE PAGE_SET_SYSTEM
+OBJECT MODULE PLACED IN .\Object\page_set_system.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE Source\page_set_system.c LARGE OMF2 BROWSE INCDIR(.\IncludeFi
+                    -le;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_set_system.lst) TABS(2) OBJE
+                    -CT(.\Object\page_set_system.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_set_system.h"
+   9          #include "display.h"
+  10          #include "uart.h"
+  11          #include "mydrivers.h"
+  12          
+  13          unsigned char page_set_system_process (TW_EVENT* event)
+  14          {
+  15   1        unsigned char BCD[2];
+  16   1        switch(event->type)
+  17   1        {
+  18   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  19   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  20   2            tw_td_draw(&main_set_system);
+  21   2            sosd_td_enable();
+  22   2            sosd_enable(DONT_LOAD);
+  23   2            clear_mark_area();
+  24   2            system_b_set.para[0] = system_time.hour;
+  25   2            system_b_set.para[1] = system_time.minute;
+  26   2            system_b_set.para[2] = system_time.year;
+  27   2            system_b_set.para[3] = system_time.month;
+  28   2            system_b_set.para[4] = system_time.day;
+  29   2            system_b_set.para[5] = system_bright;
+  30   2            system_b_set.para[6] = buzzer;
+  31   2            
+  32   2            BCD[0] = (system_time.hour >> 4) & 0x0f;
+  33   2            BCD[1] = system_time.hour & 0x0f;
+  34   2            if(BCD[0] > 9)
+  35   2              BCD[0] = 0;
+  36   2            if(BCD[1] > 9)
+  37   2              BCD[1] = 0;
+  38   2            display_set_time();
+  39   2            display_icon_uncolor_blink(*number_map[BCD[0]],19,3,1);
+  40   2            display_icon_uncolor_blink(*number_map[BCD[1]],20,3,1);
+  41   2            display_icon_uncolor_blink(*number_map[system_bright],19,7,0);
+  42   2            display_gicon_uncolor_blink(*buzzer_map[buzzer],19,9,0);
+  43   2      
+  44   2            /* todo: Write Your Code Here */
+  45   2      
+  46   2          break;
+  47   2      
+  48   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  49   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  50   2      
+  51   2            /* todo: Write Your Code Here */
+  52   2      
+  53   2          break;
+C51 COMPILER V9.52.0.0   PAGE_SET_SYSTEM                                                   05/12/2016 09:18:58 PAGE 2   
+
+  54   2      
+  55   2          default:  /* put to nodify if no process this event */
+  56   2            return TW_RETURN_NO_PROCESS;
+  57   2      
+  58   2      
+  59   2        }
+  60   1        return TW_RETURN_NONE;
+  61   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    372    ----
+   CONSTANT SIZE    =     79    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

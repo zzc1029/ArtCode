@@ -1,0 +1,166 @@
+C51 COMPILER V9.00   TWBC_LAYOUT_STRUCT                                                    07/31/2015 15:37:05 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TWBC_LAYOUT_STRUCT
+OBJECT MODULE PLACED IN .\Object\twbc_layout_struct.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE i51\twbc_layout_struct.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\s
+                    -ys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\twbc_layout_struct.lst) TABS(2) OBJECT(.\Object
+                    -\twbc_layout_struct.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "page_logo_art.h"
+   5          #include "page_main_internal.h"
+   6          #include "page_meter_module.h"
+   7          #include "page_front_module.h"
+   8          #include "page_top_module.h"
+   9          #include "page_rear_module.h"
+  10          #include "page_parameter_module.h"
+  11          #include "page_module_4.h"
+  12          #include "page_module_5.h"
+  13          #include "page_module_6.h"
+  14          #include "page_module_7.h"
+  15          #include "page_reserve_st.h"
+  16          #include "page_reserve_nd.h"
+  17          #include "page_reserve_rd.h"
+  18          #include "page_system_message.h"
+  19          #include "page_video.h"
+  20          #include "twbc_layout_struct.h"
+  21          
+  22          
+  23          
+  24          struct tw_layout_item code td_layout_0_item0 = {
+  25           &main_logo_art,  NULL, &td_layout_0_item2, NULL, &td_layout_0_item1,NULL};
+  26          struct tw_layout_item code td_layout_0_item1 = {
+  27           &main_main_internal,  NULL, &td_layout_0_item3, &td_layout_0_item0, NULL,&td_layout_1_item0};
+  28          struct tw_layout_item code td_layout_0_item2 = {
+  29           &main_top_module, &td_layout_0_item0, &td_layout_0_item4, NULL, &td_layout_0_item3,NULL};
+  30          struct tw_layout_item code td_layout_0_item3 = {
+  31           &main_rear_module, &td_layout_0_item1, &td_layout_0_item5, &td_layout_0_item2, NULL,&td_layout_1_item2};
+  32          struct tw_layout_item code td_layout_0_item4 = {
+  33           &main_module_5, &td_layout_0_item2, &td_layout_0_item6, NULL, &td_layout_0_item5,NULL};
+  34          struct tw_layout_item code td_layout_0_item5 = {
+  35           &main_module_6, &td_layout_0_item3, &td_layout_0_item7, &td_layout_0_item4, NULL,&td_layout_1_item4};
+  36          struct tw_layout_item code td_layout_0_item6 = {
+  37           &main_reserve_nd, &td_layout_0_item4, NULL, NULL, &td_layout_0_item7,NULL};
+  38          struct tw_layout_item code td_layout_0_item7 = {
+  39           &main_reserve_rd, &td_layout_0_item5, NULL, &td_layout_0_item6, NULL,&td_layout_1_item6};
+  40          
+  41          
+  42          struct tw_td code main_td_r_main_internal = {
+  43              ID_MAIN_TD_R_MAIN_INTERNAL, 0, 0, 800, 480
+  44          };
+  45          
+  46          struct tw_td code main_td_r_rear_module = {
+  47              ID_MAIN_TD_R_REAR_MODULE, 0, 0, 800, 480
+  48          };
+  49          
+  50          struct tw_td code main_td_r_module_6 = {
+  51              ID_MAIN_TD_R_MODULE_6, 0, 0, 800, 480
+  52          };
+  53          
+C51 COMPILER V9.00   TWBC_LAYOUT_STRUCT                                                    07/31/2015 15:37:05 PAGE 2   
+
+  54          struct tw_td code main_td_r_reserve_rd = {
+  55              ID_MAIN_TD_R_RESERVE_RD, 0, 0, 800, 480
+  56          };
+  57          
+  58          
+  59          struct tw_layout_item code td_layout_1_item0 = {
+  60           &main_td_r_main_internal,  NULL, &td_layout_1_item2, NULL, &td_layout_1_item1,&td_layout_0_item1};
+  61          struct tw_layout_item code td_layout_1_item1 = {
+  62           &main_meter_module,  NULL, &td_layout_1_item3, &td_layout_1_item0, NULL,&td_layout_2_item0};
+  63          struct tw_layout_item code td_layout_1_item2 = {
+  64           &main_td_r_rear_module, &td_layout_1_item0, &td_layout_1_item4, NULL, &td_layout_1_item3,&td_layout_0_ite
+             -m3};
+  65          struct tw_layout_item code td_layout_1_item3 = {
+  66           &main_parameter_module, &td_layout_1_item1, &td_layout_1_item5, &td_layout_1_item2, NULL,&td_layout_2_ite
+             -m2};
+  67          struct tw_layout_item code td_layout_1_item4 = {
+  68           &main_td_r_module_6, &td_layout_1_item2, &td_layout_1_item6, NULL, &td_layout_1_item5,&td_layout_0_item5}
+             -;
+  69          struct tw_layout_item code td_layout_1_item5 = {
+  70           &main_module_7, &td_layout_1_item3, &td_layout_1_item7, &td_layout_1_item4, NULL,&td_layout_2_item4};
+  71          struct tw_layout_item code td_layout_1_item6 = {
+  72           &main_td_r_reserve_rd, &td_layout_1_item4, NULL, NULL, &td_layout_1_item7,&td_layout_0_item7};
+  73          struct tw_layout_item code td_layout_1_item7 = {
+  74           &main_system_message, &td_layout_1_item5, NULL, &td_layout_1_item6, NULL,&td_layout_2_item6};
+  75          
+  76          
+  77          struct tw_td code main_td_r_meter_module = {
+  78              ID_MAIN_TD_R_METER_MODULE, 0, 0, 800, 480
+  79          };
+  80          
+  81          struct tw_td code main_td_r_parameter_module = {
+  82              ID_MAIN_TD_R_PARAMETER_MODULE, 0, 0, 800, 480
+  83          };
+  84          
+  85          struct tw_td code main_td_r_module_7 = {
+  86              ID_MAIN_TD_R_MODULE_7, 0, 0, 800, 480
+  87          };
+  88          
+  89          struct tw_td code main_td_r_system_message = {
+  90              ID_MAIN_TD_R_SYSTEM_MESSAGE, 0, 0, 800, 480
+  91          };
+  92          
+  93          
+  94          struct tw_layout_item code td_layout_2_item0 = {
+  95           &main_td_r_meter_module,  NULL, &td_layout_2_item2, NULL, &td_layout_2_item1,&td_layout_1_item1};
+  96          struct tw_layout_item code td_layout_2_item1 = {
+  97           &main_front_module,  NULL, &td_layout_2_item3, &td_layout_2_item0, NULL,NULL};
+  98          struct tw_layout_item code td_layout_2_item2 = {
+  99           &main_td_r_parameter_module, &td_layout_2_item0, &td_layout_2_item4, NULL, &td_layout_2_item3,&td_layout_
+             -1_item3};
+ 100          struct tw_layout_item code td_layout_2_item3 = {
+ 101           &main_module_4, &td_layout_2_item1, &td_layout_2_item5, &td_layout_2_item2, NULL,NULL};
+ 102          struct tw_layout_item code td_layout_2_item4 = {
+ 103           &main_td_r_module_7, &td_layout_2_item2, &td_layout_2_item6, NULL, &td_layout_2_item5,&td_layout_1_item5}
+             -;
+ 104          struct tw_layout_item code td_layout_2_item5 = {
+ 105           &main_reserve_st, &td_layout_2_item3, &td_layout_2_item7, &td_layout_2_item4, NULL,NULL};
+ 106          struct tw_layout_item code td_layout_2_item6 = {
+ 107           &main_td_r_system_message, &td_layout_2_item4, NULL, NULL, &td_layout_2_item7,&td_layout_1_item7};
+ 108          struct tw_layout_item code td_layout_2_item7 = {
+ 109           &main_video, &td_layout_2_item5, NULL, &td_layout_2_item6, NULL,NULL};
+ 110          
+C51 COMPILER V9.00   TWBC_LAYOUT_STRUCT                                                    07/31/2015 15:37:05 PAGE 3   
+
+ 111          
+ 112          struct tw_layout_group code main_group0 = {
+ 113            2, 4, &td_layout_0_item0
+ 114          };
+ 115          
+ 116          
+ 117          struct tw_layout_group code main_group1 = {
+ 118            2, 4, &td_layout_1_item0
+ 119          };
+ 120          
+ 121          
+ 122          struct tw_layout_group code main_group2 = {
+ 123            2, 4, &td_layout_2_item0
+ 124          };
+ 125          
+ 126          struct tw_layout code main = {
+ 127            1, 3, &main_group0
+ 128          };
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =    532    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

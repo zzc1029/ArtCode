@@ -1,0 +1,102 @@
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL                                                    12/13/2022 09:00:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_MAIN_INTERNAL
+OBJECT MODULE PLACED IN .\Object\page_main_internal.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE Source\page_main_internal.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile
+                    -;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_main_internal.lst) OBJECT(.\Ob
+                    -ject\page_main_internal.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_main_internal.h"
+   9          #include "display.h"
+  10          #include "uart.h"
+  11          #include "mydrivers.h"
+  12          #include "Videodetect.h"
+  13          
+  14          
+  15          unsigned char page_main_internal_process (TW_EVENT* event)
+  16          {
+  17   1              switch(event->type)
+  18   1              {
+  19   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  20   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  21   2                              /*IC_WritByte(TWIC_P0,0x0f,0x40);
+  22   2                              IC_WritByte(TWIC_P0,0x18,0x30);
+  23   2                              IC_WritByte(TWIC_P0,0x19,0x0c);*/
+  24   2                              //CVDInit();
+  25   2                              //auto_detection_ctrl(1);
+  26   2                              IC_WritByte(TWIC_P0,0x0f,0x00);
+  27   2                              IC_WritByte(TWIC_P0,0x19,0x80);
+  28   2                              IC_WritByte(TWIC_P1,0x13,0x06);
+  29   2                              clear_mark_area();
+  30   2                              
+  31   2                              display_unmark();
+  32   2                              tw_td_draw(&main_main_internal);
+  33   2                              sosd_td_enable();
+  34   2                              sosd_enable(DONT_LOAD);
+  35   2                              clear_unmark_area();
+  36   2                              //if(LIGHT_EN)
+  37   2                              //{
+  38   2                              //      LIGHT_EN = 0;
+  39   2                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  40   2                              //}
+  41   2                              system_alarm.last_index = 0xff;
+  42   2                              //last_alarm_number = 0xff;
+  43   2                              system_air.last_air1 = 0;
+  44   2                              system_air.last_air2 = 0;
+  45   2                              system_air.last_soc = 0xff;
+  46   2                              display_mark();
+  47   2                              diplay_main_data();
+  48   2                              display_air();
+  49   2                              display_soc();
+  50   2                              display_system_time();
+  51   2                              display_mileage();
+  52   2                              display_fault_message();
+  53   2      
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL                                                    12/13/2022 09:00:41 PAGE 2   
+
+  54   2                              /* todo: Write Your Code Here */
+  55   2      
+  56   2                      break;
+  57   2      
+  58   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  59   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  60   2      
+  61   2                              /* todo: Write Your Code Here */
+  62   2      
+  63   2                      break;
+  64   2      
+  65   2                      default:        /* put to nodify if no process this event */
+  66   2                              return TW_RETURN_NO_PROCESS;
+  67   2      
+  68   2      
+  69   2              }
+  70   1              return TW_RETURN_NONE;
+  71   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    125    ----
+   CONSTANT SIZE    =     82    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

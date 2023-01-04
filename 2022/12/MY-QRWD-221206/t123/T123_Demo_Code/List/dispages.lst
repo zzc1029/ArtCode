@@ -1,0 +1,1687 @@
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DISPAGES
+OBJECT MODULE PLACED IN .\Object\dispages.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE SourceFile\dispages.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw
+                    -_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\dispages.lst) OBJECT(.\Object\dispages.ob
+                    -j)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "spiosd.h"
+   5          #include "osd2api.h"
+   6          
+   7          #include "page_main_internal.h"
+   8          #include "videodetect.h"
+   9          #include "disp_config.h"
+  10          #include "display.h"
+  11          #include "uart.h"
+  12          #include "tw_timer.h"
+  13          #include "mydrivers.h"
+  14          
+  15          struct tw_icon *code number_hex_map[16] =
+  16          {
+  17              &page_main_internal_number_0,
+  18              &page_main_internal_number_1,
+  19              &page_main_internal_number_2,
+  20              &page_main_internal_number_3,
+  21              &page_main_internal_number_4,
+  22              &page_main_internal_number_5,
+  23              &page_main_internal_number_6,
+  24              &page_main_internal_number_7,
+  25              &page_main_internal_number_8,
+  26              &page_main_internal_number_9,
+  27              &page_main_internal_number_a,
+  28              //  &page_main_internal_number_b,
+  29                  //  &page_main_internal_number_c,
+  30              //  &page_main_internal_number_d,
+  31              //  &page_main_internal_number_e,
+  32              //  &page_main_internal_number_f,
+  33          };
+  34          
+  35          void display_surface1 (void)
+  36          {
+  37   1          unsigned int temp;
+  38   1          unsigned char i,u8_data;
+  39   1          displays16 (15, 2, dongli_input_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  40   1          displays16 (15, 3, dongli_input_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  41   1          //display_char_8bit (12, 6, GREEN, siji_status);
+  42   1          //司机操作状态
+  43   1          //档位
+  44   1          u8_data = siji_status & 0x0f;
+  45   1              switch(u8_data)
+  46   1              {
+  47   2                      case 0:
+  48   2                              display_gicon(page_main_internal_s1_n,GREEN,7,8);
+  49   2                              break;
+  50   2                      case 0x01:
+  51   2                              display_gicon(page_main_internal_s1_d1,GREEN,7,8);
+  52   2                              break;
+  53   2                      case 0x02:
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 2   
+
+  54   2                              display_gicon(page_main_internal_s1_d2,GREEN,7,8);
+  55   2                              break;
+  56   2                      case 0x03:
+  57   2                              display_gicon(page_main_internal_s1_d3,GREEN,7,8);
+  58   2                              break;
+  59   2                      case 0x04:
+  60   2                              display_gicon(page_main_internal_s1_d4,GREEN,7,8);
+  61   2                              break;
+  62   2                      case 0x05:
+  63   2                              display_gicon(page_main_internal_s1_d5,GREEN,7,8);
+  64   2                              break;
+  65   2                      case 0x06:
+  66   2                              display_gicon(page_main_internal_s1_d6,GREEN,7,8);
+  67   2                              break;
+  68   2                      case 0x07:
+  69   2                              display_gicon(page_main_internal_s1_d7,GREEN,7,8);
+  70   2                              break;
+  71   2                      case 0x08:
+  72   2                              display_gicon(page_main_internal_s1_d8,GREEN,7,8);
+  73   2                              break;
+  74   2                      case 0x09:
+  75   2                              display_gicon(page_main_internal_s1_d9,GREEN,7,8);
+  76   2                              break;
+  77   2                      case 0x0a:
+  78   2                              display_gicon(page_main_internal_s1_d10,GREEN,7,8);
+  79   2                              break;
+  80   2                      case 0x0b:
+  81   2                              display_gicon(page_main_internal_s1_d11,GREEN,7,8);
+  82   2                              break;
+  83   2                      case 0x0c:
+  84   2                              display_gicon(page_main_internal_s1_d12,GREEN,7,8);
+  85   2                              break;
+  86   2                      case 0x0d:
+  87   2                              display_gicon(page_main_internal_s1_r,GREEN,7,8);
+  88   2                              break;
+  89   2                      case 0x0e:
+  90   2                              display_gicon(page_main_internal_s1_d,GREEN,7,8);
+  91   2                              break;
+  92   2                      case 0x0f:
+  93   2                              display_gicon(page_main_internal_s1_p,GREEN,7,8);
+  94   2                              break;
+  95   2                      default:
+  96   2                              break;
+  97   2              }
+  98   1              //爬坡模式
+  99   1          u8_data = siji_status >> 4;
+ 100   1              if(u8_data & 0x01)
+ 101   1                      display_icon(page_main_internal_youxiao,GREEN,37,7);
+ 102   1              else
+ 103   1                      display_icon(page_main_internal_wuxiao,GREEN,37,7);
+ 104   1              //车辆工作模式
+ 105   1              u8_data = siji_status >> 5;
+ 106   1              if((u8_data & 0x03) == 0)
+ 107   1                      display_gicon(page_main_internal_s1_chundian,GREEN,11,9);
+ 108   1              else if((u8_data & 0x03) == 1)
+ 109   1                      display_gicon(page_main_internal_s1_hundong,GREEN,11,9);
+ 110   1              else if((u8_data & 0x03) == 2)
+ 111   1                      display_gicon(page_main_internal_s1_chadian,GREEN,11,9);
+ 112   1              else
+ 113   1                      clear_area_block(11,9,5,1);
+ 114   1              //高压维修开关
+ 115   1              u8_data = siji_status >> 7;
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 3   
+
+ 116   1              if(u8_data & 0x01)
+ 117   1                      display_icon(page_main_internal_youxiao,GREEN,11,10);
+ 118   1              else
+ 119   1                      display_icon(page_main_internal_wuxiao,GREEN,11,10);
+ 120   1         // display_char_8bit (11, 7, GREEN, onoff_status);
+ 121   1         //开关量状态
+ 122   1              u8_data = onoff_status;
+ 123   1              for(i=0;i<8;i++)
+ 124   1              {
+ 125   2                      if(u8_data & 0x01)
+ 126   2                              display_icon(page_main_internal_youxiao,GREEN,41,8 + i);
+ 127   2                      else
+ 128   2                              display_icon(page_main_internal_wuxiao,GREEN,41,8 + i);
+ 129   2                      u8_data >>= 1;
+ 130   2              }
+ 131   1              //u8_data = onoff_status >> 5;
+ 132   1              /*for(i=0;i<3;i++)
+ 133   1              {
+ 134   1                      if(u8_data & 0x01)
+ 135   1                              display_icon(page_main_internal_youxiao,GREEN,41,12 + i);
+ 136   1                      else
+ 137   1                              display_icon(page_main_internal_wuxiao,GREEN,41,12 + i);
+ 138   1                      u8_data >>= 1;
+ 139   1              }*/
+ 140   1          //display_char_8bit (9, 8, GREEN, system_status);
+ 141   1      
+ 142   1          //系统状态-电机
+ 143   1              u8_data = system_status;
+ 144   1              switch(u8_data & 0x03)
+ 145   1              {
+ 146   2                      case 0:
+ 147   2                              display_uncolor_icon(page_main_internal_status_green,8,12);
+ 148   2                              clear_area_block(13,12,12,1);
+ 149   2                              break;
+ 150   2                      case 1:
+ 151   2                              display_uncolor_icon(page_main_internal_status_green,13,12);
+ 152   2                              clear_area_block(8,12,2,1);
+ 153   2                              clear_area_block(18,12,8,1);
+ 154   2                              break;
+ 155   2                      case 2:
+ 156   2                              display_uncolor_icon(page_main_internal_status_green,18,12);
+ 157   2                              clear_area_block(8,12,8,1);
+ 158   2                              clear_area_block(23,12,2,1);
+ 159   2                              break;
+ 160   2                      case 3:
+ 161   2                              display_uncolor_icon(page_main_internal_status_green,23,12);
+ 162   2                              clear_area_block(8,12,12,1);
+ 163   2                              break;
+ 164   2                      default:
+ 165   2                              break;
+ 166   2              }
+ 167   1              //系统状态-发电机
+ 168   1              u8_data = system_status >> 2;
+ 169   1              switch(u8_data & 0x03)
+ 170   1              {
+ 171   2                      case 0:
+ 172   2                              display_uncolor_icon(page_main_internal_status_green,8,13);
+ 173   2                              clear_area_block(13,13,12,1);
+ 174   2                              break;
+ 175   2                      case 1:
+ 176   2                              display_uncolor_icon(page_main_internal_status_green,13,13);
+ 177   2                              clear_area_block(8,13,2,1);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 4   
+
+ 178   2                              clear_area_block(18,13,8,1);
+ 179   2                              break;
+ 180   2                      case 2:
+ 181   2                              display_uncolor_icon(page_main_internal_status_green,18,13);
+ 182   2                              clear_area_block(8,13,8,1);
+ 183   2                              clear_area_block(23,13,2,1);
+ 184   2                              break;
+ 185   2                      case 3:
+ 186   2                              display_uncolor_icon(page_main_internal_status_green,23,13);
+ 187   2                              clear_area_block(8,13,12,1);
+ 188   2                              break;
+ 189   2                      default:
+ 190   2                              break;
+ 191   2              }
+ 192   1              //系统状态-整车系统
+ 193   1              u8_data = system_status >> 4;
+ 194   1              if((u8_data & 0x03) == 0)
+ 195   1          {
+ 196   2              clear_area_block (12, 14, 5, 1);
+ 197   2              display_icon (page_main_internal_zhengchang, GREEN, 9, 14);
+ 198   2          }
+ 199   1          else if ((u8_data & 0x03) == 1)
+ 200   1              display_gicon (page_main_internal_yijigz, RED, 9, 14);
+ 201   1      
+ 202   1          else if ((u8_data & 0x03) == 2)
+ 203   1          {
+ 204   2              display_gicon (page_main_internal_erjigz, RED,9, 14);
+ 205   2          }
+ 206   1          else if ((u8_data & 0x03) == 3)
+ 207   1          {
+ 208   2              display_gicon (page_main_internal_sanjigz, RED,9, 14);
+ 209   2          }
+ 210   1          //displayu8 (9, 9, bus_mode, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 211   1          //整车模式
+ 212   1              switch(bus_mode)
+ 213   1              {
+ 214   2                      case 0x55:
+ 215   2                              display_gicon(page_main_internal_s1_zijian,GREEN,9,11);
+ 216   2                              break;
+ 217   2                      case 0x65:
+ 218   2                              display_gicon(page_main_internal_s1_kuaichong,GREEN,9,11);
+ 219   2                              break;
+ 220   2                      case 0x66:
+ 221   2                              display_gicon(page_main_internal_s1_manchong,GREEN,9,11);
+ 222   2                              break;
+ 223   2                      default:
+ 224   2                              clear_area_block(9,11,5,1);
+ 225   2                              break;
+ 226   2              }
+ 227   1              displayu8 (37, 6, bus_life, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 228   1          displayu8 (11, 7, bus_version[0], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 229   1          displayu8 (14, 7, bus_version[1], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 230   1          displayu8 (17, 7, bus_version[2], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 231   1              temp = ByteToWord(bus_version[3],bus_version[4]);
+ 232   1          displayu16 (20, 7, temp, 4, 0, GREEN, FULLZERO, FONT_SMALL);
+ 233   1          displayu8 (25, 7,bus_version[5], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 234   1          displayu8 (28, 7, bus_version[6], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 235   1      
+ 236   1          displayu8 (39, 2, youmen_taban, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 237   1          displayu8 (39, 3, zhidong_taban, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 238   1          for (i = 0; i < 2; i++)
+ 239   1          {
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 5   
+
+ 240   2              display_char_8bit (10, 4 + i, GREEN, bus_yuliu[i]);
+ 241   2          }
+ 242   1              for (i = 0; i < 2; i++)
+ 243   1          {
+ 244   2              display_char_8bit (25, 4 + i, GREEN, bus_yuliu[2+i]);
+ 245   2          }
+ 246   1              for (i = 0; i < 2; i++)
+ 247   1          {
+ 248   2              display_char_8bit (40, 4 + i, GREEN, bus_yuliu[4+i]);
+ 249   2          }
+ 250   1      }
+ 251          void display_surface2 (void)
+ 252          {
+ 253   1          unsigned int temp;
+ 254   1          displays16 (14, 3, motor_temp[0], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 255   1          displays16 (14, 5, motor_temp[1], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 256   1          displays16 (12, 7, motor_zhju, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 257   1          temp = surface_data[0][3];
+ 258   1          temp <<= 8;
+ 259   1          temp |= surface_data[0][2];
+ 260   1          displayu8 (5, 11, surface_data[0][0], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 261   1          displayu8 (8, 11, surface_data[0][1], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 262   1          displayu16 (11, 11, temp, 4, 0, GREEN, FULLZERO, FONT_SMALL);
+ 263   1          displayu8 (16, 11, surface_data[0][4], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 264   1          displayu8 (19, 11, surface_data[0][5], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 265   1          displayu8 (21, 11, surface_data[0][6], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 266   1      
+ 267   1         // displays16 (38, 3, motor_temp[2], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 268   1         // displays16 (38, 5, motor_temp[3], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 269   1          /*temp = surface_data[1][3];
+ 270   1          temp <<= 8;
+ 271   1          temp |= surface_data[1][2];
+ 272   1          displayu8 (28, 11, surface_data[1][0], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 273   1          displayu8 (31, 11, surface_data[1][1], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 274   1          displayu16 (34, 11, temp, 4, 0, GREEN, FULLZERO, FONT_SMALL);
+ 275   1          displayu8 (39, 11, surface_data[1][4], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 276   1          displayu8 (42, 11, surface_data[1][5], 2, 0, GREEN, FULLZERO, FONT_SMALL);
+ 277   1          displayu8 (44, 11, surface_data[1][6], 2, 0, GREEN, FULLZERO, FONT_SMALL);*/
+ 278   1          //控制器输入电流
+ 279   1          displays16 (39, 3, motor_con_cur, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 280   1         //电控故障代码
+ 281   1              displayu8 (41, 5, elec_control_code, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 282   1      }
+ 283          void display_surface3 (void)
+ 284          {
+ 285   1          displays16 (15, 2, dcdc_output_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 286   1          displays16 (15, 4, dcdc_output_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 287   1          displays16 (15, 6, dcdc_input_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 288   1          displays16 (17, 8, dcdc_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 289   1          displayu8 (17, 10, dcdc_fault, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 290   1          //displayu16 (15, 12, riso_zheng, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 291   1         // displayu16 (15, 14, riso_fu, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 292   1         // displayu8 (17, 16, riso_life, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 293   1      
+ 294   1         // displayu8 (43, 12, riso_fault, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 295   1          /*if (riso_loudian == 0xaa)
+ 296   1          {
+ 297   1              display_icon (page_main_internal_number_0, GREEN, 40, 14);
+ 298   1              display_icon (page_main_internal_x, GREEN, 41, 14);
+ 299   1              display_icon (page_main_internal_number_a, GREEN, 42, 14);
+ 300   1              display_icon (page_main_internal_number_a, GREEN, 43, 14);
+ 301   1          }
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 6   
+
+ 302   1          else
+ 303   1              if (riso_loudian == 0x55)
+ 304   1              {
+ 305   1                  display_icon (page_main_internal_number_0, GREEN, 40, 14);
+ 306   1                  display_icon (page_main_internal_x, GREEN, 41, 14);
+ 307   1                  display_icon (page_main_internal_number_5, GREEN, 42, 14);
+ 308   1                  display_icon (page_main_internal_number_5, GREEN, 43, 14);
+ 309   1              }
+ 310   1              else
+ 311   1              {
+ 312   1                  clear_area_block (40, 13, 4, 1);
+ 313   1              }*/
+ 314   1              //DC/DC启动指令
+ 315   1              if((surface_data[0][0] & 0xff) == 0xaa)
+ 316   1                      display_icon(page_main_internal_guanbi,GREEN,35,2);
+ 317   1              else if((surface_data[0][0] & 0xff) == 0x55)
+ 318   1                      display_icon(page_main_internal_qidong,GREEN,35,2);
+ 319   1              else
+ 320   1                      clear_area_block(35,2,3,1);
+ 321   1      
+ 322   1              //DC/AC（助力转向）启动指令
+ 323   1              if((surface_data[0][1] & 0xff) == 0xaa)
+ 324   1                      display_icon(page_main_internal_guanbi,GREEN,41,4);
+ 325   1              else if((surface_data[0][1] & 0xff) == 0x55)
+ 326   1                      display_icon(page_main_internal_qidong,GREEN,41,4);
+ 327   1              else
+ 328   1                      clear_area_block(41,4,3,1);
+ 329   1      
+ 330   1              //DC/AC（助力转向）工作模式
+ 331   1              if((surface_data[0][2]& 0xff) == 0xaa)
+ 332   1                      display_gicon(page_main_internal_s3_daiji,GREEN,41,6);
+ 333   1              else if((surface_data[0][2]& 0xff) == 0x55)
+ 334   1                      display_gicon(page_main_internal_s3_yunxing,GREEN,41,6);
+ 335   1              else
+ 336   1                      clear_area_block(41,6,3,1);
+ 337   1      
+ 338   1              //DC/AC（空压机）启动指令
+ 339   1              if((surface_data[0][3] & 0xff) == 0xaa)
+ 340   1                      display_icon(page_main_internal_guanbi,GREEN,40,8);
+ 341   1              else if((surface_data[0][3] & 0xff) == 0x55)
+ 342   1                      display_icon(page_main_internal_qidong,GREEN,40,8);
+ 343   1              else
+ 344   1                      clear_area_block(40,8,3,1);
+ 345   1      }
+ 346          void display_surface4 (void)
+ 347          {
+ 348   1          unsigned char i;
+ 349   1          for (i = 0; i < 8; i++)
+ 350   1          {
+ 351   2              if (i < 4)
+ 352   2              {
+ 353   3                  display_char_8bit (10, 3 + 2 * i, GREEN, tiaoshi_canshu[i]);
+ 354   3              }
+ 355   2              else
+ 356   2              {
+ 357   3                  display_char_8bit (33, 3 + 2 * (i - 4), GREEN, tiaoshi_canshu[i]);
+ 358   3              }
+ 359   2          }
+ 360   1          display_char_8bit (10, 11, GREEN, yzt_status); //云智通状态
+ 361   1      }
+ 362          void display_surface5 (void)
+ 363          {   
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 7   
+
+ 364   1          //static unsigned char last_soc = 0;
+ 365   1          displays16 (14, 1, total_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 366   1          displays16 (14, 3, chongdian_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 367   1          displays16 (14, 5, fangdian_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 368   1          displayu16 (14, 7, battery_riso_zheng, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 369   1          displayu16 (14, 9, battery_riso_fu, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 370   1      
+ 371   1          displays16 (37, 1, total_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 372   1          displayu16 (37, 3, mono_pingjun_voltage, 2, 2, GREEN, FULLSPACE, FONT_SMALL);
+ 373   1         // displays16 (37, 5, mono_max_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 374   1          displayu16 (37, 9, mono_max_voltage, 2, 2, GREEN, FULLSPACE, FONT_SMALL);
+ 375   1          displayu16 (37, 11, mono_min_voltage, 2, 2, GREEN, FULLSPACE, FONT_SMALL);
+ 376   1         // displays16 (37, 7, mono_min_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 377   1         
+ 378   1              displayu8 (14, 11, dianchi_soc, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 379   1      
+ 380   1      
+ 381   1      
+ 382   1      }
+ 383          void display_surface6 (void)
+ 384          {
+ 385   1          unsigned char i;
+ 386   1          display_char_8bit (12, 3, GREEN, vin_status);
+ 387   1          for (i = 0; i < 4; i++)
+ 388   1          {
+ 389   2              if( chongdian_temp[i] == 215)
+ 390   2                              clear_area_block(15, 5 + 2 * i,5,1);
+ 391   2                      else
+ 392   2                      displays16 (15, 5 + 2 * i, chongdian_temp[i], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 393   2          }
+ 394   1          displayu8 (15, 13, battery_fault_suliang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 395   1      
+ 396   1          displayu16 (38, 3, eding_rongliang, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 397   1          displayu16 (38, 5, eding_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 398   1          displayu16 (38, 7, mono_chuanlian_shuliang, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 399   1          displayu8 (40, 9, mono_binglian_shuliang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 400   1          displayu8 (40, 11, mono_tanzhen_shuliang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 401   1      }
+ 402          void display_hex (unsigned char x, unsigned char y, unsigned char temp)
+ 403          {
+ 404   1          display_icon (page_main_internal_number_0, GREEN, x, y);
+ 405   1          display_icon (page_main_internal_x, GREEN, x + 1, y);
+ 406   1          display_icon (*number_hex_map[ ((temp >> 4) & 0x0f)], GREEN, x + 2, y);
+ 407   1          display_icon (*number_hex_map[ (temp & 0x0f)], GREEN, x + 3, y);
+ 408   1      }
+ 409          
+ 410          void display_surface7 (void)
+ 411          {
+ 412   1          unsigned char i;
+ 413   1          displays16 (10, 3, mono_max_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 414   1          displayu8 (15, 3, mono_max_t_xiang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 415   1          displayu8 (20, 3, mono_max_t_jie, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 416   1          displays16 (10, 5, mono_min_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 417   1          displayu8 (15, 5, mono_min_t_xiang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 418   1          displayu8 (20, 5, mono_min_t_jie, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 419   1          display_hex (8, 7, battery_leixing);
+ 420   1          display_hex (10, 9, battery_lengque);
+ 421   1      
+ 422   1          displayu16 (34, 3, mono_max_voltage, 1, 2, GREEN, FULLSPACE, FONT_SMALL);
+ 423   1          displayu8 (39, 3, mono_max_v_xiang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 424   1          displayu8 (44, 3, mono_max_v_jie, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 425   1          displayu16 (34, 5, mono_min_voltage, 1, 2, GREEN, FULLSPACE, FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 8   
+
+ 426   1          displayu8 (39, 5, mono_min_v_xiang, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 427   1          displayu8 (44, 5, mono_min_v_jie, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 428   1          for (i = 0; i < 4; i++)
+ 429   1          {
+ 430   2              display_hex (30, 7 + 2 * i, battery_yuliu[i]);
+ 431   2          }
+ 432   1      }
+ 433          void display_surface8s (void)
+ 434          {
+ 435   1          unsigned char i, color;
+ 436   1          for (i = 0; i < 10; i++)
+ 437   1          {
+ 438   2              if ((dianchi_mono_voltage[i] > 414) || (dianchi_mono_voltage[i] < 251))
+ 439   2              {
+ 440   3                  color = RED;
+ 441   3              }
+ 442   2              else
+ 443   2              {
+ 444   3                  color = GREEN;
+ 445   3              }
+ 446   2              if (i < 5)
+ 447   2              {
+ 448   3                  displayu16 (3, 5 + 2 * i, dianchi_bianhao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 449   3                  displayu16 (7, 5 + 2 * i, dianchi_mono_voltage[i], 2, 2, color, FULLSPACE, FONT_SMALL);
+ 450   3                  displayu8 (26, 5 + 2 * i, dianchi_xianghao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 451   3                  displays16 (31, 5 + 2 * i, dianchi_mono_temp[i], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 452   3              }
+ 453   2              else
+ 454   2              {
+ 455   3                  displayu16 (14, 5 + 2 * (i - 5), dianchi_bianhao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 456   3                  displayu16 (18, 5 + 2 * (i - 5), dianchi_mono_voltage[i], 2, 2, color, FULLSPACE, FONT_SMALL);
+ 457   3                  displayu8 (37, 5 + 2 * (i - 5), dianchi_xianghao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 458   3                  displays16 (42, 5 + 2 * (i - 5), dianchi_mono_temp[i], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 459   3              }
+ 460   2          }
+ 461   1      }
+ 462          
+ 463          void display_surface8 (void)
+ 464          {
+ 465   1          unsigned char i, color;
+ 466   1          switch (dianchi_fenxian)
+ 467   1          {
+ 468   2              case 1:
+ 469   2                  for (i = 0; i < 2; i++)
+ 470   2                  {
+ 471   3                      if ((dianchi_mono_voltage[i] > 414) || (dianchi_mono_voltage[i] < 251))
+ 472   3                      {
+ 473   4                          color = RED;
+ 474   4                      }
+ 475   3                      else
+ 476   3                      {
+ 477   4                          color = GREEN;
+ 478   4                      }
+ 479   3                      displayu16 (3, 5 + 2 * i, dianchi_bianhao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 480   3                      displayu16 (7, 5 + 2 * i, dianchi_mono_voltage[i], 2, 2, color, FULLSPACE, FONT_SMALL);
+ 481   3                  }
+ 482   2                  break;
+ 483   2              case 2:
+ 484   2                  for (i = 0; i < 2; i++)
+ 485   2                  {
+ 486   3                      if ((dianchi_mono_voltage[i + 2] > 414) || (dianchi_mono_voltage[i + 2] < 251))
+ 487   3                      {
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 9   
+
+ 488   4                          color = RED;
+ 489   4                      }
+ 490   3                      else
+ 491   3                      {
+ 492   4                          color = GREEN;
+ 493   4                      }
+ 494   3                      displayu16 (3, 5 + 2 * (i + 2), dianchi_bianhao[i + 2], 3, 0, WHITE, FULLZERO, FONT_SMALL)
+             -;
+ 495   3                      displayu16 (7, 5 + 2 * (i + 2), dianchi_mono_voltage[i + 2], 2, 2, color, FULLSPACE, FONT_
+             -SMALL);
+ 496   3                  }
+ 497   2                  break;
+ 498   2              case 3:
+ 499   2                  if ((dianchi_mono_voltage[4] > 414) || (dianchi_mono_voltage[4] < 251))
+ 500   2                  {
+ 501   3                      color = RED;
+ 502   3                  }
+ 503   2                  else
+ 504   2                  {
+ 505   3                      color = GREEN;
+ 506   3                  }
+ 507   2                  displayu16 (3, 13, dianchi_bianhao[4], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 508   2                  displayu16 (7, 13, dianchi_mono_voltage[4], 2, 2, color, FULLSPACE, FONT_SMALL);
+ 509   2                  if ((dianchi_mono_voltage[5] > 414) || (dianchi_mono_voltage[5] < 251))
+ 510   2                  {
+ 511   3                      color = RED;
+ 512   3                  }
+ 513   2                  else
+ 514   2                  {
+ 515   3                      color = GREEN;
+ 516   3                  }
+ 517   2                  displayu16 (14, 5, dianchi_bianhao[5], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 518   2                  displayu16 (18, 5, dianchi_mono_voltage[5], 2, 2, color, FULLSPACE, FONT_SMALL);
+ 519   2                  break;
+ 520   2              case 4:
+ 521   2                  for (i = 0; i < 2; i++)
+ 522   2                  {
+ 523   3                      if ((dianchi_mono_voltage[i + 6] > 414) || (dianchi_mono_voltage[i + 6] < 251))
+ 524   3                      {
+ 525   4                          color = RED;
+ 526   4                      }
+ 527   3                      else
+ 528   3                      {
+ 529   4                          color = GREEN;
+ 530   4                      }
+ 531   3                      displayu16 (14, 5 + 2 * (i + 1), dianchi_bianhao[i + 6], 3, 0, WHITE, FULLZERO, FONT_SMALL
+             -);
+ 532   3                      displayu16 (18, 5 + 2 * (i + 1), dianchi_mono_voltage[i + 6], 2, 2, color, FULLSPACE, FONT
+             -_SMALL);
+ 533   3                  }
+ 534   2                  break;
+ 535   2              case 5:
+ 536   2                  for (i = 0; i < 2; i++)
+ 537   2                  {
+ 538   3                      if ((dianchi_mono_voltage[i + 8] > 414) || (dianchi_mono_voltage[i + 8] < 251))
+ 539   3                      {
+ 540   4                          color = RED;
+ 541   4                      }
+ 542   3                      else
+ 543   3                      {
+ 544   4                          color = GREEN;
+ 545   4                      }
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 10  
+
+ 546   3                      displayu16 (14, 5 + 2 * (i + 3), dianchi_bianhao[i + 8], 3, 0, WHITE, FULLZERO, FONT_SMALL
+             -);
+ 547   3                      displayu16 (18, 5 + 2 * (i + 3), dianchi_mono_voltage[i + 8], 2, 2, color, FULLSPACE, FONT
+             -_SMALL);
+ 548   3                  }
+ 549   2                  break;
+ 550   2              case 6:
+ 551   2                  for (i = 0; i < 4; i++)
+ 552   2                  {
+ 553   3                      displayu8 (26, 5 + 2 * i, dianchi_xianghao[i], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 554   3                      displays16 (31, 5 + 2 * i, dianchi_mono_temp[i], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 555   3                  }
+ 556   2                  break;
+ 557   2              case 7:
+ 558   2                  displayu8 (26, 13, dianchi_xianghao[4], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 559   2                  displays16 (31, 13, dianchi_mono_temp[4], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 560   2                  for (i = 0; i < 3; i++)
+ 561   2                  {
+ 562   3                      displayu8 (37, 5 + 2 * i, dianchi_xianghao[i + 5], 3, 0, WHITE, FULLZERO, FONT_SMALL);
+ 563   3                      displays16 (42, 5 + 2 * i, dianchi_mono_temp[i + 5], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 564   3                  }
+ 565   2                  break;
+ 566   2              case 8:
+ 567   2                  for (i = 0; i < 2; i++)
+ 568   2                  {
+ 569   3                      displayu8 (37, 5 + 2 * (i + 3), dianchi_xianghao[i + 8], 3, 0, WHITE, FULLZERO, FONT_SMALL
+             -);
+ 570   3                      displays16 (42, 5 + 2 * (i + 3), dianchi_mono_temp[i + 8], 3, 0, GREEN, FULLSPACE, FONT_SM
+             -ALL);
+ 571   3                  }
+ 572   2                  break;
+ 573   2              default:
+ 574   2                  break;
+ 575   2          }
+ 576   1          dianchi_fenxian = 0;
+ 577   1      }
+ 578          void display_surface9 (void)
+ 579          {
+ 580   1          displayu8 (17, 3, air_fuhe, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 581   1          displays16 (17, 5, air_set_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 582   1          displays16 (17, 7, air_wai_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 583   1          displays16 (17, 9, air_nei_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 584   1          displays16 (38, 3, air_current, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+ 585   1         // display_char_8bit (35, 5, GREEN, air_status);
+ 586   1         if((air_status  & 0xc1) == 0)
+ 587   1              {
+ 588   2                      display_icon (page_main_internal_guanbi, GREEN, 40,5);
+ 589   2                      clear_area_block(43,5,1,1);
+ 590   2              }
+ 591   1              else if((air_status  & 0xc1) == 0x40)
+ 592   1              {
+ 593   2                      display_icon (page_main_internal_guzhang, RED, 40,5);
+ 594   2                      clear_area_block(43,5,1,1);
+ 595   2              }
+ 596   1              else if((air_status  & 0xc1) == 0x01)
+ 597   1              {
+ 598   2                      display_icon (page_main_internal_qidong, GREEN, 40,5);
+ 599   2                      clear_area_block(43,5,1,1);
+ 600   2              }
+ 601   1              else if((air_status  & 0xc1) == 0x80)
+ 602   1                      display_icon (page_main_internal_s9_ready, GREEN, 40,5);
+ 603   1              else
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 11  
+
+ 604   1                      clear_area_block(40,5,4,1);
+ 605   1          displayu8 (40, 7, air_life, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 606   1      }
+ 607          void display_surface10 (void)
+ 608          {
+ 609   1         unsigned char i,u8_data;
+ 610   1              //bms_status_1
+ 611   1              u8_data = battery_status[0];
+ 612   1              for(i=0;i<8;i++)
+ 613   1              {               
+ 614   2                      if(u8_data & 0x01)
+ 615   2                              display_icon(page_main_internal_youxiao,GREEN,15,1 + i);
+ 616   2                      else
+ 617   2                              display_icon(page_main_internal_wuxiao,GREEN,15,1 + i);
+ 618   2                      u8_data >>= 1;
+ 619   2              }
+ 620   1              //bms_status_2
+ 621   1              u8_data = battery_status[1];
+ 622   1              for(i=0;i<8;i++)
+ 623   1              {               
+ 624   2                      if(u8_data & 0x01)
+ 625   2                              display_icon(page_main_internal_youxiao,GREEN,15,9 + i);
+ 626   2                      else
+ 627   2                              display_icon(page_main_internal_wuxiao,GREEN,15,9 + i);
+ 628   2                      u8_data >>= 1;
+ 629   2              }
+ 630   1              //bms_status_3
+ 631   1              u8_data = battery_status[2];
+ 632   1                      if(u8_data & 0x01)
+ 633   1                              display_icon(page_main_internal_youxiao,GREEN,29,1);
+ 634   1                      else
+ 635   1                              display_icon(page_main_internal_wuxiao,GREEN,29,1);
+ 636   1                      
+ 637   1              u8_data = battery_status[2];    
+ 638   1                      if(u8_data & 0x02)
+ 639   1                              display_gicon(page_main_internal_bihe,GREEN,29,2);
+ 640   1                      else
+ 641   1                              display_gicon(page_main_internal_duankai,RED,29,2);
+ 642   1                      
+ 643   1              u8_data = battery_status[2];    
+ 644   1              for(i=0;i<6;i++)
+ 645   1              {               
+ 646   2                      if(u8_data & 0x04)
+ 647   2                              display_icon(page_main_internal_youxiao,GREEN,29,3 + i);
+ 648   2                      else
+ 649   2                              display_icon(page_main_internal_wuxiao,GREEN,29,3 + i);
+ 650   2                      u8_data >>= 1;
+ 651   2              }
+ 652   1              //bms_status_4
+ 653   1              u8_data = battery_status[3];
+ 654   1              for(i=0;i<8;i++)
+ 655   1              {               
+ 656   2                      if(u8_data & 0x01)
+ 657   2                              display_icon(page_main_internal_youxiao,GREEN,29,9 + i);
+ 658   2                      else
+ 659   2                              display_icon(page_main_internal_wuxiao,GREEN,29,9 + i);
+ 660   2                      u8_data >>= 1;
+ 661   2              }
+ 662   1              //bms_status_5
+ 663   1              u8_data = battery_status[4];
+ 664   1              for(i=0;i<6;i++)
+ 665   1              {               
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 12  
+
+ 666   2                      if(u8_data & 0x01)
+ 667   2                              display_icon(page_main_internal_youxiao,GREEN,43,1 + i);
+ 668   2                      else
+ 669   2                              display_icon(page_main_internal_wuxiao,GREEN,43,1 + i);
+ 670   2                      u8_data >>= 1;
+ 671   2              }
+ 672   1      }
+ 673          void display_surface11 (void)
+ 674          {
+ 675   1      //      switch(runhua1)
+ 676   1      //      {
+ 677   1      //              case 0:
+ 678   1      //                      display_gicon(page_main_internal_s13_runhua,GREEN,27,4);
+ 679   1      //                      break;
+ 680   1      //              case 2:
+ 681   1      //                      display_gicon(page_main_internal_s13_chuanganqigz,RED,27,4);
+ 682   1      //                      break;
+ 683   1      //              case 4:
+ 684   1      //                      display_gicon(page_main_internal_s13_diyouwei,RED,27,4);
+ 685   1      //                      break;
+ 686   1      //              case 0x40:
+ 687   1      //                      display_gicon(page_main_internal_s13_xiuzhi,GREEN,27,4);
+ 688   1      //                      break;
+ 689   1      //              default:
+ 690   1      //                      clear_area_block(27,4,10,1);
+ 691   1      //                      break;
+ 692   1      //      }
+ 693   1      #if 0
+              
+                 signed int s16_data;
+                 unsigned int u16_data;
+                 //胎压
+                 u16_data = ByteToWord(surface_data[0][0],surface_data[0][1]);
+                 displayu16 (6, 11, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 u16_data = ByteToWord(surface_data[0][2],surface_data[0][3]);
+                 displayu16 (6, 4, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 u16_data = ByteToWord(surface_data[0][4],surface_data[0][5]);
+                 displayu16 (35, 12, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 u16_data = ByteToWord(surface_data[0][6],surface_data[0][7]);
+                 displayu16 (35, 10, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 u16_data = ByteToWord(surface_data[1][0],surface_data[1][1]);
+                 displayu16 (35, 5, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 u16_data = ByteToWord(surface_data[1][2],surface_data[1][3]);
+                 displayu16 (35, 3, u16_data, 4, 1, GREEN, FULLSPACE, FONT_SMALL);
+                 
+                 //胎温
+                 s16_data = surface_data[2][0];
+                 displays16 (7, 12, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 s16_data = surface_data[2][1];
+                 displays16 (7, 5, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 s16_data = surface_data[2][2];
+                 displays16 (36, 13, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 s16_data = surface_data[2][3];
+                 displays16 (36, 11, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 13  
+
+              
+                 s16_data = surface_data[2][4];
+                 displays16 (36, 6, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+              
+                 s16_data = surface_data[2][5];
+                 displays16 (36, 4, s16_data - 55, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+                 
+              #endif
+ 736   1      
+ 737   1      }
+ 738          void display_surface12 (void)
+ 739          {
+ 740   1      
+ 741   1          displays16 (18, 2, qiben1, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 742   1          displays16 (18, 4, qiben2, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 743   1          displays16 (18, 6, qiben3, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 744   1          displays16 (20, 8, qiben4, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 745   1          displayu8 (20, 10, qiben5, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 746   1      
+ 747   1      
+ 748   1      
+ 749   1      }
+ 750          void display_surface13 (void)
+ 751          {
+ 752   1              unsigned char u8_data;
+ 753   1              unsigned int u16_data;
+ 754   1              int s16_data;
+ 755   1              //BMS请求设定模式
+ 756   1      /*      u8_data = surface_data[0][0];
+ 757   1              switch(u8_data & 0x03)
+ 758   1              {
+ 759   1                      case 0:
+ 760   1                              clear_area_block(22,2,20,1);
+ 761   1                              display_uncolor_icon(page_main_internal_status_green,15,2);
+ 762   1                              break;
+ 763   1                      case 1:
+ 764   1                              clear_area_block(15,2,3,1);
+ 765   1                              clear_area_block(28,2,10,1);
+ 766   1                              display_uncolor_icon(page_main_internal_status_green,22,2);
+ 767   1                              break;
+ 768   1                      case 2:
+ 769   1                              clear_area_block(15,2,10,1);
+ 770   1                              clear_area_block(35,2,3,1);
+ 771   1                              display_uncolor_icon(page_main_internal_status_green,28,2);
+ 772   1                              break;
+ 773   1                      case 3:
+ 774   1                              clear_area_block(15,2,20,1);
+ 775   1                              display_uncolor_icon(page_main_internal_status_green,35,2);
+ 776   1                              break;
+ 777   1                      default:
+ 778   1                              break;
+ 779   1              }
+ 780   1              //高压请求
+ 781   1              u8_data = surface_data[0][0] >> 2;
+ 782   1              switch(u8_data & 0x03)
+ 783   1              {
+ 784   1                      case 0:
+ 785   1                              clear_area_block(22,3,20,1);
+ 786   1                              display_uncolor_icon(page_main_internal_status_green,15,3);
+ 787   1                              break;
+ 788   1                      case 1:
+ 789   1                              clear_area_block(15,3,3,1);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 14  
+
+ 790   1                              clear_area_block(28,3,10,1);
+ 791   1                              display_uncolor_icon(page_main_internal_status_green,22,3);
+ 792   1                              break;
+ 793   1                      case 2:
+ 794   1                      case 3:
+ 795   1                              clear_area_block(15,3,10,1);
+ 796   1                              clear_area_block(35,3,3,1);
+ 797   1                              display_uncolor_icon(page_main_internal_status_green,28,3);
+ 798   1                              break;
+ 799   1                      default:
+ 800   1                              break;
+ 801   1              }
+ 802   1              // 充电状态
+ 803   1              u8_data = surface_data[0][0] >> 4;
+ 804   1              switch(u8_data & 0x03)
+ 805   1              {
+ 806   1                      case 0:
+ 807   1                              clear_area_block(22,4,20,1);
+ 808   1                              display_uncolor_icon(page_main_internal_status_green,15,4);
+ 809   1                              break;
+ 810   1                      case 1:
+ 811   1                              clear_area_block(15,4,3,1);
+ 812   1                              clear_area_block(28,4,10,1);
+ 813   1                              display_uncolor_icon(page_main_internal_status_green,22,4);
+ 814   1                              break;
+ 815   1                      case 2:
+ 816   1                      case 3:
+ 817   1                              clear_area_block(15,4,10,1);
+ 818   1                              clear_area_block(35,4,3,1);
+ 819   1                              display_uncolor_icon(page_main_internal_status_green,28,4);
+ 820   1                              break;
+ 821   1                      default:
+ 822   1                              break;
+ 823   1              }
+ 824   1              //BMS高压继电器状态 
+ 825   1              u8_data = surface_data[0][0] >> 6;
+ 826   1              switch(u8_data & 0x03)
+ 827   1              {
+ 828   1                      case 0:
+ 829   1                              clear_area_block(22,5,20,1);
+ 830   1                              display_uncolor_icon(page_main_internal_status_green,15,5);
+ 831   1                              break;
+ 832   1                      case 1:
+ 833   1                              clear_area_block(15,5,3,1);
+ 834   1                              clear_area_block(28,5,10,1);
+ 835   1                              display_uncolor_icon(page_main_internal_status_green,22,5);
+ 836   1                              break;
+ 837   1                      case 2:
+ 838   1                      case 3:
+ 839   1                              clear_area_block(15,5,10,1);
+ 840   1                              clear_area_block(35,5,3,1);
+ 841   1                              display_uncolor_icon(page_main_internal_status_green,28,5);
+ 842   1                              break;
+ 843   1                      default:
+ 844   1                              break;
+ 845   1              }
+ 846   1              // BMS当前电压
+ 847   1              u16_data = ByteToWord(surface_data[0][2],surface_data[0][1]);
+ 848   1              displayu16 (19, 6, u16_data, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 849   1              // 设定温度
+ 850   1              s16_data = surface_data[0][4] - 40;
+ 851   1          displays16 (39, 6, s16_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 15  
+
+ 852   1              // BMS生命帧
+ 853   1              displayu8(21, 7, surface_data[0][6], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 854   1              // CRC效验值
+ 855   1              displayu8(39, 7, surface_data[0][7], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 856   1      */
+ 857   1      
+ 858   1              //TMS工作状态
+ 859   1              u8_data = surface_data[0][0];
+ 860   1              switch(u8_data & 0x03)
+ 861   1              {
+ 862   2                      case 0:
+ 863   2                              clear_area_block(22,9,20,1);
+ 864   2                              display_uncolor_icon(page_main_internal_status_green,15,9);
+ 865   2                              break;
+ 866   2                      case 1:
+ 867   2                              clear_area_block(15,9,3,1);
+ 868   2                              clear_area_block(28,9,10,1);
+ 869   2                              display_uncolor_icon(page_main_internal_status_green,22,9);
+ 870   2                              break;
+ 871   2                      case 2:
+ 872   2                              clear_area_block(15,9,10,1);
+ 873   2                              clear_area_block(35,9,3,1);
+ 874   2                              display_uncolor_icon(page_main_internal_status_green,28,9);
+ 875   2                              break;
+ 876   2                      case 3:
+ 877   2                              clear_area_block(15,9,20,1);
+ 878   2                              display_uncolor_icon(page_main_internal_status_green,35,9);
+ 879   2                              break;
+ 880   2                      default:
+ 881   2                              break;
+ 882   2              }
+ 883   1              // TMS高压继电器状态
+ 884   1              u8_data = surface_data[0][0] >> 2;
+ 885   1              switch(u8_data & 0x03)
+ 886   1              {
+ 887   2                      case 0:
+ 888   2                              clear_area_block(22,10,20,1);
+ 889   2                              display_uncolor_icon(page_main_internal_status_green,15,10);
+ 890   2                              break;
+ 891   2                      case 1:
+ 892   2                              clear_area_block(15,10,3,1);
+ 893   2                              clear_area_block(28,10,10,1);
+ 894   2                              display_uncolor_icon(page_main_internal_status_green,22,10);
+ 895   2                              break;
+ 896   2                      case 2:
+ 897   2                      case 3:
+ 898   2                              clear_area_block(15,10,10,1);
+ 899   2                              clear_area_block(35,10,3,1);
+ 900   2                              display_uncolor_icon(page_main_internal_status_green,28,10);
+ 901   2                              break;
+ 902   2                      default:
+ 903   2                              break;
+ 904   2              }
+ 905   1              //出水温度(机组到电池)
+ 906   1              s16_data = surface_data[0][1] - 40;
+ 907   1          displays16 (21, 11, s16_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 908   1              //回水温度(电池到机组)
+ 909   1              s16_data = surface_data[0][2] - 40;
+ 910   1          displays16 (21, 12, s16_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 911   1              //TMS需求功率
+ 912   1              u16_data = ByteToWord(surface_data[0][6],surface_data[0][5]);
+ 913   1              displayu16 (19, 13, u16_data, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 16  
+
+ 914   1              //TMS故障码
+ 915   1              u8_data = surface_data[0][7] & 0x3f;
+ 916   1          displayu8 (21, 14, u8_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 917   1              //TMS故障码等级
+ 918   1              u8_data = (surface_data[0][7] & 0xc0) >> 6;
+ 919   1              if(u8_data == 0)
+ 920   1                      display_icon (page_main_internal_zhengchang, GREEN, 21, 15);
+ 921   1              else
+ 922   1              displayu8 (21, 15, u8_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 923   1      }
+ 924          void display_surface14 (void)
+ 925          {
+ 926   1      //      int s16_data;
+ 927   1      //      unsigned int u16_data;
+ 928   1      //      unsigned char u8_data;
+ 929   1      //      //电器盒输入总电流
+ 930   1      //      s16_data = ByteToWord(surface_data[0][0],surface_data[0][1]) - 1600;
+ 931   1      //      displays16 (27, 7, s16_data, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 932   1      //      //电器盒电压
+ 933   1      //      u16_data = ByteToWord(surface_data[0][2],surface_data[0][3]);
+ 934   1      //      displays16 (27, 9, u16_data, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 935   1      //      //电器盒输入总电流
+ 936   1      //      s16_data = surface_data[0][4] - 40;
+ 937   1      //      displays16 (29, 11, s16_data, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 938   1      //      //保护动作指示
+ 939   1      //      u8_data = surface_data[0][5];
+ 940   1      //      if((u8_data & 0x03) == 0x01)
+ 941   1      //              display_gicon(page_main_internal_s14_guoliu,GREEN,29,13);
+ 942   1      //      else if((u8_data & 0x03) == 0x02)
+ 943   1      //              display_gicon(page_main_internal_s14_guore,GREEN,29,13);
+ 944   1      //      else
+ 945   1      //              clear_area_block(29,13,7,1);
+ 946   1      }
+ 947          void display_surface15 (void)
+ 948          {
+ 949   1          displays16 (17, 8, total_voltage, 5, 0, GREEN, FULLSPACE, FONT_SMALL); //电池总电压
+ 950   1          displays16 (17, 9, total_current, 5, 0, GREEN, FULLSPACE, FONT_SMALL); //电池总电流
+ 951   1          displayu16 (37, 8, mono_max_voltage, 2, 2, GREEN, FULLSPACE, FONT_SMALL); //单体最高电压
+ 952   1              displayu16 (37, 9, mono_min_voltage, 2, 2, GREEN, FULLSPACE, FONT_SMALL); //单体最低电压
+ 953   1              displays16 (38, 10, mono_max_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL); //单体最高温度
+ 954   1              displays16 (38, 11, mono_min_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL); //单体最低温度
+ 955   1              displayu16 (17, 10, riso_zheng, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 956   1          displayu16 (17, 11, riso_fu, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 957   1              display_soc();
+ 958   1              if(surface_data[0][0]& 0x01)
+ 959   1                      {
+ 960   2                      clear_icon (page_main_internal_black,31, 0);
+ 961   2                      }
+ 962   1              else        
+ 963   1                      {
+ 964   2                      display_uncolor_icon (page_main_internal_black,31,0);
+ 965   2                      }
+ 966   1              if(surface_data[0][0]& 0x02)
+ 967   1                      {
+ 968   2                      clear_icon (page_main_internal_black,34, 0);
+ 969   2                      }
+ 970   1              else        
+ 971   1                      {
+ 972   2                      display_uncolor_icon (page_main_internal_black,34,0);
+ 973   2                      }
+ 974   1              
+ 975   1      
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 17  
+
+ 976   1                  //充电座温度
+ 977   1          if( chongdian_temp[0] == 215)
+ 978   1                      clear_area_block(19, 12 , 5, 1);
+ 979   1              else
+ 980   1              displays16 (19, 12, chongdian_temp[0], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 981   1                      
+ 982   1              if( chongdian_temp[1] == 215)
+ 983   1                      clear_area_block(38, 12 , 5, 1);
+ 984   1              else
+ 985   1              displays16 (38, 12, chongdian_temp[1], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 986   1      
+ 987   1              if( chongdian_temp[2] == 215)
+ 988   1                      clear_area_block(19, 13 , 5, 1);
+ 989   1              else
+ 990   1              displays16 (19, 13, chongdian_temp[2], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 991   1      
+ 992   1              if( chongdian_temp[3] == 215)
+ 993   1                      clear_area_block(38, 13 , 5, 1);
+ 994   1              else
+ 995   1              displays16 (38, 13, chongdian_temp[3], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+ 996   1                      
+ 997   1      }
+ 998          void display_surface16 (void)
+ 999          {
+1000   1          unsigned char temp, i;
+1001   1          displayu8 (15, 3, youbeng_life[0], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1002   1          displayu16 (14, 4, youbeng_zhuansu[0], 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+1003   1          displayu16 (16, 5, youbeng_cur[0], 2, 0, GREEN, FULLSPACE, FONT_SMALL);
+1004   1          displays16 (15, 6, youbeng_temp[0], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1005   1          if ((youbeng_status[0] & 0x03) == 1)
+1006   1          {
+1007   2              display_gicon (page_main_internal_yuunxing, GREEN, 15, 7);
+1008   2          }
+1009   1          else
+1010   1              if ((youbeng_status[0] & 0x03) == 2)
+1011   1              {
+1012   2                  display_gicon (page_main_internal_s16_tingji, GREEN, 15, 7);
+1013   2              }
+1014   1              else
+1015   1              {
+1016   2                  clear_area_block (15, 7, 3, 1);
+1017   2              }
+1018   1          displays16 (15, 8, dianji_temp, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1019   1          displayu8 (16, 9, diduan_vol, 2, 0, GREEN, FULLSPACE, FONT_SMALL);
+1020   1          displayu16 (14, 10, gaoduan_vol, 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+1021   1          temp = youbeng[0];
+1022   1          if (temp & 0x01)
+1023   1          {
+1024   2              display_gicon (page_main_internal_yitingji, GREEN, 14, 11);
+1025   2          }
+1026   1          else
+1027   1          {
+1028   2              display_gicon (page_main_internal_weitingji, GREEN, 14, 11);
+1029   2          }
+1030   1          temp >>= 1;
+1031   1          if ((temp & 0x03) == 2)
+1032   1          {
+1033   2              display_gicon (page_main_internal_gaoya, GREEN, 16, 12);
+1034   2          }
+1035   1          else
+1036   1              if ((temp & 0x03) == 0)
+1037   1              {
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 18  
+
+1038   2                  display_gicon (page_main_internal_diya, GREEN, 16, 12);
+1039   2              }
+1040   1          temp >>= 2;
+1041   1      
+1042   1          for (i = 0; i < 4; i++)
+1043   1          {
+1044   2              if (temp & 0x01)
+1045   2              {
+1046   3                  display_icon (page_main_internal_guzhang, RED, 16, 13 + i);
+1047   3              }
+1048   2              else
+1049   2              {
+1050   3                  display_icon (page_main_internal_zhengchang, GREEN, 16, 13 + i);
+1051   3              }
+1052   2              temp >>= 1;
+1053   2          }
+1054   1          if (temp & 0x01)
+1055   1          {
+1056   2              display_icon (page_main_internal_guzhang, RED, 30, 3);
+1057   2          }
+1058   1          else
+1059   1          {
+1060   2              display_icon (page_main_internal_zhengchang, GREEN, 30, 3);
+1061   2          }
+1062   1          temp = youbeng[1];
+1063   1          for (i = 0; i < 8; i++)
+1064   1          {
+1065   2              if (temp & 0x01)
+1066   2              {
+1067   3                  display_icon (page_main_internal_guzhang, RED, 30, 4 + i);
+1068   3              }
+1069   2              else
+1070   2              {
+1071   3                  display_icon (page_main_internal_zhengchang, GREEN, 30, 4 + i);
+1072   3              }
+1073   2              temp >>= 1;
+1074   2          }
+1075   1          temp = youbeng[2];
+1076   1          for (i = 0; i < 8; i++)
+1077   1          {
+1078   2              if (temp & 0x01)
+1079   2              {
+1080   3                  display_icon (page_main_internal_guzhang, RED, 45, 3 + i);
+1081   3              }
+1082   2              else
+1083   2              {
+1084   3                  display_icon (page_main_internal_zhengchang, GREEN, 45, 3 + i);
+1085   3              }
+1086   2              temp >>= 1;
+1087   2          }
+1088   1          displayu8 (38, 12, yingjianbanben, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1089   1          displayu8 (38, 13, ruanjianbanben, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1090   1      }
+1091          
+1092          void display_surface17 (void)
+1093          {
+1094   1          //unsigned char temp;
+1095   1          displayu8 (16, 4, youbeng_life[1], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1096   1          displayu16 (15, 6, youbeng_zhuansu[1], 4, 0, GREEN, FULLSPACE, FONT_SMALL);
+1097   1          displayu16 (17, 8, youbeng_cur[1], 2, 0, GREEN, FULLSPACE, FONT_SMALL);
+1098   1          displays16 (16, 10, youbeng_temp[1], 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1099   1          if ((youbeng_status[1] & 0x03) == 0)
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 19  
+
+1100   1          {
+1101   2              display_gicon (page_main_internal_tingji, GREEN, 16, 12);
+1102   2          }
+1103   1          else
+1104   1              if ((youbeng_status[1] & 0x03) == 1)
+1105   1              {
+1106   2                  display_gicon (page_main_internal_yuunxing, GREEN, 16, 12);
+1107   2              }
+1108   1              else
+1109   1                  if ((youbeng_status[1] & 0x03) == 2)
+1110   1                  {
+1111   2                      display_gicon (page_main_internal_gz, GREEN, 16, 12);
+1112   2                  }
+1113   1                  else
+1114   1                  {
+1115   2                      clear_area_block (16, 12, 3, 1);
+1116   2                  }
+1117   1      
+1118   1          if ((youbeng_status[1] & 0x0c) == 0)
+1119   1          {
+1120   2              clear_area_block (18, 14, 5, 1);
+1121   2              display_icon (page_main_internal_zhengchang, GREEN, 15, 14);
+1122   2          }
+1123   1          else
+1124   1              if ((youbeng_status[1] & 0x0c) == 4)
+1125   1              {
+1126   2                  display_gicon (page_main_internal_yijigz, RED, 15, 14);
+1127   2              }
+1128   1              else
+1129   1                  if ((youbeng_status[1] & 0x0c) == 8)
+1130   1                  {
+1131   2                      display_gicon (page_main_internal_erjigz, RED, 15, 14);
+1132   2                  }
+1133   1                  else
+1134   1                      if ((youbeng_status[1] & 0x0c) == 12)
+1135   1                      {
+1136   2                          display_gicon (page_main_internal_sanjigz, RED, 15, 14);
+1137   2                      }
+1138   1                      else
+1139   1                      {
+1140   2                          clear_area_block (15, 14, 8, 1);
+1141   2                      }
+1142   1          displayu8 (37, 4, guzhangdaima, 3, 0, GREEN, FULLSPACE, FONT_SMALL);
+1143   1      }
+1144          void display_surface18 (void)
+1145          {
+1146   1      #if 0
+              
+                      unsigned char i,j,mo,yu,he;
+                      static unsigned char xiang_zong = 0;
+              
+                      //--------------------------------------------
+                      if(xiang_zong != surface_data[0][0])
+                      {
+                              clear_area_block(3,6,44,11);
+                              xiang_zong = surface_data[0][0];
+                      }
+                      mo = (surface_data[0][0])/2;
+                      yu = (surface_data[0][0])%2;
+                      he = (mo + yu);
+                      //life
+                      displayu8(43,4,surface_data[0][1],3,0,GREEN,FULLSPACE,FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 20  
+
+                      if(surface_data[0][0] > 0)
+                      {
+                              if(mo > 5)
+                                      mo = 5;
+                              for(i=0;i<mo;i++)
+                              {
+                                      for(j=0;j<2;j++)
+                                      {
+                                              //箱号
+                                              displayu8(4,6 + i*2 + j,surface_data[i+1][j*4],1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                              //预警级别
+                                              switch(surface_data[i+1][j*4 + 1] & 0xf0)
+                                              {
+                                                      case 0x00:
+                                                              displayu8(11,6 + i*2 + j,0,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 0x10:
+                                                              displayu8(11,6 + i*2 + j,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 0x20:
+                                                              displayu8(11,6 + i*2 + j,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 0x30:
+                                                              displayu8(11,6 + i*2 + j,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 0x40:
+                                                              displayu8(11,6 + i*2 + j,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      default:
+                                                              break;
+                                              }
+                              //故障状态
+                                              switch(surface_data[i+1][j*4 + 1] & 0x0c)
+                                              {                                               
+                                                      case 0x00:
+                                                              display_icon(page_main_internal_zhengchang,GREEN,15,6 + i*2 + j);
+                                                              clear_area_block(18,6 + i*2 + j,1,1);
+                                                              break;
+                                                  case 0x04:
+                                                              displayu8(18,6 + i*2 + j,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(15,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 0x08:
+                                                              displayu8(18,6+ i*2 + j,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(15,6 + i*2 + j,3,1);
+                                                              break;                                          
+                                                      case 0x0c:
+                                                              displayu8(18,6+ i*2 + j,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(15,6 + i*2 + j,3,1);
+                                                              break;
+                                                      default:
+                                                              break;
+                                                      }
+                                              //子阀状态
+                                              switch(surface_data[i+1][j*4 + 1] & 0x03)
+                                              {                                               
+                                                      case 0x01:
+                                                              displayu8(32,6+ i*2 + j,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 0x02:
+                                                              displayu8(32,6+ i*2 + j,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 21  
+
+                                                      case 0x03:
+                                                              displayu8(32,6+ i*2 + j,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      default:
+                                                              break;
+                                              }
+                                              //灭火弹类型
+                                              switch(surface_data[i+1][j*4 + 3])
+                                              {
+                                                      case 0:
+                                                              displayu8(25,6 + i*2 + j,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 2:
+                                                              displayu8(25,6 + i*2 + j,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 3:
+                                                              displayu8(25,6+ i*2 + j,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;                                          
+                                                      case 4:
+                                                              displayu8(25,6+ i*2 + j,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;                                          
+                                                      case 5:
+                                                              displayu8(25,6+ i*2 + j,5,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 6:
+                                                              displayu8(25,6+ i*2 + j,6,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 7:
+                                                              displayu8(25,6+ i*2 + j,7,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(22,6 + i*2 + j,3,1);
+                                                              break;
+                                                      case 255:
+                                                              displayu8(22,6+ i*2 + j,255,3,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              clear_area_block(25,6 + i*2 + j,1,1);
+                                                              break;
+                                                      default:
+                                                              break;
+                                              }
+                                              //故障码
+                                              displayu8(42,6 + i*2 + j,surface_data[i+1][j*4 + 2],2,0,GREEN,FULLSPACE,FONT_SMALL);
+                                              /*switch(surface_data[i+1][j*4 + 3])
+                                              {
+                                                      case 0:
+                                                              displayu8(37,6 + i*2 + j,0,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 1:
+                                                              displayu8(37,6 + i*2 + j,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 2:
+                                                              displayu8(37,6 + i*2 + j,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 3:
+                                                              displayu8(37,6 + i*2 + j,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      case 4:
+                                                              displayu8(37,6 + i*2 + j,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 22  
+
+                                                              break;
+                                                      case 5:
+                                                              displayu8(37,6 + i*2 + j,5,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                              break;
+                                                      default:
+                                                              break;
+                                              }*/
+                                      }
+                              }
+                              if((yu != 0) && (i == mo))
+                              {
+                                      //箱号
+                                      displayu8(4,6 + i*2,surface_data[i+1][0],1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      //预警级别
+                                      switch(surface_data[i+1][1] & 0xf0)
+                                      {
+                                              case 0x00:
+                                                      displayu8(11,6 + i*2,0,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 0x10:
+                                                      displayu8(11,6 + i*2,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 0x20:
+                                                      displayu8(11,6 + i*2,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 0x30:
+                                                      displayu8(11,6 + i*2,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 0x40:
+                                                      displayu8(11,6 + i*2,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              default:
+                                                      break;
+                                      }
+                                      //故障状态
+                                      switch(surface_data[i+1][1] & 0x0c)
+                                      {                                               
+                                              case 0x00:
+                                                      display_icon(page_main_internal_zhengchang,GREEN,15,6 + i*2);
+                                                      clear_area_block(18,6 + i*2,1,1);
+                                                      break;
+                                              case 0x04:
+                                                      displayu8(18,6 + i*2,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(15,6 + i*2,3,1);
+                                                      break;
+                                              case 0x08:
+                                                      displayu8(18,6+ i*2,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(15,6 + i*2,3,1);
+                                                      break;                                          
+                                              case 0x0c:
+                                                      displayu8(18,6+ i*2,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(15,6 + i*2,3,1);
+                                                      break;
+                                              default:
+                                                      break;
+                                              }
+                                      //子阀状态
+                                      switch(surface_data[i+1][1] & 0x03)
+                                      {                                               
+                                              case 0x01:
+                                                      displayu8(32,6+ i*2,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 23  
+
+                                              case 0x02:
+                                                      displayu8(32,6+ i*2,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 0x03:
+                                                      displayu8(32,6+ i*2,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              default:
+                                                      break;
+                                      }
+                                      //灭火弹类型
+                                      switch(surface_data[i+1][3])
+                                      {
+                                              case 0:
+                                                      displayu8(25,6 + i*2,0,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 1:
+                                                      displayu8(25,6 + i*2,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 2:
+                                                      displayu8(25,6 + i*2,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 3:
+                                                      displayu8(25,6+ i*2,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;                                          
+                                              case 4:
+                                                      displayu8(25,6+ i*2,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;                                          
+                                              case 5:
+                                                      displayu8(25,6+ i*2,5,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 6:
+                                                      displayu8(25,6+ i*2,6,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 7:
+                                                      displayu8(25,6+ i*2,7,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(22,6 + i*2,3,1);
+                                                      break;
+                                              case 255:
+                                                      displayu8(22,6+ i*2,255,3,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      clear_area_block(25,6 + i*2,1,1);
+                                                      break;
+                                              default:
+                                                      break;
+                                      }
+                                      //故障码
+                                      displayu8(42,6 + i*2,surface_data[i+1][2],2,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      /*switch(surface_data[i+1][2])
+                                      {
+                                              case 0:
+                                                      displayu8(41,6 + i*2,0,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 1:
+                                                      displayu8(41,6+ i*2,1,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 2:
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 24  
+
+                                                      displayu8(41,6 + i*2,2,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 3:
+                                                      displayu8(41,6+ i*2,3,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 4:
+                                                      displayu8(41,6 + i*2,4,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              case 5:
+                                                      displayu8(41,6 + i*2,5,1,0,GREEN,FULLSPACE,FONT_SMALL);
+                                                      break;
+                                              default:
+                                                      break;
+                                      }*/
+                              }
+                      }
+                      else
+                              clear_area_block(3,6,44,11);
+                      
+              #endif
+1430   1      
+1431   1      }
+1432          
+1433          void display_surface19 (void)
+1434          {
+1435   1          unsigned char i;
+1436   1          unsigned int temp;
+1437   1          temp = meter_input;
+1438   1          for (i = 0; i < 4; i++)
+1439   1          {
+1440   2              if (temp & 0x01)
+1441   2              {
+1442   3                  display_uncolor_icon (page_main_internal_status_green, 1, 1 + i);
+1443   3              }
+1444   2              else
+1445   2              {
+1446   3                  clear_icon (page_main_internal_status_green, 1, 1 + i);
+1447   3              }
+1448   2              temp >>= 1;
+1449   2          }
+1450   1          temp = meter_output;
+1451   1          for (i = 0; i < 4; i++)
+1452   1          {
+1453   2              if ((temp & 0x03) == 0)
+1454   2              {
+1455   3                  display_uncolor_icon (page_main_internal_status_green, 1, 6 + i);
+1456   3              }
+1457   2              else
+1458   2                  if ((temp & 0x03) == 2)
+1459   2                  {
+1460   3                      display_uncolor_icon (page_main_internal_status_red, 1, 6 + i);
+1461   3                  }
+1462   2                  else
+1463   2                  {
+1464   3                      clear_area_block (1, 6 + i, 2, 1);
+1465   3                  }
+1466   2              temp >>= 2;
+1467   2          }
+1468   1      }
+1469          void display_surface20 (void)
+1470          {
+1471   1      #if 0
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 25  
+
+                      unsigned char u8_data,i;
+                      unsigned char u4_bit[2];
+                      u8_data = surface_data[0][0]<<2;
+                      //临时停车激活、临时停车工作、电子驻车状态
+                      for(i=0;i<3;i++)
+                      {
+                              if((u8_data & 0xC0) == 0x40)
+                                      display_icon(page_main_internal_youxiao,GREEN,28,5 + i);
+                              else
+                                      display_icon(page_main_internal_wuxiao,GREEN,28,5 + i);
+                              u8_data <<= 2;
+                      }
+                      //低压释放限制状态、童锁状态
+                      u8_data = surface_data[0][2]<<4;
+                      for(i=0;i<2;i++)
+                      {
+                              if((u8_data & 0xC0) == 0x40)
+                                      display_icon(page_main_internal_youxiao,GREEN,28,8 + i);
+                              else
+                                      display_icon(page_main_internal_wuxiao,GREEN,28,8 + i);
+                              u8_data <<= 2;
+                      }
+                      //故障码
+                      if(surface_data[0][1] == 0)
+                              clear_area_block(28,10,5,1);
+                      else
+                      {
+                              u4_bit[0] = surface_data[0][1] & 0x0f;
+                              u4_bit[1] = (surface_data[0][1] >> 4) & 0x0f;
+                              displayu8(28,10,u4_bit[1],1,0,RED,FULLSPACE,FONT_SMALL);
+                              display_icon(page_main_internal_number_10,RED,29,10);
+                              displayu8(30,10,u4_bit[0],1,0,RED,FULLSPACE,FONT_SMALL);
+                      }
+                      //故障部件及原因
+                      switch(surface_data[0][1])
+                      {
+                              case 0x11:
+                                      display_gicon(page_main_internal_s20_g1_jinqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_dianyuan,RED,28,12);
+                                      break;
+                              case 0x21:
+                                      display_gicon(page_main_internal_s20_g1_jinqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_di,RED,28,12);
+                                      break;
+                              case 0x31:
+                                      display_gicon(page_main_internal_s20_g1_jinqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_duanlu,RED,28,12);
+                                      break;
+                              case 0x14:
+                                      display_gicon(page_main_internal_s20_g1_paiqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_dianyuan,RED,28,12);
+                                      break;
+                              case 0x24:
+                                      display_gicon(page_main_internal_s20_g1_paiqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_di,RED,28,12);
+                                      break;
+                              case 0x34:
+                                      display_gicon(page_main_internal_s20_g1_paiqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_duanlu,RED,28,12);
+                                      break;
+                              case 0x53:
+                                      display_gicon(page_main_internal_s20_g1_ebs,RED,28,11);
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 26  
+
+                                      display_gicon(page_main_internal_s20_g2_ebs,RED,28,12);
+                                      break;
+                              case 0x16:
+                                      display_gicon(page_main_internal_s20_g1_zhidong,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_dianyuan,RED,28,12);
+                                      break;
+                              case 0x26:
+                                      display_gicon(page_main_internal_s20_g1_zhidong,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_di,RED,28,12);
+                                      break;
+                              case 0x36:
+                                      display_gicon(page_main_internal_s20_g1_zhidong,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_duanlu,RED,28,12);
+                                      break;
+                              case 0x41:
+                                      display_gicon(page_main_internal_s20_g1_fadian,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_dianyagao,RED,28,12);
+                                      break;
+                              case 0x42:
+                                      display_gicon(page_main_internal_s20_g1_fadian,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_dianyadi,RED,28,12);
+                                      break;
+                              case 0x43:
+                                      display_gicon(page_main_internal_s20_g1_fadian,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_three,RED,28,12);
+                                      break;
+                              case 0x44:
+                                      display_gicon(page_main_internal_s20_g1_can,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_diushi,RED,28,12);
+                                      break;
+                              case 0x54:
+                                      display_gicon(page_main_internal_s20_g1_can,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_duanlu,RED,28,12);
+                                      break;
+                              case 0x55:
+                                      display_gicon(page_main_internal_s20_g1_chuanganqi,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_chuanganqi,RED,28,12);
+                                      break;
+                              case 0x56:
+                                      display_gicon(page_main_internal_s20_g1_kaiguan,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_kaiguan,RED,28,12);
+                                      break;
+                              case 0x22:
+                                      display_gicon(page_main_internal_s20_g1_mokuai,RED,28,11);
+                                      display_gicon(page_main_internal_s20_g2_fati,RED,28,12);
+                                      break;
+                              default:
+                                      clear_area_block(28,11,12,2);
+                                      break;
+                      }
+              
+              #endif
+1586   1      
+1587   1      }
+1588          
+1589          void display_surface21 (void)
+1590          {
+1591   1      
+1592   1      
+1593   1      
+1594   1      
+1595   1      }
+C51 COMPILER V9.00   DISPAGES                                                              12/13/2022 09:00:40 PAGE 27  
+
+1596          
+1597          
+1598          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =  10039    ----
+   CONSTANT SIZE    =     48    ----
+   XDATA SIZE       =   ----      22
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

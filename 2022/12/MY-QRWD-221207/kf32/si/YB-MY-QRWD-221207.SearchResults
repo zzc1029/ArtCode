@@ -1,0 +1,13 @@
+---- DriverOperateStatus Matches (12 in 5 files) ----
+Canreceive.c (source):			DriverOperateStatus = 0;
+Canreceive.c (source):			DriverOperateStatus = data[4];
+Config.h (source):#define PARK_SW				    (F_SW_P21 || ((DriverOperateStatus&0x0f)==0x0f))  // ÷…≤
+Config.h (source):#define D_SW   				    (((DriverOperateStatus&0x0f)==14))
+Config.h (source):#define NULL_SW                 ((DriverOperateStatus&0x0f)==0)  
+Config.h (source):#define REVERSE_GEAR_SW         (((DriverOperateStatus&0x0f)==13)) 
+Display.c (source):volatile u8 DCDC1[8],RUNHUA[8],PEIDIAN[8],shuileng1[8],shuileng2[8],DriverOperateStatus,OnOffStatus;
+Display.c (source):    communicate_T123_data[7]   = DriverOperateStatus;
+Display.h (source):extern volatile u8 DCDC1[8],RUNHUA[8],PEIDIAN[8],shuileng1[8],shuileng2[8],DriverOperateStatus,OnOffStatus;
+System.c (source):	SYMBOL_POSITION14	= YUXUE_MOSHI;//((DriverOperateStatus&0x10)==0x10);
+System.c (source):		gear_temp = DriverOperateStatus&0x0f;
+System.c (source):			switch(DriverOperateStatus&0x0f)

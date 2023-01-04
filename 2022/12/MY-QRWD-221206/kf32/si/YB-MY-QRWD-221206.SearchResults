@@ -1,0 +1,4 @@
+---- SYMBOL_POSITION35 Matches (3 in 2 files) ----
+MeterConfig.h (g:\workspace32\yb-gzst-qrwd-221203\source):#define SYMBOL_POSITION35         DisplaySymbol[4].bit.b4    
+System.c (g:\workspace32\yb-gzst-qrwd-221203\source):    BUZZ_Normal =SYMBOL_POSITION35||SYMBOL_POSITION07||SYMBOL_POSITION18||SYMBOL_POSITION19||SYMBOL_POSITION08||SYMBOL_POSITION09||SYMBOL_POSITION17\
+System.c (g:\workspace32\yb-gzst-qrwd-221203\source):	SYMBOL_POSITION35    = PTD15;   

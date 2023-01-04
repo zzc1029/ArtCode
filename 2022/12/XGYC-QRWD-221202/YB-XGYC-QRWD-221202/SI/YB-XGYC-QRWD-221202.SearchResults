@@ -1,0 +1,8 @@
+---- life Matches (7 in 3 files) ----
+Main.c (g:\workspace32\yb-xgyc-qrwd-221202\source):    static uint8_t  data[8],life;
+Main.c (g:\workspace32\yb-xgyc-qrwd-221202\source):	data[7] = life++;
+System.c (g:\workspace32\yb-xgyc-qrwd-221202\source):	LED5_B2 = KEY_ON && ((_taiya)/* || (taiya.life >= 205)*/);
+System.c (g:\workspace32\yb-xgyc-qrwd-221202\source):  taiya.life++;
+System.c (g:\workspace32\yb-xgyc-qrwd-221202\source):  if(taiya.life >= 205)
+System.c (g:\workspace32\yb-xgyc-qrwd-221202\source):     taiya.life = 205;
+System.h (g:\workspace32\yb-xgyc-qrwd-221202\source):	unsigned int  life;

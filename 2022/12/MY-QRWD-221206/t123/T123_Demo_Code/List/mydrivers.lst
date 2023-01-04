@@ -1,0 +1,699 @@
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MYDRIVERS
+OBJECT MODULE PLACED IN .\Object\mydrivers.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE SourceFile\mydrivers.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\t
+                    -w_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\mydrivers.lst) OBJECT(.\Object\mydrivers
+                    -.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "spiosd.h"
+   5          #include "osd2api.h"
+   6          
+   7          #include "page_main_internal.h"
+   8          #include "uart.h"
+   9          #include "display.h"
+  10          #include "mydrivers.h"
+  11          #include "disp_config.h"
+  12          
+  13          unsigned char code page_map[PAGE_TOTAL][2] =
+  14          {
+  15                  0x52,ID_PAGE_START,//logo
+  16                  0x01,ID_PAGE_MAIN_INTERNAL,
+  17                  0x02,ID_PAGE_MAIN_MENUS,
+  18                  0x03,ID_PAGE_LOGO,
+  19                  0x04,ID_PAGE_PARAMETER,
+  20                  0x05,ID_PAGE_HELP_MESSAGE,
+  21                  0x06,ID_PAGE_VIDEO,
+  22                  0x07,ID_PAGE_METER_MOUDLE,
+  23                  #if MODULE_FRONT_B40 || MODULE_FRONT_B50
+  24                  0x08,ID_PAGE_FRONT_MOUDLE,
+  25                  #endif
+  26                  #if MODULE_REAR_B40 || MODULE_REAR_B50
+  27                  0x09,ID_PAGE_REAR_MOUDLE,
+  28                  #endif
+  29                  #if MODULE_TOP_B40 || MODULE_TOP_B50
+                      0x0a,ID_PAGE_TOP_MOUDLE,
+                      #endif
+  32                  #if MODULE_FRONT_B50
+                      0x0b,ID_PAGE_FRONT_MOUDLE_OUT,
+                      #endif
+  35                  #if MODULE_REAR_B50
+                      0x0c,ID_PAGE_REAR_MOUDLE_OUT,
+                      #endif
+  38                  #if MODULE_TOP_B50
+                      0x0d,ID_PAGE_TOP_MOUDLE_OUT,
+                      #endif
+  41                  #if (PAGE_ADD > 0)
+  42                  0x20,ID_PAGE_SURFACE1,
+  43                  #endif
+  44                  #if (PAGE_ADD > 1)
+  45                  0x21,ID_PAGE_SURFACE2,
+  46                  #endif
+  47                  #if (PAGE_ADD > 2)
+  48                  0x22,ID_PAGE_SURFACE3,
+  49                  #endif
+  50                  #if (PAGE_ADD > 3)
+  51                  0x23,ID_PAGE_SURFACE4,
+  52                  #endif
+  53                  #if (PAGE_ADD > 4)
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 2   
+
+  54                  0x24,ID_PAGE_SURFACE5,
+  55                  #endif
+  56                  #if (PAGE_ADD > 5)
+  57                  0x25,ID_PAGE_SURFACE6,
+  58                  #endif
+  59                  #if (PAGE_ADD > 6)
+  60                  0x26,ID_PAGE_SURFACE7,
+  61                  #endif
+  62                  #if (PAGE_ADD > 7)
+  63                  0x27,ID_PAGE_SURFACE8,
+  64                  #endif
+  65                  #if (PAGE_ADD > 8)
+  66                  0x28,ID_PAGE_SURFACE9,
+  67                  #endif
+  68                  #if (PAGE_ADD > 9)
+  69                  0x29,ID_PAGE_SURFACE10,
+  70                  #endif
+  71                  #if (PAGE_ADD > 10)
+  72                  0x2a,ID_PAGE_SURFACE11,
+  73                  #endif
+  74                  #if (PAGE_ADD > 11)
+  75                  0x2b,ID_PAGE_SURFACE12,
+  76                  #endif
+  77                  #if (PAGE_ADD > 12)
+  78                  0x2c,ID_PAGE_SURFACE13,
+  79                  #endif
+  80                  #if (PAGE_ADD > 13)
+  81                  0x2d,ID_PAGE_SURFACE14,
+  82                  #endif
+  83                  #if (PAGE_ADD > 14)
+  84                  0x2e,ID_PAGE_SURFACE15,
+  85                  #endif
+  86                  #if (PAGE_ADD > 15)
+  87                  0x2f,ID_PAGE_SURFACE16,
+  88                  #endif
+  89                  #if (PAGE_ADD > 16)
+  90                  0x30,ID_PAGE_SURFACE17,
+  91                  #endif
+  92                  #if (PAGE_ADD > 17)
+  93                  0x31,ID_PAGE_SURFACE18,
+  94                  #endif
+  95                  #if (PAGE_ADD > 18)
+  96                  0x32,ID_PAGE_SURFACE19,
+  97                  #endif
+  98                  #if (PAGE_ADD > 19)
+                      0x33,ID_PAGE_SURFACE20,
+                      #endif
+ 101                  #if (PAGE_ADD > 20)
+                      0x34,ID_PAGE_SURFACE21,
+                      #endif
+ 104          };
+ 105          
+ 106          struct tw_icon *code number_map[22] = {
+ 107                  &page_main_internal_number_0,
+ 108                  &page_main_internal_number_1,
+ 109                  &page_main_internal_number_2,
+ 110                  &page_main_internal_number_3,
+ 111                  &page_main_internal_number_4,
+ 112                  &page_main_internal_number_5,
+ 113                  &page_main_internal_number_6,
+ 114                  &page_main_internal_number_7,
+ 115                  &page_main_internal_number_8,
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 3   
+
+ 116                  &page_main_internal_number_9,
+ 117                  &page_main_internal_number_10,//-
+ 118                  &page_main_internal_soc_7,//空格
+ 119                  &page_main_internal_number_point_0,
+ 120                  &page_main_internal_number_point_1,
+ 121                  &page_main_internal_number_point_2,
+ 122                  &page_main_internal_number_point_3,
+ 123                  &page_main_internal_number_point_4,
+ 124                  &page_main_internal_number_point_5,
+ 125                  &page_main_internal_number_point_6,
+ 126                  &page_main_internal_number_point_7,
+ 127                  &page_main_internal_number_point_8,
+ 128                  &page_main_internal_number_point_9,
+ 129          };
+ 130          
+ 131          struct tw_icon *code number_medium_map[12] = {
+ 132                  &page_main_internal_fault_number_0,
+ 133                  &page_main_internal_fault_number_1,
+ 134                  &page_main_internal_fault_number_2,
+ 135                  &page_main_internal_fault_number_3,
+ 136                  &page_main_internal_fault_number_4,
+ 137                  &page_main_internal_fault_number_5,
+ 138                  &page_main_internal_fault_number_6,
+ 139                  &page_main_internal_fault_number_7,
+ 140                  &page_main_internal_fault_number_8,
+ 141                  &page_main_internal_fault_number_9,
+ 142                  &page_main_internal_number_10,
+ 143                  &page_main_internal_soc_7,
+ 144          
+ 145          };
+ 146          
+ 147          struct tw_icon *code number_big_map[12] = {
+ 148                  &page_main_internal_fault_alarm_0,
+ 149                  &page_main_internal_fault_alarm_1,
+ 150                  &page_main_internal_fault_alarm_2,
+ 151                  &page_main_internal_fault_alarm_3,
+ 152                  &page_main_internal_fault_alarm_4,
+ 153                  &page_main_internal_fault_alarm_5,
+ 154                  &page_main_internal_fault_alarm_6,
+ 155                  &page_main_internal_fault_alarm_7,
+ 156                  &page_main_internal_fault_alarm_8,
+ 157                  &page_main_internal_fault_alarm_9,
+ 158                  &page_main_internal_number_10,
+ 159                  &page_main_internal_soc_7,
+ 160          };
+ 161          
+ 162          #define         uintToBCD()\
+ 163          {       \
+ 164                  unsigned char tempx[10] = {0};\
+ 165                  unsigned char i,j,k,space = 11;\
+ 166                  \
+ 167                  if(ispace)      \
+ 168                          space = 0;\
+ 169                  for(i=0;ivalue>0;ivalue/=10)\
+ 170                          tempx[i++] = ivalue % 10;\
+ 171                  if(i == 0)\
+ 172                          tempx[i++] = 0;\
+ 173                  if(icharnum >= i)\
+ 174                  {\
+ 175                          k = icharnum - i;\
+ 176                          for(j=0;j<icharnum;j++)\
+ 177                          {\
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 4   
+
+ 178                                  if(j < k)\
+ 179                                          iout[j] = space;\
+ 180                                  else    \
+ 181                                          iout[j] = tempx[--i];\
+ 182                          }\
+ 183                  }\
+ 184                  else\
+ 185                  {\
+ 186                          for(j=0;j<icharnum;j++)\
+ 187                                  iout[j] = 11;\
+ 188                          iout[1] = 10;\
+ 189                          iout[2] = 10;\
+ 190                  }\
+ 191          }
+ 192          #define         sintToBCD()\
+ 193          {       \
+ 194                  unsigned char tempx[10] = {0};\
+ 195                  unsigned char i,j,k,neg = 0,space = 11;\
+ 196                  \
+ 197                  if(ispace)      \
+ 198                          space = 0;\
+ 199                  if(ivalue < 0)\
+ 200                  {\
+ 201                          ivalue = 0 - ivalue;    \
+ 202                          neg = 1;\
+ 203                  }\
+ 204                  for(i=0;ivalue>0;ivalue/=10)\
+ 205                          tempx[i++] = ivalue % 10;\
+ 206                  if(i == 0)\
+ 207                          tempx[i++] = 0;\
+ 208                  if(icharnum >= (i + 1)) \
+ 209                  {\
+ 210                          k = icharnum - i - 1;\
+ 211                          for(j=0;j<icharnum;j++)\
+ 212                          {\
+ 213                                  if(j < k)\
+ 214                                          iout[j] = space;\
+ 215                                  else if(j == k)\
+ 216                                  {\
+ 217                                          if(neg)\
+ 218                                                  iout[j] = 10;\
+ 219                                          else    \
+ 220                                                  iout[j] = space;\
+ 221                                  }\
+ 222                                  else    \
+ 223                                          iout[j] = tempx[--i];\
+ 224                          }\
+ 225                  }\
+ 226                  else if(icharnum == i)\
+ 227                  {\
+ 228                          if(neg)\
+ 229                          {\
+ 230                                  for(j=0;j<icharnum;j++)\
+ 231                                          iout[j] = 11;\
+ 232                                  iout[1] = 10;\
+ 233                                  iout[2] = 10;\
+ 234                          }\
+ 235                          else    \
+ 236                          {\
+ 237                                  for(j=0;j<icharnum;j++)\
+ 238                                          iout[j] = tempx[--i];\
+ 239                          }\
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 5   
+
+ 240                  }\
+ 241                  else    \
+ 242                  {\
+ 243                          for(j=0;j<icharnum;j++)\
+ 244                                  iout[j] = 11;\
+ 245                          iout[1] = 10;\
+ 246                          iout[2] = 10;\
+ 247                  }\
+ 248          }
+ 249          #define         DISPLAY()\
+ 250          {\
+ 251                  unsigned char i;\
+ 252                  for(i=0; i<(left+right); i++)\
+ 253                  {\
+ 254                          if(size == FONT_SMALL)\
+ 255                          {\
+ 256                                  if(out[i] == 11)\
+ 257                                          clear_area_block(x + i,y,1,1);\
+ 258                                  else\
+ 259                                          display_icon(*number_map[out[i]],color,x + i,y);\
+ 260                          }\
+ 261                          else if(size == FONT_MEDIUM)\
+ 262                          {\
+ 263                                  if(out[i] == 11)\
+ 264                                  {\
+ 265                                          clear_area_block(x + i,y,1,2);\
+ 266                                  }\
+ 267                                  else\
+ 268                                          display_icon(*number_medium_map[out[i]],color,x + i,y);\
+ 269                          }\
+ 270                          else\
+ 271                          {\
+ 272                                  if(out[i] == 11)\
+ 273                                  {\
+ 274                                          clear_area_block(x + i*2,y,2,2);\
+ 275                                  }\
+ 276                                  else\
+ 277                                  display_icon(*number_big_map[out[i]],color,x + i*2,y);\
+ 278                          }\
+ 279                  }\
+ 280          }
+ 281          
+ 282          void u8tobcd(unsigned char ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 283          {
+ 284   1              uintToBCD();
+ 285   1      }
+ 286          
+ 287          void s8tobcd(signed char ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 288          {
+ 289   1              sintToBCD();
+ 290   1      }
+ 291          
+ 292          void u16tobcd(unsigned int ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 293          {
+ 294   1              uintToBCD();
+ 295   1      }
+ 296          
+ 297          void s16tobcd(signed int ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 298          {
+ 299   1              sintToBCD();
+ 300   1      }
+ 301          
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 6   
+
+ 302          void u32tobcd(unsigned long ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 303          {
+ 304   1              uintToBCD();
+ 305   1      }
+ 306          
+ 307          void s32tobcd(signed long ivalue,unsigned char * iout,unsigned char ispace,unsigned char icharnum)
+ 308          {
+ 309   1              sintToBCD();
+ 310   1      }
+ 311          /*
+ 312          left:必须为非0数据，小数点左边个数
+ 313          right:小数点右边个数，为0时显示为整数
+ 314          space:为0时，不用显示的信息显示空格，为1时，显示0
+ 315          size:字体大小目前只支持小型字体带小数点，大中型字体不能显示小数点
+ 316          */
+ 317          void displayu8(unsigned char x,unsigned char y,unsigned char value,unsigned char left,unsigned char right,
+             -unsigned char color,unsigned char space,unsigned char size)
+ 318          {
+ 319   1              unsigned char out[10],i;
+ 320   1              u8tobcd(value,out,space, left + right);
+ 321   1              if((out[1] != 10) && (out[2] != 10) && right)
+ 322   1              {
+ 323   2                      if(out[left - 1] == 11)
+ 324   2                      {
+ 325   3                              out[left - 1] = 12;
+ 326   3                              for(i=0;i<right;i++)
+ 327   3                              {
+ 328   4                                      if(out[left + i] == 11)
+ 329   4                                              out[left + i] = 0;
+ 330   4                              }
+ 331   3                      }
+ 332   2                      else
+ 333   2                              out[left - 1] += 12;    
+ 334   2              }
+ 335   1              DISPLAY();
+ 336   1      }
+ 337          
+ 338          void displays8(unsigned char x,unsigned char y,signed char value,unsigned char left,unsigned char right,un
+             -signed char color,unsigned char space,unsigned char size)
+ 339          {
+ 340   1              unsigned char out[10],i;
+ 341   1              s8tobcd(value,out,space, left + right);
+ 342   1              if(right && !((out[1] == 10) && (out[2] == 10)))
+ 343   1              {
+ 344   2                      if(out[left - 1] == 11)
+ 345   2                      {
+ 346   3                              out[left - 1] = 12;
+ 347   3                              for(i=0;i<right;i++)
+ 348   3                              {
+ 349   4                                      if(out[left + i] == 11)
+ 350   4                                              out[left + i] = 0;
+ 351   4                              }
+ 352   3                      }
+ 353   2                      else
+ 354   2                              out[left - 1] += 12;    
+ 355   2              }
+ 356   1              DISPLAY();
+ 357   1      }
+ 358          
+ 359          void displayu16(unsigned char x,unsigned char y,unsigned int value,unsigned char left,unsigned char right,
+             -unsigned char color,unsigned char space,unsigned char size)
+ 360          {
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 7   
+
+ 361   1              unsigned char out[10],i;
+ 362   1              u16tobcd(value,out,space, left + right);
+ 363   1              if((out[1] != 10) && (out[2] != 10) && right)
+ 364   1              {
+ 365   2                      if(out[left - 1] == 11)
+ 366   2                      {
+ 367   3                              out[left - 1] = 12;
+ 368   3                              for(i=0;i<right;i++)
+ 369   3                              {
+ 370   4                                      if(out[left + i] == 11)
+ 371   4                                              out[left + i] = 0;
+ 372   4                              }
+ 373   3                      }
+ 374   2                      else
+ 375   2                              out[left - 1] += 12;    
+ 376   2              }
+ 377   1              DISPLAY();
+ 378   1      }
+ 379          
+ 380          void displays16(unsigned char x,unsigned char y,signed int value,unsigned char left,unsigned char right,un
+             -signed char color,unsigned char space,unsigned char size)
+ 381          {
+ 382   1              unsigned char out[10],i;
+ 383   1              s16tobcd(value,out,space, left + right);
+ 384   1              if(right && !((out[1] == 10) && (out[2] == 10)))
+ 385   1              {
+ 386   2                      if(out[left - 1] == 11)
+ 387   2                      {
+ 388   3                              out[left - 1] = 12;
+ 389   3                              for(i=0;i<right;i++)
+ 390   3                              {
+ 391   4                                      if(out[left + i] == 11)
+ 392   4                                              out[left + i] = 0;
+ 393   4                              }
+ 394   3                      }
+ 395   2                      else
+ 396   2                              out[left - 1] += 12;    
+ 397   2              }
+ 398   1              DISPLAY();
+ 399   1      }
+ 400          
+ 401          void displayu32(unsigned char x,unsigned char y,unsigned long value,unsigned char left,unsigned char right
+             -,unsigned char color,unsigned char space,unsigned char size)
+ 402          {
+ 403   1              unsigned char out[10],i;
+ 404   1              u32tobcd(value,out,space, left + right);
+ 405   1              if((out[1] != 10) && (out[2] != 10) && right)
+ 406   1              {
+ 407   2                      if(out[left - 1] == 11)
+ 408   2                      {
+ 409   3                              out[left - 1] = 12;
+ 410   3                              for(i=0;i<right;i++)
+ 411   3                              {
+ 412   4                                      if(out[left + i] == 11)
+ 413   4                                              out[left + i] = 0;
+ 414   4                              }
+ 415   3                      }
+ 416   2                      else
+ 417   2                              out[left - 1] += 12;    
+ 418   2              }
+ 419   1              DISPLAY();
+ 420   1      }
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 8   
+
+ 421          
+ 422          void displays32(unsigned char x,unsigned char y,signed long value,unsigned char left,unsigned char right,u
+             -nsigned char color,unsigned char space,unsigned char size)
+ 423          {
+ 424   1              unsigned char out[10],i;
+ 425   1              s32tobcd(value,out,space, left + right);
+ 426   1              if(right && !((out[1] == 10) && (out[2] == 10)))
+ 427   1              {
+ 428   2                      if(out[left - 1] == 11)
+ 429   2                      {
+ 430   3                              out[left - 1] = 12;
+ 431   3                              for(i=0;i<right;i++)
+ 432   3                              {
+ 433   4                                      if(out[left + i] == 11)
+ 434   4                                              out[left + i] = 0;
+ 435   4                              }
+ 436   3                      }
+ 437   2                      else
+ 438   2                              out[left - 1] += 12;    
+ 439   2              }
+ 440   1              DISPLAY();
+ 441   1      }
+ 442          void display_char_8bit(unsigned char x,unsigned char y,unsigned char color,unsigned char value)
+ 443          {
+ 444   1              unsigned char i;
+ 445   1              for(i=0;i<8;i++)
+ 446   1              {
+ 447   2                      if(value & 0x80)
+ 448   2                              display_icon(*number_map[1],color,x + i,y);
+ 449   2                      else
+ 450   2                              display_icon(*number_map[0],color,x + i,y);
+ 451   2                      value <<= 1;
+ 452   2              }
+ 453   1      }
+ 454          void display_uncolor_icon(struct tw_icon picon,unsigned char x, unsigned char y)
+ 455          {
+ 456   1              picon.x = x;
+ 457   1              picon.y = y;
+ 458   1              tw_icon_draw(&picon);
+ 459   1      }
+ 460          void display_icon(struct tw_icon picon, unsigned char color, unsigned char x, unsigned char y)
+ 461          {
+ 462   1              picon.x = x;
+ 463   1              picon.y = y;
+ 464   1              picon.color = color;
+ 465   1              tw_icon_draw(&picon);
+ 466   1      }
+ 467          void clear_icon(struct tw_icon picon,unsigned char x,unsigned char y)
+ 468          {
+ 469   1              picon.x = x;
+ 470   1              picon.y = y;
+ 471   1              tw_clear_icon(&picon);
+ 472   1      }
+ 473          void display_uncolor_gicon(struct tw_gicon gpicon,unsigned char x,unsigned char y)
+ 474          {
+ 475   1              gpicon.x = x;
+ 476   1              gpicon.y = y;
+ 477   1              tw_gicon_draw(&gpicon);
+ 478   1      }
+ 479          void display_gicon(struct tw_gicon gpicon,unsigned char color,unsigned char x,unsigned char y)
+ 480          {
+ 481   1              gpicon.x = x;
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 9   
+
+ 482   1              gpicon.y = y;
+ 483   1              gpicon.color = color;
+ 484   1              tw_gicon_draw(&gpicon);
+ 485   1      }
+ 486          void display_spr(struct tw_spr spr,unsigned int x,unsigned int y)
+ 487          {
+ 488   1              spr.x = x;
+ 489   1              spr.y = y;
+ 490   1              tw_spr_draw(&spr);
+ 491   1      }
+ 492          void clear_gicon(struct tw_gicon gpicon,unsigned char x,unsigned char y)
+ 493          {
+ 494   1              gpicon.x = x;
+ 495   1              gpicon.y = y;
+ 496   1              tw_clear_gicon(&gpicon);
+ 497   1      }
+ 498          void clear_area_block(unsigned char x,unsigned char y,unsigned char width,unsigned char height)
+ 499          {
+ 500   1              osd_clear_block(x,y,width,height,page_main_internal_osd2_1_menu.addr,page_main_internal_osd2_1_menu.width
+             -);
+ 501   1      }
+ 502          void clear_unmark_area(void)
+ 503          {
+ 504   1              //clear_area_block(4,4,46,2);
+ 505   1              clear_area_block(0,4,50,14);
+ 506   1      }
+ 507          void clear_mark_area(void)
+ 508          {
+ 509   1              clear_area_block(0,0,50,4);
+ 510   1              //clear_area_block(0,4,4,2);
+ 511   1      }
+ 512          void clear_unalarm_area(void)
+ 513          {
+ 514   1              clear_area_block(0,0,50,18);
+ 515   1      }
+ 516          void clear_alarm_area(void)
+ 517          {
+ 518   1              clear_area_block(0,18,50,2);
+ 519   1      }
+ 520          void clear_time_area(void)
+ 521          {
+ 522   1              unsigned char i,j;
+ 523   1              for(i=0;i<4;i++)
+ 524   1                      display_icon(page_main_internal_soc_7,iBLACK,15 + i,2);
+ 525   1              display_icon(page_main_internal_soc_7,iBLACK,21,2);
+ 526   1              for(i=0;i<6;i++)
+ 527   1                      display_icon(page_main_internal_soc_7,iBLACK,15 + i,4);
+ 528   1              display_icon(page_main_internal_soc_7,iBLACK,23,4);
+ 529   1              display_icon(page_main_internal_soc_7,iBLACK,26,4);
+ 530   1              for(i=0;i<10;i++)
+ 531   1                      display_icon(page_main_internal_soc_7,iBLACK,12 + i,6);
+ 532   1              for(i=0;i<8;i++)
+ 533   1                      display_icon(page_main_internal_soc_7,iBLACK,11 + i,8);
+ 534   1              for(i=0;i<4;i++)
+ 535   1              {
+ 536   2                      for(j=0;j<10;j++)
+ 537   2                              display_icon(page_main_internal_soc_7,iBLACK,32 + j,2 + i);
+ 538   2              }
+ 539   1      }
+ 540          void clear_set_area(void)
+ 541          {
+ 542   1              unsigned char i,j;
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 10  
+
+ 543   1              //for(i=0;i<5;i++)
+ 544   1                      //display_icon(page_main_internal_soc_7,iBLACK,14 + i,10);
+ 545   1              display_icon(page_main_internal_soc_7,iBLACK,19,12);
+ 546   1              display_icon(page_main_internal_soc_7,iBLACK,20,12);
+ 547   1              display_icon(page_main_internal_soc_7,iBLACK,19,13);
+ 548   1              display_icon(page_main_internal_soc_7,iBLACK,20,13);
+ 549   1              display_icon(page_main_internal_soc_7,iBLACK,19,14);
+ 550   1              display_icon(page_main_internal_soc_7,iBLACK,20,14);
+ 551   1              display_icon(page_main_internal_soc_7,iBLACK,19,16);
+ 552   1              display_icon(page_main_internal_soc_7,iBLACK,20,16);
+ 553   1              display_icon(page_main_internal_soc_7,iBLACK,19,17);
+ 554   1              display_icon(page_main_internal_soc_7,iBLACK,20,17);
+ 555   1              
+ 556   1              
+ 557   1              
+ 558   1              for(j=0;j<9;j++)
+ 559   1              {
+ 560   2                      for(i=0;i<11;i++)
+ 561   2                              display_icon(page_main_internal_soc_7,iBLACK,8 + i,9 + j);
+ 562   2              }
+ 563   1              for(j=0;j<9;j++)
+ 564   1              {
+ 565   2                      for(i=0;i<10;i++)
+ 566   2                              display_icon(page_main_internal_soc_7,iBLACK,30 + i,9 + j);
+ 567   2              }
+ 568   1      
+ 569   1              //for(i=0;i<9;i++)
+ 570   1                      //display_icon(page_main_internal_soc_7,iBLACK,12 + i,16);
+ 571   1      }
+ 572          void clear_mima_area(void)
+ 573          {
+ 574   1              unsigned char i;
+ 575   1              for(i=0;i<12;i++)
+ 576   1                      display_icon(page_main_internal_soc_7,iBLACK,4 + i,7);
+ 577   1      }
+ 578          unsigned char check_page(unsigned char page)
+ 579          {
+ 580   1              char i;
+ 581   1              for(i=0;i<PAGE_TOTAL;i++)
+ 582   1              {
+ 583   2                      if(page_map[i][0] == page)
+ 584   2                              return page_map[i][1];
+ 585   2              }
+ 586   1              return 0;
+ 587   1      }
+ 588          void page_switch(void)
+ 589          {
+ 590   1              unsigned char temp_page;
+ 591   1              temp_page = check_page(system_page.current_page);
+ 592   1              if(temp_page != system_page.last_page)
+ 593   1              {
+ 594   2                      put_quit_page_event(system_page.last_page);
+ 595   2                      system_page.last_page = temp_page;
+ 596   2                      if(!ENTER_LOGO)
+ 597   2                              ENTER_ACC = 1;
+ 598   2                      put_enter_page_event(temp_page);        
+ 599   2              }
+ 600   1      }
+ 601          void display_icon_blink(struct tw_icon picon,unsigned char x,unsigned char y,unsigned char color,unsigned 
+             -char blinking)
+ 602          {
+ 603   1              picon.x = x;
+C51 COMPILER V9.00   MYDRIVERS                                                             12/13/2022 09:00:39 PAGE 11  
+
+ 604   1              picon.y = y;
+ 605   1              picon.color = color;
+ 606   1              tw_icon_draw_blink(&picon,blinking);
+ 607   1      }
+ 608          void display_icon_uncolor_blink(struct tw_icon picon,unsigned char x,unsigned char y,unsigned char blinkin
+             -g)
+ 609          {
+ 610   1              picon.x = x;
+ 611   1              picon.y = y;
+ 612   1              tw_icon_draw_blink(&picon,blinking);
+ 613   1      }
+ 614          void display_gicon_uncolor_blink(struct tw_gicon pgicon,unsigned char x,unsigned char y,unsigned char blin
+             -king)
+ 615          {
+ 616   1              pgicon.x = x;
+ 617   1              pgicon.y = y;
+ 618   1              tw_gicon_draw_blink(&pgicon,blinking);
+ 619   1      }
+ 620          void tw_icon_draw_blink(struct tw_icon* picon,unsigned char blinking)
+ 621          {   
+ 622   1              _icon_draw(picon->index, picon->color, picon->x, picon->y, picon->width, picon->height, blinking);
+ 623   1      }
+ 624          void tw_gicon_draw_blink(struct tw_gicon* pgicon,unsigned char blinking)
+ 625          {
+ 626   1              unsigned short icon_id = 0;
+ 627   1              unsigned char color = 0;
+ 628   1              unsigned short tmp_addr = 0;
+ 629   1              
+ 630   1          icon_id = check_gicon_id(pgicon->gicon_id);
+ 631   1          if(!icon_id)
+ 632   1              return;
+ 633   1          
+ 634   1          tmp_addr = pgicon->oram_addr;
+ 635   1          /* dynamic load ICON to OSDRAM */
+ 636   1          tw_load_icon(icon_id, &tmp_addr);
+ 637   1      
+ 638   1              color = check_color_config(pgicon->index, 0, pgicon->color);
+ 639   1              _icon_draw(pgicon->index, color, pgicon->x, pgicon->y, pgicon->width, pgicon->height, blinking);
+ 640   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   7717    ----
+   CONSTANT SIZE    =    256    ----
+   XDATA SIZE       =   ----     406
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

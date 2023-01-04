@@ -1,0 +1,3936 @@
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_MAIN_INTERNAL_STRUCT
+OBJECT MODULE PLACED IN .\Object\page_main_internal_struct.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE i51\page_main_internal_struct.c LARGE OMF2 BROWSE INCDIR(.\Include
+                    -File;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_main_internal_struct.lst) 
+                    -OBJECT(.\Object\page_main_internal_struct.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "page_main_internal.h"
+   5          
+   6          struct tw_td code main_main_internal = {
+   7              ID_MAIN_MAIN_INTERNAL, 0, 0, 800, 480
+   8          };
+   9          
+  10          struct tw_menu code     page_main_internal_osd2_1_menu = {
+  11              ID_OSD2_1_MENU,
+  12              ID_OSD2_1_TILES,
+  13              ID_OSD2_1_LUT,
+  14              ID_OSD2_1_ORG,
+  15              0Xffff,
+  16              0,
+  17              0,
+  18              50,
+  19              20,
+  20              15301,
+  21              16,
+  22              24,
+  23          };
+  24          
+  25          struct tw_icon code page_main_internal_black = {
+  26                  ID_ICON_BLACK,
+  27                  32,
+  28                  0,
+  29                  0,
+  30                  3,
+  31                  2,
+  32                  1,
+  33          };
+  34          
+  35          struct tw_icon code page_main_internal_soc_0 = {
+  36                  ID_ICON_SOC_0,
+  37                  34,
+  38                  0,
+  39                  0,
+  40                  1,
+  41                  1,
+  42                  7,
+  43          };
+  44          
+  45          struct tw_icon code page_main_internal_soc_1 = {
+  46                  ID_ICON_SOC_1,
+  47                  35,
+  48                  0,
+  49                  0,
+  50                  1,
+  51                  1,
+  52                  8,
+  53          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 2   
+
+  54          
+  55          struct tw_icon code page_main_internal_soc_2 = {
+  56                  ID_ICON_SOC_2,
+  57                  36,
+  58                  0,
+  59                  0,
+  60                  1,
+  61                  1,
+  62                  9,
+  63          };
+  64          
+  65          struct tw_icon code page_main_internal_soc_3 = {
+  66                  ID_ICON_SOC_3,
+  67                  37,
+  68                  0,
+  69                  0,
+  70                  1,
+  71                  1,
+  72                  10,
+  73          };
+  74          
+  75          struct tw_icon code page_main_internal_soc_4 = {
+  76                  ID_ICON_SOC_4,
+  77                  38,
+  78                  0,
+  79                  0,
+  80                  1,
+  81                  1,
+  82                  11,
+  83          };
+  84          
+  85          struct tw_icon code page_main_internal_soc_5 = {
+  86                  ID_ICON_SOC_5,
+  87                  39,
+  88                  0,
+  89                  0,
+  90                  1,
+  91                  1,
+  92                  12,
+  93          };
+  94          
+  95          struct tw_icon code page_main_internal_soc_6 = {
+  96                  ID_ICON_SOC_6,
+  97                  40,
+  98                  0,
+  99                  0,
+ 100                  1,
+ 101                  1,
+ 102                  13,
+ 103          };
+ 104          
+ 105          struct tw_icon code page_main_internal_soc_7 = {
+ 106                  ID_ICON_SOC_7,
+ 107                  8,
+ 108                  0,
+ 109                  0,
+ 110                  1,
+ 111                  1,
+ 112                  14,
+ 113          };
+ 114          
+ 115          struct tw_icon code page_main_internal_av = {
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 3   
+
+ 116                  ID_ICON_AV,
+ 117                  0,
+ 118                  0,
+ 119                  0,
+ 120                  2,
+ 121                  1,
+ 122                  16,
+ 123          };
+ 124          
+ 125          struct tw_icon code page_main_internal_font_close = {
+ 126                  ID_ICON_FONT_CLOSE,
+ 127                  1,
+ 128                  0,
+ 129                  0,
+ 130                  2,
+ 131                  1,
+ 132                  18,
+ 133          };
+ 134          
+ 135          struct tw_icon code page_main_internal_font_open = {
+ 136                  ID_ICON_FONT_OPEN,
+ 137                  2,
+ 138                  0,
+ 139                  0,
+ 140                  2,
+ 141                  1,
+ 142                  20,
+ 143          };
+ 144          
+ 145          struct tw_icon code page_main_internal_number_0 = {
+ 146                  ID_ICON_NUMBER_0,
+ 147                  3,
+ 148                  0,
+ 149                  0,
+ 150                  1,
+ 151                  1,
+ 152                  22,
+ 153          };
+ 154          
+ 155          struct tw_icon code page_main_internal_number_1 = {
+ 156                  ID_ICON_NUMBER_1,
+ 157                  3,
+ 158                  0,
+ 159                  0,
+ 160                  1,
+ 161                  1,
+ 162                  23,
+ 163          };
+ 164          
+ 165          struct tw_icon code page_main_internal_number_2 = {
+ 166                  ID_ICON_NUMBER_2,
+ 167                  3,
+ 168                  0,
+ 169                  0,
+ 170                  1,
+ 171                  1,
+ 172                  24,
+ 173          };
+ 174          
+ 175          struct tw_icon code page_main_internal_number_3 = {
+ 176                  ID_ICON_NUMBER_3,
+ 177                  3,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 4   
+
+ 178                  0,
+ 179                  0,
+ 180                  1,
+ 181                  1,
+ 182                  25,
+ 183          };
+ 184          
+ 185          struct tw_icon code page_main_internal_number_4 = {
+ 186                  ID_ICON_NUMBER_4,
+ 187                  3,
+ 188                  0,
+ 189                  0,
+ 190                  1,
+ 191                  1,
+ 192                  26,
+ 193          };
+ 194          
+ 195          struct tw_icon code page_main_internal_number_5 = {
+ 196                  ID_ICON_NUMBER_5,
+ 197                  3,
+ 198                  0,
+ 199                  0,
+ 200                  1,
+ 201                  1,
+ 202                  27,
+ 203          };
+ 204          
+ 205          struct tw_icon code page_main_internal_number_6 = {
+ 206                  ID_ICON_NUMBER_6,
+ 207                  3,
+ 208                  0,
+ 209                  0,
+ 210                  1,
+ 211                  1,
+ 212                  28,
+ 213          };
+ 214          
+ 215          struct tw_icon code page_main_internal_number_7 = {
+ 216                  ID_ICON_NUMBER_7,
+ 217                  3,
+ 218                  0,
+ 219                  0,
+ 220                  1,
+ 221                  1,
+ 222                  29,
+ 223          };
+ 224          
+ 225          struct tw_icon code page_main_internal_number_8 = {
+ 226                  ID_ICON_NUMBER_8,
+ 227                  3,
+ 228                  0,
+ 229                  0,
+ 230                  1,
+ 231                  1,
+ 232                  30,
+ 233          };
+ 234          
+ 235          struct tw_icon code page_main_internal_number_9 = {
+ 236                  ID_ICON_NUMBER_9,
+ 237                  3,
+ 238                  0,
+ 239                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 5   
+
+ 240                  1,
+ 241                  1,
+ 242                  31,
+ 243          };
+ 244          
+ 245          struct tw_icon code page_main_internal_number_10 = {
+ 246                  ID_ICON_NUMBER_10,
+ 247                  4,
+ 248                  0,
+ 249                  0,
+ 250                  1,
+ 251                  1,
+ 252                  32,
+ 253          };
+ 254          
+ 255          struct tw_icon code page_main_internal_number_a = {
+ 256                  ID_ICON_NUMBER_A,
+ 257                  3,
+ 258                  0,
+ 259                  0,
+ 260                  1,
+ 261                  1,
+ 262                  33,
+ 263          };
+ 264          
+ 265          struct tw_icon code page_main_internal_number_point_0 = {
+ 266                  ID_ICON_NUMBER_POINT_0,
+ 267                  4,
+ 268                  0,
+ 269                  0,
+ 270                  1,
+ 271                  1,
+ 272                  34,
+ 273          };
+ 274          
+ 275          struct tw_icon code page_main_internal_number_point_1 = {
+ 276                  ID_ICON_NUMBER_POINT_1,
+ 277                  4,
+ 278                  0,
+ 279                  0,
+ 280                  1,
+ 281                  1,
+ 282                  35,
+ 283          };
+ 284          
+ 285          struct tw_icon code page_main_internal_number_point_2 = {
+ 286                  ID_ICON_NUMBER_POINT_2,
+ 287                  4,
+ 288                  0,
+ 289                  0,
+ 290                  1,
+ 291                  1,
+ 292                  36,
+ 293          };
+ 294          
+ 295          struct tw_icon code page_main_internal_number_point_3 = {
+ 296                  ID_ICON_NUMBER_POINT_3,
+ 297                  4,
+ 298                  0,
+ 299                  0,
+ 300                  1,
+ 301                  1,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 6   
+
+ 302                  37,
+ 303          };
+ 304          
+ 305          struct tw_icon code page_main_internal_number_point_4 = {
+ 306                  ID_ICON_NUMBER_POINT_4,
+ 307                  4,
+ 308                  0,
+ 309                  0,
+ 310                  1,
+ 311                  1,
+ 312                  38,
+ 313          };
+ 314          
+ 315          struct tw_icon code page_main_internal_number_point_5 = {
+ 316                  ID_ICON_NUMBER_POINT_5,
+ 317                  4,
+ 318                  0,
+ 319                  0,
+ 320                  1,
+ 321                  1,
+ 322                  39,
+ 323          };
+ 324          
+ 325          struct tw_icon code page_main_internal_number_point_6 = {
+ 326                  ID_ICON_NUMBER_POINT_6,
+ 327                  4,
+ 328                  0,
+ 329                  0,
+ 330                  1,
+ 331                  1,
+ 332                  40,
+ 333          };
+ 334          
+ 335          struct tw_icon code page_main_internal_number_point_7 = {
+ 336                  ID_ICON_NUMBER_POINT_7,
+ 337                  4,
+ 338                  0,
+ 339                  0,
+ 340                  1,
+ 341                  1,
+ 342                  41,
+ 343          };
+ 344          
+ 345          struct tw_icon code page_main_internal_number_point_8 = {
+ 346                  ID_ICON_NUMBER_POINT_8,
+ 347                  4,
+ 348                  0,
+ 349                  0,
+ 350                  1,
+ 351                  1,
+ 352                  42,
+ 353          };
+ 354          
+ 355          struct tw_icon code page_main_internal_number_point_9 = {
+ 356                  ID_ICON_NUMBER_POINT_9,
+ 357                  4,
+ 358                  0,
+ 359                  0,
+ 360                  1,
+ 361                  1,
+ 362                  43,
+ 363          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 7   
+
+ 364          
+ 365          struct tw_icon code page_main_internal_x = {
+ 366                  ID_ICON_X,
+ 367                  5,
+ 368                  0,
+ 369                  0,
+ 370                  1,
+ 371                  1,
+ 372                  44,
+ 373          };
+ 374          
+ 375          struct tw_gicon code page_main_internal_fault_alarm_0 = {
+ 376                  ID_ICON_FAULT_ALARM_0,
+ 377                  6,
+ 378                  0,
+ 379                  0,
+ 380                  22,
+ 381                  2,
+ 382                  45,
+ 383                  0X06f0,
+ 384          };
+ 385          
+ 386          struct tw_gicon code page_main_internal_fault_alarm_1 = {
+ 387                  ID_ICON_FAULT_ALARM_1,
+ 388                  6,
+ 389                  0,
+ 390                  0,
+ 391                  22,
+ 392                  2,
+ 393                  45,
+ 394                  0X06f0,
+ 395          };
+ 396          
+ 397          struct tw_gicon code page_main_internal_fault_alarm_2 = {
+ 398                  ID_ICON_FAULT_ALARM_2,
+ 399                  6,
+ 400                  0,
+ 401                  0,
+ 402                  22,
+ 403                  2,
+ 404                  45,
+ 405                  0X06f0,
+ 406          };
+ 407          
+ 408          struct tw_gicon code page_main_internal_fault_alarm_3 = {
+ 409                  ID_ICON_FAULT_ALARM_3,
+ 410                  6,
+ 411                  0,
+ 412                  0,
+ 413                  22,
+ 414                  2,
+ 415                  45,
+ 416                  0X06f0,
+ 417          };
+ 418          
+ 419          struct tw_gicon code page_main_internal_fault_alarm_4 = {
+ 420                  ID_ICON_FAULT_ALARM_4,
+ 421                  6,
+ 422                  0,
+ 423                  0,
+ 424                  22,
+ 425                  2,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 8   
+
+ 426                  45,
+ 427                  0X06f0,
+ 428          };
+ 429          
+ 430          struct tw_gicon code page_main_internal_fault_alarm_5 = {
+ 431                  ID_ICON_FAULT_ALARM_5,
+ 432                  6,
+ 433                  0,
+ 434                  0,
+ 435                  22,
+ 436                  2,
+ 437                  45,
+ 438                  0X06f0,
+ 439          };
+ 440          
+ 441          struct tw_gicon code page_main_internal_fault_alarm_6 = {
+ 442                  ID_ICON_FAULT_ALARM_6,
+ 443                  6,
+ 444                  0,
+ 445                  0,
+ 446                  22,
+ 447                  2,
+ 448                  45,
+ 449                  0X06f0,
+ 450          };
+ 451          
+ 452          struct tw_gicon code page_main_internal_fault_alarm_7 = {
+ 453                  ID_ICON_FAULT_ALARM_7,
+ 454                  6,
+ 455                  0,
+ 456                  0,
+ 457                  22,
+ 458                  2,
+ 459                  45,
+ 460                  0X06f0,
+ 461          };
+ 462          
+ 463          struct tw_gicon code page_main_internal_fault_alarm_8 = {
+ 464                  ID_ICON_FAULT_ALARM_8,
+ 465                  6,
+ 466                  0,
+ 467                  0,
+ 468                  22,
+ 469                  2,
+ 470                  45,
+ 471                  0X06f0,
+ 472          };
+ 473          
+ 474          struct tw_gicon code page_main_internal_fault_alarm_9 = {
+ 475                  ID_ICON_FAULT_ALARM_9,
+ 476                  6,
+ 477                  0,
+ 478                  0,
+ 479                  22,
+ 480                  2,
+ 481                  45,
+ 482                  0X06f0,
+ 483          };
+ 484          
+ 485          struct tw_gicon code page_main_internal_fault_alarm_10 = {
+ 486                  ID_ICON_FAULT_ALARM_10,
+ 487                  6,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 9   
+
+ 488                  0,
+ 489                  0,
+ 490                  22,
+ 491                  2,
+ 492                  45,
+ 493                  0X06f0,
+ 494          };
+ 495          
+ 496          struct tw_gicon code page_main_internal_fault_alarm_11 = {
+ 497                  ID_ICON_FAULT_ALARM_11,
+ 498                  6,
+ 499                  0,
+ 500                  0,
+ 501                  22,
+ 502                  2,
+ 503                  45,
+ 504                  0X06f0,
+ 505          };
+ 506          
+ 507          struct tw_gicon code page_main_internal_fault_alarm_12 = {
+ 508                  ID_ICON_FAULT_ALARM_12,
+ 509                  6,
+ 510                  0,
+ 511                  0,
+ 512                  22,
+ 513                  2,
+ 514                  45,
+ 515                  0X06f0,
+ 516          };
+ 517          
+ 518          struct tw_gicon code page_main_internal_fault_alarm_13 = {
+ 519                  ID_ICON_FAULT_ALARM_13,
+ 520                  6,
+ 521                  0,
+ 522                  0,
+ 523                  22,
+ 524                  2,
+ 525                  45,
+ 526                  0X06f0,
+ 527          };
+ 528          
+ 529          struct tw_gicon code page_main_internal_fault_alarm_14 = {
+ 530                  ID_ICON_FAULT_ALARM_14,
+ 531                  6,
+ 532                  0,
+ 533                  0,
+ 534                  22,
+ 535                  2,
+ 536                  45,
+ 537                  0X06f0,
+ 538          };
+ 539          
+ 540          struct tw_gicon code page_main_internal_fault_alarm_15 = {
+ 541                  ID_ICON_FAULT_ALARM_15,
+ 542                  6,
+ 543                  0,
+ 544                  0,
+ 545                  22,
+ 546                  2,
+ 547                  45,
+ 548                  0X06f0,
+ 549          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 10  
+
+ 550          
+ 551          struct tw_gicon code page_main_internal_fault_alarm_16 = {
+ 552                  ID_ICON_FAULT_ALARM_16,
+ 553                  6,
+ 554                  0,
+ 555                  0,
+ 556                  22,
+ 557                  2,
+ 558                  45,
+ 559                  0X06f0,
+ 560          };
+ 561          
+ 562          struct tw_gicon code page_main_internal_fault_alarm_17 = {
+ 563                  ID_ICON_FAULT_ALARM_17,
+ 564                  6,
+ 565                  0,
+ 566                  0,
+ 567                  22,
+ 568                  2,
+ 569                  45,
+ 570                  0X06f0,
+ 571          };
+ 572          
+ 573          struct tw_gicon code page_main_internal_fault_alarm_18 = {
+ 574                  ID_ICON_FAULT_ALARM_18,
+ 575                  6,
+ 576                  0,
+ 577                  0,
+ 578                  22,
+ 579                  2,
+ 580                  45,
+ 581                  0X06f0,
+ 582          };
+ 583          
+ 584          struct tw_gicon code page_main_internal_fault_alarm_19 = {
+ 585                  ID_ICON_FAULT_ALARM_19,
+ 586                  6,
+ 587                  0,
+ 588                  0,
+ 589                  22,
+ 590                  2,
+ 591                  45,
+ 592                  0X06f0,
+ 593          };
+ 594          
+ 595          struct tw_gicon code page_main_internal_fault_alarm_20 = {
+ 596                  ID_ICON_FAULT_ALARM_20,
+ 597                  6,
+ 598                  0,
+ 599                  0,
+ 600                  22,
+ 601                  2,
+ 602                  45,
+ 603                  0X06f0,
+ 604          };
+ 605          
+ 606          struct tw_gicon code page_main_internal_fault_alarm_21 = {
+ 607                  ID_ICON_FAULT_ALARM_21,
+ 608                  6,
+ 609                  0,
+ 610                  0,
+ 611                  22,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 11  
+
+ 612                  2,
+ 613                  45,
+ 614                  0X06f0,
+ 615          };
+ 616          
+ 617          struct tw_gicon code page_main_internal_fault_alarm_22 = {
+ 618                  ID_ICON_FAULT_ALARM_22,
+ 619                  6,
+ 620                  0,
+ 621                  0,
+ 622                  22,
+ 623                  2,
+ 624                  45,
+ 625                  0X06f0,
+ 626          };
+ 627          
+ 628          struct tw_gicon code page_main_internal_fault_alarm_23 = {
+ 629                  ID_ICON_FAULT_ALARM_23,
+ 630                  6,
+ 631                  0,
+ 632                  0,
+ 633                  22,
+ 634                  2,
+ 635                  45,
+ 636                  0X06f0,
+ 637          };
+ 638          
+ 639          struct tw_gicon code page_main_internal_fault_alarm_24 = {
+ 640                  ID_ICON_FAULT_ALARM_24,
+ 641                  6,
+ 642                  0,
+ 643                  0,
+ 644                  22,
+ 645                  2,
+ 646                  45,
+ 647                  0X06f0,
+ 648          };
+ 649          
+ 650          struct tw_gicon code page_main_internal_fault_alarm_25 = {
+ 651                  ID_ICON_FAULT_ALARM_25,
+ 652                  6,
+ 653                  0,
+ 654                  0,
+ 655                  22,
+ 656                  2,
+ 657                  45,
+ 658                  0X06f0,
+ 659          };
+ 660          
+ 661          struct tw_gicon code page_main_internal_fault_alarm_26 = {
+ 662                  ID_ICON_FAULT_ALARM_26,
+ 663                  6,
+ 664                  0,
+ 665                  0,
+ 666                  22,
+ 667                  2,
+ 668                  45,
+ 669                  0X06f0,
+ 670          };
+ 671          
+ 672          struct tw_gicon code page_main_internal_fault_alarm_27 = {
+ 673                  ID_ICON_FAULT_ALARM_27,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 12  
+
+ 674                  6,
+ 675                  0,
+ 676                  0,
+ 677                  22,
+ 678                  2,
+ 679                  45,
+ 680                  0X06f0,
+ 681          };
+ 682          
+ 683          struct tw_gicon code page_main_internal_fault_alarm_28 = {
+ 684                  ID_ICON_FAULT_ALARM_28,
+ 685                  6,
+ 686                  0,
+ 687                  0,
+ 688                  22,
+ 689                  2,
+ 690                  45,
+ 691                  0X06f0,
+ 692          };
+ 693          
+ 694          struct tw_gicon code page_main_internal_fault_alarm_29 = {
+ 695                  ID_ICON_FAULT_ALARM_29,
+ 696                  6,
+ 697                  0,
+ 698                  0,
+ 699                  22,
+ 700                  2,
+ 701                  45,
+ 702                  0X06f0,
+ 703          };
+ 704          
+ 705          struct tw_gicon code page_main_internal_fault_alarm_30 = {
+ 706                  ID_ICON_FAULT_ALARM_30,
+ 707                  6,
+ 708                  0,
+ 709                  0,
+ 710                  22,
+ 711                  2,
+ 712                  45,
+ 713                  0X06f0,
+ 714          };
+ 715          
+ 716          struct tw_gicon code page_main_internal_fault_alarm_31 = {
+ 717                  ID_ICON_FAULT_ALARM_31,
+ 718                  6,
+ 719                  0,
+ 720                  0,
+ 721                  22,
+ 722                  2,
+ 723                  45,
+ 724                  0X06f0,
+ 725          };
+ 726          
+ 727          struct tw_gicon code page_main_internal_fault_alarm_32 = {
+ 728                  ID_ICON_FAULT_ALARM_32,
+ 729                  6,
+ 730                  0,
+ 731                  0,
+ 732                  22,
+ 733                  2,
+ 734                  45,
+ 735                  0X06f0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 13  
+
+ 736          };
+ 737          
+ 738          struct tw_gicon code page_main_internal_fault_alarm_33 = {
+ 739                  ID_ICON_FAULT_ALARM_33,
+ 740                  6,
+ 741                  0,
+ 742                  0,
+ 743                  22,
+ 744                  2,
+ 745                  45,
+ 746                  0X06f0,
+ 747          };
+ 748          
+ 749          struct tw_gicon code page_main_internal_fault_alarm_34 = {
+ 750                  ID_ICON_FAULT_ALARM_34,
+ 751                  6,
+ 752                  0,
+ 753                  0,
+ 754                  22,
+ 755                  2,
+ 756                  45,
+ 757                  0X06f0,
+ 758          };
+ 759          
+ 760          struct tw_gicon code page_main_internal_fault_alarm_35 = {
+ 761                  ID_ICON_FAULT_ALARM_35,
+ 762                  6,
+ 763                  0,
+ 764                  0,
+ 765                  22,
+ 766                  2,
+ 767                  45,
+ 768                  0X06f0,
+ 769          };
+ 770          
+ 771          struct tw_gicon code page_main_internal_fault_alarm_36 = {
+ 772                  ID_ICON_FAULT_ALARM_36,
+ 773                  6,
+ 774                  0,
+ 775                  0,
+ 776                  22,
+ 777                  2,
+ 778                  45,
+ 779                  0X06f0,
+ 780          };
+ 781          
+ 782          struct tw_gicon code page_main_internal_fault_alarm_37 = {
+ 783                  ID_ICON_FAULT_ALARM_37,
+ 784                  6,
+ 785                  0,
+ 786                  0,
+ 787                  22,
+ 788                  2,
+ 789                  45,
+ 790                  0X06f0,
+ 791          };
+ 792          
+ 793          struct tw_gicon code page_main_internal_fault_alarm_38 = {
+ 794                  ID_ICON_FAULT_ALARM_38,
+ 795                  6,
+ 796                  0,
+ 797                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 14  
+
+ 798                  22,
+ 799                  2,
+ 800                  45,
+ 801                  0X06f0,
+ 802          };
+ 803          
+ 804          struct tw_gicon code page_main_internal_fault_alarm_39 = {
+ 805                  ID_ICON_FAULT_ALARM_39,
+ 806                  6,
+ 807                  0,
+ 808                  0,
+ 809                  22,
+ 810                  2,
+ 811                  45,
+ 812                  0X06f0,
+ 813          };
+ 814          
+ 815          struct tw_gicon code page_main_internal_fault_alarm_40 = {
+ 816                  ID_ICON_FAULT_ALARM_40,
+ 817                  6,
+ 818                  0,
+ 819                  0,
+ 820                  22,
+ 821                  2,
+ 822                  45,
+ 823                  0X06f0,
+ 824          };
+ 825          
+ 826          struct tw_gicon code page_main_internal_fault_alarm_41 = {
+ 827                  ID_ICON_FAULT_ALARM_41,
+ 828                  6,
+ 829                  0,
+ 830                  0,
+ 831                  22,
+ 832                  2,
+ 833                  45,
+ 834                  0X06f0,
+ 835          };
+ 836          
+ 837          struct tw_gicon code page_main_internal_fault_alarm_42 = {
+ 838                  ID_ICON_FAULT_ALARM_42,
+ 839                  6,
+ 840                  0,
+ 841                  0,
+ 842                  22,
+ 843                  2,
+ 844                  45,
+ 845                  0X06f0,
+ 846          };
+ 847          
+ 848          struct tw_gicon code page_main_internal_fault_alarm_43 = {
+ 849                  ID_ICON_FAULT_ALARM_43,
+ 850                  6,
+ 851                  0,
+ 852                  0,
+ 853                  22,
+ 854                  2,
+ 855                  45,
+ 856                  0X06f0,
+ 857          };
+ 858          
+ 859          struct tw_gicon code page_main_internal_fault_alarm_44 = {
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 15  
+
+ 860                  ID_ICON_FAULT_ALARM_44,
+ 861                  6,
+ 862                  0,
+ 863                  0,
+ 864                  22,
+ 865                  2,
+ 866                  45,
+ 867                  0X06f0,
+ 868          };
+ 869          
+ 870          struct tw_gicon code page_main_internal_fault_alarm_45 = {
+ 871                  ID_ICON_FAULT_ALARM_45,
+ 872                  6,
+ 873                  0,
+ 874                  0,
+ 875                  22,
+ 876                  2,
+ 877                  45,
+ 878                  0X06f0,
+ 879          };
+ 880          
+ 881          struct tw_gicon code page_main_internal_fault_alarm_46 = {
+ 882                  ID_ICON_FAULT_ALARM_46,
+ 883                  6,
+ 884                  0,
+ 885                  0,
+ 886                  22,
+ 887                  2,
+ 888                  45,
+ 889                  0X06f0,
+ 890          };
+ 891          
+ 892          struct tw_gicon code page_main_internal_fault_alarm_47 = {
+ 893                  ID_ICON_FAULT_ALARM_47,
+ 894                  6,
+ 895                  0,
+ 896                  0,
+ 897                  22,
+ 898                  2,
+ 899                  45,
+ 900                  0X06f0,
+ 901          };
+ 902          
+ 903          struct tw_gicon code page_main_internal_fault_alarm_48 = {
+ 904                  ID_ICON_FAULT_ALARM_48,
+ 905                  6,
+ 906                  0,
+ 907                  0,
+ 908                  22,
+ 909                  2,
+ 910                  45,
+ 911                  0X06f0,
+ 912          };
+ 913          
+ 914          struct tw_gicon code page_main_internal_fault_alarm_49 = {
+ 915                  ID_ICON_FAULT_ALARM_49,
+ 916                  6,
+ 917                  0,
+ 918                  0,
+ 919                  22,
+ 920                  2,
+ 921                  45,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 16  
+
+ 922                  0X06f0,
+ 923          };
+ 924          
+ 925          struct tw_gicon code page_main_internal_fault_alarm_50 = {
+ 926                  ID_ICON_FAULT_ALARM_50,
+ 927                  6,
+ 928                  0,
+ 929                  0,
+ 930                  22,
+ 931                  2,
+ 932                  45,
+ 933                  0X06f0,
+ 934          };
+ 935          
+ 936          struct tw_gicon code page_main_internal_fault_alarm_51 = {
+ 937                  ID_ICON_FAULT_ALARM_51,
+ 938                  6,
+ 939                  0,
+ 940                  0,
+ 941                  22,
+ 942                  2,
+ 943                  45,
+ 944                  0X06f0,
+ 945          };
+ 946          
+ 947          struct tw_gicon code page_main_internal_fault_alarm_52 = {
+ 948                  ID_ICON_FAULT_ALARM_52,
+ 949                  6,
+ 950                  0,
+ 951                  0,
+ 952                  22,
+ 953                  2,
+ 954                  45,
+ 955                  0X06f0,
+ 956          };
+ 957          
+ 958          struct tw_gicon code page_main_internal_fault_alarm_53 = {
+ 959                  ID_ICON_FAULT_ALARM_53,
+ 960                  6,
+ 961                  0,
+ 962                  0,
+ 963                  22,
+ 964                  2,
+ 965                  45,
+ 966                  0X06f0,
+ 967          };
+ 968          
+ 969          struct tw_gicon code page_main_internal_fault_alarm_54 = {
+ 970                  ID_ICON_FAULT_ALARM_54,
+ 971                  6,
+ 972                  0,
+ 973                  0,
+ 974                  22,
+ 975                  2,
+ 976                  45,
+ 977                  0X06f0,
+ 978          };
+ 979          
+ 980          struct tw_gicon code page_main_internal_fault_alarm_55 = {
+ 981                  ID_ICON_FAULT_ALARM_55,
+ 982                  6,
+ 983                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 17  
+
+ 984                  0,
+ 985                  22,
+ 986                  2,
+ 987                  45,
+ 988                  0X06f0,
+ 989          };
+ 990          
+ 991          struct tw_gicon code page_main_internal_fault_alarm_56 = {
+ 992                  ID_ICON_FAULT_ALARM_56,
+ 993                  6,
+ 994                  0,
+ 995                  0,
+ 996                  22,
+ 997                  2,
+ 998                  45,
+ 999                  0X06f0,
+1000          };
+1001          
+1002          struct tw_gicon code page_main_internal_fault_alarm_57 = {
+1003                  ID_ICON_FAULT_ALARM_57,
+1004                  6,
+1005                  0,
+1006                  0,
+1007                  22,
+1008                  2,
+1009                  45,
+1010                  0X06f0,
+1011          };
+1012          
+1013          struct tw_gicon code page_main_internal_fault_alarm_58 = {
+1014                  ID_ICON_FAULT_ALARM_58,
+1015                  6,
+1016                  0,
+1017                  0,
+1018                  22,
+1019                  2,
+1020                  45,
+1021                  0X06f0,
+1022          };
+1023          
+1024          struct tw_gicon code page_main_internal_fault_alarm_59 = {
+1025                  ID_ICON_FAULT_ALARM_59,
+1026                  6,
+1027                  0,
+1028                  0,
+1029                  22,
+1030                  2,
+1031                  45,
+1032                  0X06f0,
+1033          };
+1034          
+1035          struct tw_gicon code page_main_internal_fault_alarm_60 = {
+1036                  ID_ICON_FAULT_ALARM_60,
+1037                  6,
+1038                  0,
+1039                  0,
+1040                  22,
+1041                  2,
+1042                  45,
+1043                  0X06f0,
+1044          };
+1045          
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 18  
+
+1046          struct tw_gicon code page_main_internal_fault_alarm_61 = {
+1047                  ID_ICON_FAULT_ALARM_61,
+1048                  6,
+1049                  0,
+1050                  0,
+1051                  22,
+1052                  2,
+1053                  45,
+1054                  0X06f0,
+1055          };
+1056          
+1057          struct tw_gicon code page_main_internal_fault_alarm_62 = {
+1058                  ID_ICON_FAULT_ALARM_62,
+1059                  6,
+1060                  0,
+1061                  0,
+1062                  22,
+1063                  2,
+1064                  45,
+1065                  0X06f0,
+1066          };
+1067          
+1068          struct tw_gicon code page_main_internal_fault_alarm_63 = {
+1069                  ID_ICON_FAULT_ALARM_63,
+1070                  6,
+1071                  0,
+1072                  0,
+1073                  22,
+1074                  2,
+1075                  45,
+1076                  0X06f0,
+1077          };
+1078          
+1079          struct tw_gicon code page_main_internal_fault_alarm_64 = {
+1080                  ID_ICON_FAULT_ALARM_64,
+1081                  6,
+1082                  0,
+1083                  0,
+1084                  22,
+1085                  2,
+1086                  45,
+1087                  0X06f0,
+1088          };
+1089          
+1090          struct tw_gicon code page_main_internal_fault_alarm_65 = {
+1091                  ID_ICON_FAULT_ALARM_65,
+1092                  6,
+1093                  0,
+1094                  0,
+1095                  22,
+1096                  2,
+1097                  45,
+1098                  0X06f0,
+1099          };
+1100          
+1101          struct tw_gicon code page_main_internal_fault_alarm_66 = {
+1102                  ID_ICON_FAULT_ALARM_66,
+1103                  6,
+1104                  0,
+1105                  0,
+1106                  22,
+1107                  2,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 19  
+
+1108                  45,
+1109                  0X06f0,
+1110          };
+1111          
+1112          struct tw_gicon code page_main_internal_fault_alarm_67 = {
+1113                  ID_ICON_FAULT_ALARM_67,
+1114                  6,
+1115                  0,
+1116                  0,
+1117                  22,
+1118                  2,
+1119                  45,
+1120                  0X06f0,
+1121          };
+1122          
+1123          struct tw_gicon code page_main_internal_fault_alarm_68 = {
+1124                  ID_ICON_FAULT_ALARM_68,
+1125                  6,
+1126                  0,
+1127                  0,
+1128                  22,
+1129                  2,
+1130                  45,
+1131                  0X06f0,
+1132          };
+1133          
+1134          struct tw_gicon code page_main_internal_fault_alarm_69 = {
+1135                  ID_ICON_FAULT_ALARM_69,
+1136                  6,
+1137                  0,
+1138                  0,
+1139                  22,
+1140                  2,
+1141                  45,
+1142                  0X06f0,
+1143          };
+1144          
+1145          struct tw_gicon code page_main_internal_fault_alarm_70 = {
+1146                  ID_ICON_FAULT_ALARM_70,
+1147                  6,
+1148                  0,
+1149                  0,
+1150                  22,
+1151                  2,
+1152                  45,
+1153                  0X06f0,
+1154          };
+1155          
+1156          struct tw_gicon code page_main_internal_fault_alarm_71 = {
+1157                  ID_ICON_FAULT_ALARM_71,
+1158                  6,
+1159                  0,
+1160                  0,
+1161                  22,
+1162                  2,
+1163                  45,
+1164                  0X06f0,
+1165          };
+1166          
+1167          struct tw_gicon code page_main_internal_fault_alarm_72 = {
+1168                  ID_ICON_FAULT_ALARM_72,
+1169                  6,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 20  
+
+1170                  0,
+1171                  0,
+1172                  22,
+1173                  2,
+1174                  45,
+1175                  0X06f0,
+1176          };
+1177          
+1178          struct tw_gicon code page_main_internal_fault_alarm_73 = {
+1179                  ID_ICON_FAULT_ALARM_73,
+1180                  6,
+1181                  0,
+1182                  0,
+1183                  22,
+1184                  2,
+1185                  45,
+1186                  0X06f0,
+1187          };
+1188          
+1189          struct tw_gicon code page_main_internal_fault_alarm_74 = {
+1190                  ID_ICON_FAULT_ALARM_74,
+1191                  6,
+1192                  0,
+1193                  0,
+1194                  22,
+1195                  2,
+1196                  45,
+1197                  0X06f0,
+1198          };
+1199          
+1200          struct tw_gicon code page_main_internal_fault_alarm_75 = {
+1201                  ID_ICON_FAULT_ALARM_75,
+1202                  6,
+1203                  0,
+1204                  0,
+1205                  22,
+1206                  2,
+1207                  45,
+1208                  0X06f0,
+1209          };
+1210          
+1211          struct tw_gicon code page_main_internal_fault_alarm_76 = {
+1212                  ID_ICON_FAULT_ALARM_76,
+1213                  6,
+1214                  0,
+1215                  0,
+1216                  22,
+1217                  2,
+1218                  45,
+1219                  0X06f0,
+1220          };
+1221          
+1222          struct tw_gicon code page_main_internal_fault_alarm_77 = {
+1223                  ID_ICON_FAULT_ALARM_77,
+1224                  6,
+1225                  0,
+1226                  0,
+1227                  22,
+1228                  2,
+1229                  45,
+1230                  0X06f0,
+1231          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 21  
+
+1232          
+1233          struct tw_gicon code page_main_internal_fault_alarm_78 = {
+1234                  ID_ICON_FAULT_ALARM_78,
+1235                  6,
+1236                  0,
+1237                  0,
+1238                  22,
+1239                  2,
+1240                  45,
+1241                  0X06f0,
+1242          };
+1243          
+1244          struct tw_gicon code page_main_internal_fault_alarm_79 = {
+1245                  ID_ICON_FAULT_ALARM_79,
+1246                  6,
+1247                  0,
+1248                  0,
+1249                  22,
+1250                  2,
+1251                  45,
+1252                  0X06f0,
+1253          };
+1254          
+1255          struct tw_gicon code page_main_internal_fault_alarm_80 = {
+1256                  ID_ICON_FAULT_ALARM_80,
+1257                  6,
+1258                  0,
+1259                  0,
+1260                  22,
+1261                  2,
+1262                  45,
+1263                  0X06f0,
+1264          };
+1265          
+1266          struct tw_gicon code page_main_internal_fault_alarm_81 = {
+1267                  ID_ICON_FAULT_ALARM_81,
+1268                  6,
+1269                  0,
+1270                  0,
+1271                  22,
+1272                  2,
+1273                  45,
+1274                  0X06f0,
+1275          };
+1276          
+1277          struct tw_gicon code page_main_internal_fault_alarm_82 = {
+1278                  ID_ICON_FAULT_ALARM_82,
+1279                  6,
+1280                  0,
+1281                  0,
+1282                  22,
+1283                  2,
+1284                  45,
+1285                  0X06f0,
+1286          };
+1287          
+1288          struct tw_gicon code page_main_internal_fault_alarm_83 = {
+1289                  ID_ICON_FAULT_ALARM_83,
+1290                  6,
+1291                  0,
+1292                  0,
+1293                  22,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 22  
+
+1294                  2,
+1295                  45,
+1296                  0X06f0,
+1297          };
+1298          
+1299          struct tw_gicon code page_main_internal_fault_alarm_84 = {
+1300                  ID_ICON_FAULT_ALARM_84,
+1301                  6,
+1302                  0,
+1303                  0,
+1304                  22,
+1305                  2,
+1306                  45,
+1307                  0X06f0,
+1308          };
+1309          
+1310          struct tw_gicon code page_main_internal_fault_alarm_85 = {
+1311                  ID_ICON_FAULT_ALARM_85,
+1312                  6,
+1313                  0,
+1314                  0,
+1315                  22,
+1316                  2,
+1317                  45,
+1318                  0X06f0,
+1319          };
+1320          
+1321          struct tw_gicon code page_main_internal_fault_alarm_86 = {
+1322                  ID_ICON_FAULT_ALARM_86,
+1323                  6,
+1324                  0,
+1325                  0,
+1326                  22,
+1327                  2,
+1328                  45,
+1329                  0X06f0,
+1330          };
+1331          
+1332          struct tw_gicon code page_main_internal_fault_alarm_87 = {
+1333                  ID_ICON_FAULT_ALARM_87,
+1334                  6,
+1335                  0,
+1336                  0,
+1337                  22,
+1338                  2,
+1339                  45,
+1340                  0X06f0,
+1341          };
+1342          
+1343          struct tw_gicon code page_main_internal_fault_alarm_88 = {
+1344                  ID_ICON_FAULT_ALARM_88,
+1345                  6,
+1346                  0,
+1347                  0,
+1348                  22,
+1349                  2,
+1350                  45,
+1351                  0X06f0,
+1352          };
+1353          
+1354          struct tw_gicon code page_main_internal_fault_alarm_89 = {
+1355                  ID_ICON_FAULT_ALARM_89,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 23  
+
+1356                  6,
+1357                  0,
+1358                  0,
+1359                  22,
+1360                  2,
+1361                  45,
+1362                  0X06f0,
+1363          };
+1364          
+1365          struct tw_gicon code page_main_internal_fault_alarm_90 = {
+1366                  ID_ICON_FAULT_ALARM_90,
+1367                  6,
+1368                  0,
+1369                  0,
+1370                  22,
+1371                  2,
+1372                  45,
+1373                  0X06f0,
+1374          };
+1375          
+1376          struct tw_gicon code page_main_internal_fault_alarm_91 = {
+1377                  ID_ICON_FAULT_ALARM_91,
+1378                  6,
+1379                  0,
+1380                  0,
+1381                  22,
+1382                  2,
+1383                  45,
+1384                  0X06f0,
+1385          };
+1386          
+1387          struct tw_gicon code page_main_internal_fault_alarm_92 = {
+1388                  ID_ICON_FAULT_ALARM_92,
+1389                  6,
+1390                  0,
+1391                  0,
+1392                  22,
+1393                  2,
+1394                  45,
+1395                  0X06f0,
+1396          };
+1397          
+1398          struct tw_gicon code page_main_internal_fault_alarm_93 = {
+1399                  ID_ICON_FAULT_ALARM_93,
+1400                  6,
+1401                  0,
+1402                  0,
+1403                  22,
+1404                  2,
+1405                  45,
+1406                  0X06f0,
+1407          };
+1408          
+1409          struct tw_gicon code page_main_internal_fault_alarm_94 = {
+1410                  ID_ICON_FAULT_ALARM_94,
+1411                  6,
+1412                  0,
+1413                  0,
+1414                  22,
+1415                  2,
+1416                  45,
+1417                  0X06f0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 24  
+
+1418          };
+1419          
+1420          struct tw_gicon code page_main_internal_fault_alarm_95 = {
+1421                  ID_ICON_FAULT_ALARM_95,
+1422                  6,
+1423                  0,
+1424                  0,
+1425                  22,
+1426                  2,
+1427                  45,
+1428                  0X06f0,
+1429          };
+1430          
+1431          struct tw_gicon code page_main_internal_fault_alarm_96 = {
+1432                  ID_ICON_FAULT_ALARM_96,
+1433                  6,
+1434                  0,
+1435                  0,
+1436                  22,
+1437                  2,
+1438                  45,
+1439                  0X06f0,
+1440          };
+1441          
+1442          struct tw_gicon code page_main_internal_fault_alarm_97 = {
+1443                  ID_ICON_FAULT_ALARM_97,
+1444                  6,
+1445                  0,
+1446                  0,
+1447                  22,
+1448                  2,
+1449                  45,
+1450                  0X06f0,
+1451          };
+1452          
+1453          struct tw_gicon code page_main_internal_fault_alarm_98 = {
+1454                  ID_ICON_FAULT_ALARM_98,
+1455                  6,
+1456                  0,
+1457                  0,
+1458                  22,
+1459                  2,
+1460                  45,
+1461                  0X06f0,
+1462          };
+1463          
+1464          struct tw_gicon code page_main_internal_fault_alarm_99 = {
+1465                  ID_ICON_FAULT_ALARM_99,
+1466                  6,
+1467                  0,
+1468                  0,
+1469                  22,
+1470                  2,
+1471                  45,
+1472                  0X06f0,
+1473          };
+1474          
+1475          struct tw_gicon code page_main_internal_fault_alarm_100 = {
+1476                  ID_ICON_FAULT_ALARM_100,
+1477                  6,
+1478                  0,
+1479                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 25  
+
+1480                  22,
+1481                  2,
+1482                  45,
+1483                  0X06f0,
+1484          };
+1485          
+1486          struct tw_gicon code page_main_internal_fault_alarm_101 = {
+1487                  ID_ICON_FAULT_ALARM_101,
+1488                  6,
+1489                  0,
+1490                  0,
+1491                  22,
+1492                  2,
+1493                  45,
+1494                  0X06f0,
+1495          };
+1496          
+1497          struct tw_gicon code page_main_internal_fault_alarm_102 = {
+1498                  ID_ICON_FAULT_ALARM_102,
+1499                  6,
+1500                  0,
+1501                  0,
+1502                  22,
+1503                  2,
+1504                  45,
+1505                  0X06f0,
+1506          };
+1507          
+1508          struct tw_gicon code page_main_internal_fault_alarm_103 = {
+1509                  ID_ICON_FAULT_ALARM_103,
+1510                  6,
+1511                  0,
+1512                  0,
+1513                  22,
+1514                  2,
+1515                  45,
+1516                  0X06f0,
+1517          };
+1518          
+1519          struct tw_gicon code page_main_internal_fault_alarm_104 = {
+1520                  ID_ICON_FAULT_ALARM_104,
+1521                  6,
+1522                  0,
+1523                  0,
+1524                  22,
+1525                  2,
+1526                  45,
+1527                  0X06f0,
+1528          };
+1529          
+1530          struct tw_gicon code page_main_internal_fault_alarm_105 = {
+1531                  ID_ICON_FAULT_ALARM_105,
+1532                  6,
+1533                  0,
+1534                  0,
+1535                  22,
+1536                  2,
+1537                  45,
+1538                  0X06f0,
+1539          };
+1540          
+1541          struct tw_gicon code page_main_internal_fault_alarm_106 = {
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 26  
+
+1542                  ID_ICON_FAULT_ALARM_106,
+1543                  6,
+1544                  0,
+1545                  0,
+1546                  22,
+1547                  2,
+1548                  45,
+1549                  0X06f0,
+1550          };
+1551          
+1552          struct tw_gicon code page_main_internal_fault_alarm_107 = {
+1553                  ID_ICON_FAULT_ALARM_107,
+1554                  6,
+1555                  0,
+1556                  0,
+1557                  22,
+1558                  2,
+1559                  45,
+1560                  0X06f0,
+1561          };
+1562          
+1563          struct tw_gicon code page_main_internal_fault_alarm_108 = {
+1564                  ID_ICON_FAULT_ALARM_108,
+1565                  6,
+1566                  0,
+1567                  0,
+1568                  22,
+1569                  2,
+1570                  45,
+1571                  0X06f0,
+1572          };
+1573          
+1574          struct tw_gicon code page_main_internal_fault_alarm_109 = {
+1575                  ID_ICON_FAULT_ALARM_109,
+1576                  6,
+1577                  0,
+1578                  0,
+1579                  22,
+1580                  2,
+1581                  45,
+1582                  0X06f0,
+1583          };
+1584          
+1585          struct tw_gicon code page_main_internal_fault_alarm_110 = {
+1586                  ID_ICON_FAULT_ALARM_110,
+1587                  6,
+1588                  0,
+1589                  0,
+1590                  22,
+1591                  2,
+1592                  45,
+1593                  0X06f0,
+1594          };
+1595          
+1596          struct tw_gicon code page_main_internal_fault_alarm_111 = {
+1597                  ID_ICON_FAULT_ALARM_111,
+1598                  6,
+1599                  0,
+1600                  0,
+1601                  22,
+1602                  2,
+1603                  45,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 27  
+
+1604                  0X06f0,
+1605          };
+1606          
+1607          struct tw_gicon code page_main_internal_fault_alarm_112 = {
+1608                  ID_ICON_FAULT_ALARM_112,
+1609                  6,
+1610                  0,
+1611                  0,
+1612                  22,
+1613                  2,
+1614                  45,
+1615                  0X06f0,
+1616          };
+1617          
+1618          struct tw_gicon code page_main_internal_fault_alarm_113 = {
+1619                  ID_ICON_FAULT_ALARM_113,
+1620                  6,
+1621                  0,
+1622                  0,
+1623                  22,
+1624                  2,
+1625                  45,
+1626                  0X06f0,
+1627          };
+1628          
+1629          struct tw_gicon code page_main_internal_fault_alarm_114 = {
+1630                  ID_ICON_FAULT_ALARM_114,
+1631                  6,
+1632                  0,
+1633                  0,
+1634                  22,
+1635                  2,
+1636                  45,
+1637                  0X06f0,
+1638          };
+1639          
+1640          struct tw_gicon code page_main_internal_fault_alarm_115 = {
+1641                  ID_ICON_FAULT_ALARM_115,
+1642                  6,
+1643                  0,
+1644                  0,
+1645                  22,
+1646                  2,
+1647                  45,
+1648                  0X06f0,
+1649          };
+1650          
+1651          struct tw_gicon code page_main_internal_fault_alarm_116 = {
+1652                  ID_ICON_FAULT_ALARM_116,
+1653                  6,
+1654                  0,
+1655                  0,
+1656                  22,
+1657                  2,
+1658                  45,
+1659                  0X06f0,
+1660          };
+1661          
+1662          struct tw_gicon code page_main_internal_fault_alarm_117 = {
+1663                  ID_ICON_FAULT_ALARM_117,
+1664                  6,
+1665                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 28  
+
+1666                  0,
+1667                  22,
+1668                  2,
+1669                  45,
+1670                  0X06f0,
+1671          };
+1672          
+1673          struct tw_gicon code page_main_internal_fault_alarm_118 = {
+1674                  ID_ICON_FAULT_ALARM_118,
+1675                  6,
+1676                  0,
+1677                  0,
+1678                  22,
+1679                  2,
+1680                  45,
+1681                  0X06f0,
+1682          };
+1683          
+1684          struct tw_gicon code page_main_internal_fault_alarm_119 = {
+1685                  ID_ICON_FAULT_ALARM_119,
+1686                  6,
+1687                  0,
+1688                  0,
+1689                  22,
+1690                  2,
+1691                  45,
+1692                  0X06f0,
+1693          };
+1694          
+1695          struct tw_gicon code page_main_internal_fault_alarm_120 = {
+1696                  ID_ICON_FAULT_ALARM_120,
+1697                  6,
+1698                  0,
+1699                  0,
+1700                  22,
+1701                  2,
+1702                  45,
+1703                  0X06f0,
+1704          };
+1705          
+1706          struct tw_gicon code page_main_internal_fault_alarm_121 = {
+1707                  ID_ICON_FAULT_ALARM_121,
+1708                  6,
+1709                  0,
+1710                  0,
+1711                  22,
+1712                  2,
+1713                  45,
+1714                  0X06f0,
+1715          };
+1716          
+1717          struct tw_gicon code page_main_internal_fault_alarm_122 = {
+1718                  ID_ICON_FAULT_ALARM_122,
+1719                  6,
+1720                  0,
+1721                  0,
+1722                  22,
+1723                  2,
+1724                  45,
+1725                  0X06f0,
+1726          };
+1727          
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 29  
+
+1728          struct tw_gicon code page_main_internal_fault_alarm_123 = {
+1729                  ID_ICON_FAULT_ALARM_123,
+1730                  6,
+1731                  0,
+1732                  0,
+1733                  22,
+1734                  2,
+1735                  45,
+1736                  0X06f0,
+1737          };
+1738          
+1739          struct tw_gicon code page_main_internal_fault_alarm_124 = {
+1740                  ID_ICON_FAULT_ALARM_124,
+1741                  6,
+1742                  0,
+1743                  0,
+1744                  22,
+1745                  2,
+1746                  45,
+1747                  0X06f0,
+1748          };
+1749          
+1750          struct tw_gicon code page_main_internal_fault_alarm_125 = {
+1751                  ID_ICON_FAULT_ALARM_125,
+1752                  6,
+1753                  0,
+1754                  0,
+1755                  22,
+1756                  2,
+1757                  45,
+1758                  0X06f0,
+1759          };
+1760          
+1761          struct tw_gicon code page_main_internal_fault_alarm_126 = {
+1762                  ID_ICON_FAULT_ALARM_126,
+1763                  6,
+1764                  0,
+1765                  0,
+1766                  22,
+1767                  2,
+1768                  45,
+1769                  0X06f0,
+1770          };
+1771          
+1772          struct tw_gicon code page_main_internal_fault_alarm_127 = {
+1773                  ID_ICON_FAULT_ALARM_127,
+1774                  6,
+1775                  0,
+1776                  0,
+1777                  22,
+1778                  2,
+1779                  45,
+1780                  0X06f0,
+1781          };
+1782          
+1783          struct tw_gicon code page_main_internal_fault_alarm_128 = {
+1784                  ID_ICON_FAULT_ALARM_128,
+1785                  6,
+1786                  0,
+1787                  0,
+1788                  22,
+1789                  2,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 30  
+
+1790                  45,
+1791                  0X06f0,
+1792          };
+1793          
+1794          struct tw_gicon code page_main_internal_fault_alarm_129 = {
+1795                  ID_ICON_FAULT_ALARM_129,
+1796                  6,
+1797                  0,
+1798                  0,
+1799                  22,
+1800                  2,
+1801                  45,
+1802                  0X06f0,
+1803          };
+1804          
+1805          struct tw_gicon code page_main_internal_fault_alarm_130 = {
+1806                  ID_ICON_FAULT_ALARM_130,
+1807                  6,
+1808                  0,
+1809                  0,
+1810                  22,
+1811                  2,
+1812                  45,
+1813                  0X06f0,
+1814          };
+1815          
+1816          struct tw_gicon code page_main_internal_fault_alarm_131 = {
+1817                  ID_ICON_FAULT_ALARM_131,
+1818                  6,
+1819                  0,
+1820                  0,
+1821                  22,
+1822                  2,
+1823                  45,
+1824                  0X06f0,
+1825          };
+1826          
+1827          struct tw_gicon code page_main_internal_fault_alarm_132 = {
+1828                  ID_ICON_FAULT_ALARM_132,
+1829                  6,
+1830                  0,
+1831                  0,
+1832                  22,
+1833                  2,
+1834                  45,
+1835                  0X06f0,
+1836          };
+1837          
+1838          struct tw_gicon code page_main_internal_fault_alarm_133 = {
+1839                  ID_ICON_FAULT_ALARM_133,
+1840                  6,
+1841                  0,
+1842                  0,
+1843                  22,
+1844                  2,
+1845                  45,
+1846                  0X06f0,
+1847          };
+1848          
+1849          struct tw_gicon code page_main_internal_fault_alarm_134 = {
+1850                  ID_ICON_FAULT_ALARM_134,
+1851                  6,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 31  
+
+1852                  0,
+1853                  0,
+1854                  22,
+1855                  2,
+1856                  45,
+1857                  0X06f0,
+1858          };
+1859          
+1860          struct tw_gicon code page_main_internal_fault_alarm_135 = {
+1861                  ID_ICON_FAULT_ALARM_135,
+1862                  6,
+1863                  0,
+1864                  0,
+1865                  22,
+1866                  2,
+1867                  45,
+1868                  0X06f0,
+1869          };
+1870          
+1871          struct tw_gicon code page_main_internal_fault_alarm_136 = {
+1872                  ID_ICON_FAULT_ALARM_136,
+1873                  6,
+1874                  0,
+1875                  0,
+1876                  22,
+1877                  2,
+1878                  45,
+1879                  0X06f0,
+1880          };
+1881          
+1882          struct tw_gicon code page_main_internal_fault_alarm_137 = {
+1883                  ID_ICON_FAULT_ALARM_137,
+1884                  6,
+1885                  0,
+1886                  0,
+1887                  22,
+1888                  2,
+1889                  45,
+1890                  0X06f0,
+1891          };
+1892          
+1893          struct tw_gicon code page_main_internal_fault_alarm_138 = {
+1894                  ID_ICON_FAULT_ALARM_138,
+1895                  6,
+1896                  0,
+1897                  0,
+1898                  22,
+1899                  2,
+1900                  45,
+1901                  0X06f0,
+1902          };
+1903          
+1904          struct tw_gicon code page_main_internal_fault_alarm_139 = {
+1905                  ID_ICON_FAULT_ALARM_139,
+1906                  6,
+1907                  0,
+1908                  0,
+1909                  22,
+1910                  2,
+1911                  45,
+1912                  0X06f0,
+1913          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 32  
+
+1914          
+1915          struct tw_gicon code page_main_internal_fault_alarm_140 = {
+1916                  ID_ICON_FAULT_ALARM_140,
+1917                  6,
+1918                  0,
+1919                  0,
+1920                  22,
+1921                  2,
+1922                  45,
+1923                  0X06f0,
+1924          };
+1925          
+1926          struct tw_gicon code page_main_internal_fault_alarm_141 = {
+1927                  ID_ICON_FAULT_ALARM_141,
+1928                  6,
+1929                  0,
+1930                  0,
+1931                  22,
+1932                  2,
+1933                  45,
+1934                  0X06f0,
+1935          };
+1936          
+1937          struct tw_gicon code page_main_internal_fault_alarm_142 = {
+1938                  ID_ICON_FAULT_ALARM_142,
+1939                  6,
+1940                  0,
+1941                  0,
+1942                  22,
+1943                  2,
+1944                  45,
+1945                  0X06f0,
+1946          };
+1947          
+1948          struct tw_gicon code page_main_internal_fault_alarm_143 = {
+1949                  ID_ICON_FAULT_ALARM_143,
+1950                  6,
+1951                  0,
+1952                  0,
+1953                  22,
+1954                  2,
+1955                  45,
+1956                  0X06f0,
+1957          };
+1958          
+1959          struct tw_gicon code page_main_internal_fault_alarm_144 = {
+1960                  ID_ICON_FAULT_ALARM_144,
+1961                  6,
+1962                  0,
+1963                  0,
+1964                  22,
+1965                  2,
+1966                  45,
+1967                  0X06f0,
+1968          };
+1969          
+1970          struct tw_gicon code page_main_internal_fault_alarm_145 = {
+1971                  ID_ICON_FAULT_ALARM_145,
+1972                  6,
+1973                  0,
+1974                  0,
+1975                  22,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 33  
+
+1976                  2,
+1977                  45,
+1978                  0X06f0,
+1979          };
+1980          
+1981          struct tw_gicon code page_main_internal_fault_alarm_146 = {
+1982                  ID_ICON_FAULT_ALARM_146,
+1983                  6,
+1984                  0,
+1985                  0,
+1986                  22,
+1987                  2,
+1988                  45,
+1989                  0X06f0,
+1990          };
+1991          
+1992          struct tw_gicon code page_main_internal_fault_alarm_147 = {
+1993                  ID_ICON_FAULT_ALARM_147,
+1994                  6,
+1995                  0,
+1996                  0,
+1997                  22,
+1998                  2,
+1999                  45,
+2000                  0X06f0,
+2001          };
+2002          
+2003          struct tw_gicon code page_main_internal_fault_alarm_148 = {
+2004                  ID_ICON_FAULT_ALARM_148,
+2005                  6,
+2006                  0,
+2007                  0,
+2008                  22,
+2009                  2,
+2010                  45,
+2011                  0X06f0,
+2012          };
+2013          
+2014          struct tw_gicon code page_main_internal_fault_alarm_149 = {
+2015                  ID_ICON_FAULT_ALARM_149,
+2016                  6,
+2017                  0,
+2018                  0,
+2019                  22,
+2020                  2,
+2021                  45,
+2022                  0X06f0,
+2023          };
+2024          
+2025          struct tw_gicon code page_main_internal_fault_alarm_150 = {
+2026                  ID_ICON_FAULT_ALARM_150,
+2027                  6,
+2028                  0,
+2029                  0,
+2030                  22,
+2031                  2,
+2032                  45,
+2033                  0X06f0,
+2034          };
+2035          
+2036          struct tw_gicon code page_main_internal_fault_alarm_151 = {
+2037                  ID_ICON_FAULT_ALARM_151,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 34  
+
+2038                  6,
+2039                  0,
+2040                  0,
+2041                  22,
+2042                  2,
+2043                  45,
+2044                  0X06f0,
+2045          };
+2046          
+2047          struct tw_gicon code page_main_internal_fault_alarm_152 = {
+2048                  ID_ICON_FAULT_ALARM_152,
+2049                  6,
+2050                  0,
+2051                  0,
+2052                  22,
+2053                  2,
+2054                  45,
+2055                  0X06f0,
+2056          };
+2057          
+2058          struct tw_gicon code page_main_internal_fault_alarm_153 = {
+2059                  ID_ICON_FAULT_ALARM_153,
+2060                  6,
+2061                  0,
+2062                  0,
+2063                  22,
+2064                  2,
+2065                  45,
+2066                  0X06f0,
+2067          };
+2068          
+2069          struct tw_gicon code page_main_internal_fault_alarm_154 = {
+2070                  ID_ICON_FAULT_ALARM_154,
+2071                  6,
+2072                  0,
+2073                  0,
+2074                  22,
+2075                  2,
+2076                  45,
+2077                  0X06f0,
+2078          };
+2079          
+2080          struct tw_gicon code page_main_internal_fault_alarm_155 = {
+2081                  ID_ICON_FAULT_ALARM_155,
+2082                  6,
+2083                  0,
+2084                  0,
+2085                  22,
+2086                  2,
+2087                  45,
+2088                  0X06f0,
+2089          };
+2090          
+2091          struct tw_gicon code page_main_internal_fault_alarm_156 = {
+2092                  ID_ICON_FAULT_ALARM_156,
+2093                  6,
+2094                  0,
+2095                  0,
+2096                  22,
+2097                  2,
+2098                  45,
+2099                  0X06f0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 35  
+
+2100          };
+2101          
+2102          struct tw_gicon code page_main_internal_fault_alarm_157 = {
+2103                  ID_ICON_FAULT_ALARM_157,
+2104                  6,
+2105                  0,
+2106                  0,
+2107                  22,
+2108                  2,
+2109                  45,
+2110                  0X06f0,
+2111          };
+2112          
+2113          struct tw_gicon code page_main_internal_fault_alarm_158 = {
+2114                  ID_ICON_FAULT_ALARM_158,
+2115                  6,
+2116                  0,
+2117                  0,
+2118                  22,
+2119                  2,
+2120                  45,
+2121                  0X06f0,
+2122          };
+2123          
+2124          struct tw_gicon code page_main_internal_fault_alarm_159 = {
+2125                  ID_ICON_FAULT_ALARM_159,
+2126                  6,
+2127                  0,
+2128                  0,
+2129                  22,
+2130                  2,
+2131                  45,
+2132                  0X06f0,
+2133          };
+2134          
+2135          struct tw_gicon code page_main_internal_fault_alarm_160 = {
+2136                  ID_ICON_FAULT_ALARM_160,
+2137                  6,
+2138                  0,
+2139                  0,
+2140                  18,
+2141                  2,
+2142                  45,
+2143                  0X06f0,
+2144          };
+2145          
+2146          struct tw_gicon code page_main_internal_fault_alarm_161 = {
+2147                  ID_ICON_FAULT_ALARM_161,
+2148                  6,
+2149                  0,
+2150                  0,
+2151                  18,
+2152                  2,
+2153                  45,
+2154                  0X06f0,
+2155          };
+2156          
+2157          struct tw_gicon code page_main_internal_fault_alarm_162 = {
+2158                  ID_ICON_FAULT_ALARM_162,
+2159                  6,
+2160                  0,
+2161                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 36  
+
+2162                  18,
+2163                  2,
+2164                  45,
+2165                  0X06f0,
+2166          };
+2167          
+2168          struct tw_gicon code page_main_internal_fault_alarm_163 = {
+2169                  ID_ICON_FAULT_ALARM_163,
+2170                  6,
+2171                  0,
+2172                  0,
+2173                  18,
+2174                  2,
+2175                  45,
+2176                  0X06f0,
+2177          };
+2178          
+2179          struct tw_gicon code page_main_internal_fault_alarm_164 = {
+2180                  ID_ICON_FAULT_ALARM_164,
+2181                  6,
+2182                  0,
+2183                  0,
+2184                  18,
+2185                  2,
+2186                  45,
+2187                  0X06f0,
+2188          };
+2189          
+2190          struct tw_gicon code page_main_internal_fault_alarm_165 = {
+2191                  ID_ICON_FAULT_ALARM_165,
+2192                  6,
+2193                  0,
+2194                  0,
+2195                  18,
+2196                  2,
+2197                  45,
+2198                  0X06f0,
+2199          };
+2200          
+2201          struct tw_gicon code page_main_internal_fault_alarm_166 = {
+2202                  ID_ICON_FAULT_ALARM_166,
+2203                  6,
+2204                  0,
+2205                  0,
+2206                  18,
+2207                  2,
+2208                  45,
+2209                  0X06f0,
+2210          };
+2211          
+2212          struct tw_gicon code page_main_internal_fault_alarm_167 = {
+2213                  ID_ICON_FAULT_ALARM_167,
+2214                  6,
+2215                  0,
+2216                  0,
+2217                  18,
+2218                  2,
+2219                  45,
+2220                  0X06f0,
+2221          };
+2222          
+2223          struct tw_gicon code page_main_internal_fault_alarm_168 = {
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 37  
+
+2224                  ID_ICON_FAULT_ALARM_168,
+2225                  6,
+2226                  0,
+2227                  0,
+2228                  18,
+2229                  2,
+2230                  45,
+2231                  0X06f0,
+2232          };
+2233          
+2234          struct tw_gicon code page_main_internal_fault_alarm_169 = {
+2235                  ID_ICON_FAULT_ALARM_169,
+2236                  6,
+2237                  0,
+2238                  0,
+2239                  20,
+2240                  2,
+2241                  45,
+2242                  0X06f0,
+2243          };
+2244          
+2245          struct tw_gicon code page_main_internal_fault_alarm_170 = {
+2246                  ID_ICON_FAULT_ALARM_170,
+2247                  6,
+2248                  0,
+2249                  0,
+2250                  22,
+2251                  2,
+2252                  45,
+2253                  0X06f0,
+2254          };
+2255          
+2256          struct tw_gicon code page_main_internal_fault_alarm_171 = {
+2257                  ID_ICON_FAULT_ALARM_171,
+2258                  6,
+2259                  0,
+2260                  0,
+2261                  22,
+2262                  2,
+2263                  45,
+2264                  0X06f0,
+2265          };
+2266          
+2267          struct tw_gicon code page_main_internal_fault_alarm_172 = {
+2268                  ID_ICON_FAULT_ALARM_172,
+2269                  6,
+2270                  0,
+2271                  0,
+2272                  22,
+2273                  2,
+2274                  45,
+2275                  0X06f0,
+2276          };
+2277          
+2278          struct tw_gicon code page_main_internal_fault_alarm_173 = {
+2279                  ID_ICON_FAULT_ALARM_173,
+2280                  6,
+2281                  0,
+2282                  0,
+2283                  22,
+2284                  2,
+2285                  45,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 38  
+
+2286                  0X06f0,
+2287          };
+2288          
+2289          struct tw_gicon code page_main_internal_fault_alarm_174 = {
+2290                  ID_ICON_FAULT_ALARM_174,
+2291                  6,
+2292                  0,
+2293                  0,
+2294                  22,
+2295                  2,
+2296                  45,
+2297                  0X06f0,
+2298          };
+2299          
+2300          struct tw_gicon code page_main_internal_fault_alarm_175 = {
+2301                  ID_ICON_FAULT_ALARM_175,
+2302                  6,
+2303                  0,
+2304                  0,
+2305                  22,
+2306                  2,
+2307                  45,
+2308                  0X06f0,
+2309          };
+2310          
+2311          struct tw_gicon code page_main_internal_fault_alarm_176 = {
+2312                  ID_ICON_FAULT_ALARM_176,
+2313                  6,
+2314                  0,
+2315                  0,
+2316                  22,
+2317                  2,
+2318                  45,
+2319                  0X06f0,
+2320          };
+2321          
+2322          struct tw_gicon code page_main_internal_fault_alarm_177 = {
+2323                  ID_ICON_FAULT_ALARM_177,
+2324                  6,
+2325                  0,
+2326                  0,
+2327                  22,
+2328                  2,
+2329                  45,
+2330                  0X06f0,
+2331          };
+2332          
+2333          struct tw_gicon code page_main_internal_fault_alarm_178 = {
+2334                  ID_ICON_FAULT_ALARM_178,
+2335                  6,
+2336                  0,
+2337                  0,
+2338                  14,
+2339                  2,
+2340                  45,
+2341                  0X06f0,
+2342          };
+2343          
+2344          struct tw_gicon code page_main_internal_fault_alarm_179 = {
+2345                  ID_ICON_FAULT_ALARM_179,
+2346                  6,
+2347                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 39  
+
+2348                  0,
+2349                  16,
+2350                  2,
+2351                  45,
+2352                  0X06f0,
+2353          };
+2354          
+2355          struct tw_gicon code page_main_internal_fault_alarm_180 = {
+2356                  ID_ICON_FAULT_ALARM_180,
+2357                  6,
+2358                  0,
+2359                  0,
+2360                  14,
+2361                  2,
+2362                  45,
+2363                  0X06f0,
+2364          };
+2365          
+2366          struct tw_gicon code page_main_internal_fault_alarm_181 = {
+2367                  ID_ICON_FAULT_ALARM_181,
+2368                  6,
+2369                  0,
+2370                  0,
+2371                  14,
+2372                  2,
+2373                  45,
+2374                  0X06f0,
+2375          };
+2376          
+2377          struct tw_gicon code page_main_internal_fault_alarm_182 = {
+2378                  ID_ICON_FAULT_ALARM_182,
+2379                  6,
+2380                  0,
+2381                  0,
+2382                  14,
+2383                  2,
+2384                  45,
+2385                  0X06f0,
+2386          };
+2387          
+2388          struct tw_gicon code page_main_internal_fault_alarm_183 = {
+2389                  ID_ICON_FAULT_ALARM_183,
+2390                  6,
+2391                  0,
+2392                  0,
+2393                  14,
+2394                  2,
+2395                  45,
+2396                  0X06f0,
+2397          };
+2398          
+2399          struct tw_gicon code page_main_internal_fault_alarm_184 = {
+2400                  ID_ICON_FAULT_ALARM_184,
+2401                  6,
+2402                  0,
+2403                  0,
+2404                  22,
+2405                  2,
+2406                  45,
+2407                  0X06f0,
+2408          };
+2409          
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 40  
+
+2410          struct tw_gicon code page_main_internal_off = {
+2411                  ID_ICON_OFF,
+2412                  7,
+2413                  0,
+2414                  0,
+2415                  3,
+2416                  1,
+2417                  89,
+2418                  0X0f30,
+2419          };
+2420          
+2421          struct tw_gicon code page_main_internal_on = {
+2422                  ID_ICON_ON,
+2423                  7,
+2424                  0,
+2425                  0,
+2426                  3,
+2427                  1,
+2428                  89,
+2429                  0X0f30,
+2430          };
+2431          
+2432          struct tw_gicon code page_main_internal_yuunxing = {
+2433                  ID_ICON_YUUNXING,
+2434                  4,
+2435                  0,
+2436                  0,
+2437                  3,
+2438                  1,
+2439                  89,
+2440                  0X0f30,
+2441          };
+2442          
+2443          struct tw_gicon code page_main_internal_s1_d = {
+2444                  ID_ICON_S1_D,
+2445                  8,
+2446                  0,
+2447                  0,
+2448                  3,
+2449                  1,
+2450                  89,
+2451                  0X0f30,
+2452          };
+2453          
+2454          struct tw_gicon code page_main_internal_s1_d1 = {
+2455                  ID_ICON_S1_D1,
+2456                  8,
+2457                  0,
+2458                  0,
+2459                  3,
+2460                  1,
+2461                  89,
+2462                  0X0f30,
+2463          };
+2464          
+2465          struct tw_gicon code page_main_internal_s1_d2 = {
+2466                  ID_ICON_S1_D2,
+2467                  8,
+2468                  0,
+2469                  0,
+2470                  3,
+2471                  1,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 41  
+
+2472                  89,
+2473                  0X0f30,
+2474          };
+2475          
+2476          struct tw_gicon code page_main_internal_s1_d3 = {
+2477                  ID_ICON_S1_D3,
+2478                  8,
+2479                  0,
+2480                  0,
+2481                  3,
+2482                  1,
+2483                  89,
+2484                  0X0f30,
+2485          };
+2486          
+2487          struct tw_gicon code page_main_internal_s1_d4 = {
+2488                  ID_ICON_S1_D4,
+2489                  8,
+2490                  0,
+2491                  0,
+2492                  3,
+2493                  1,
+2494                  89,
+2495                  0X0f30,
+2496          };
+2497          
+2498          struct tw_gicon code page_main_internal_s1_d5 = {
+2499                  ID_ICON_S1_D5,
+2500                  8,
+2501                  0,
+2502                  0,
+2503                  3,
+2504                  1,
+2505                  89,
+2506                  0X0f30,
+2507          };
+2508          
+2509          struct tw_gicon code page_main_internal_s1_d6 = {
+2510                  ID_ICON_S1_D6,
+2511                  8,
+2512                  0,
+2513                  0,
+2514                  3,
+2515                  1,
+2516                  89,
+2517                  0X0f30,
+2518          };
+2519          
+2520          struct tw_gicon code page_main_internal_s1_d7 = {
+2521                  ID_ICON_S1_D7,
+2522                  8,
+2523                  0,
+2524                  0,
+2525                  3,
+2526                  1,
+2527                  89,
+2528                  0X0f30,
+2529          };
+2530          
+2531          struct tw_gicon code page_main_internal_s1_d8 = {
+2532                  ID_ICON_S1_D8,
+2533                  8,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 42  
+
+2534                  0,
+2535                  0,
+2536                  3,
+2537                  1,
+2538                  89,
+2539                  0X0f30,
+2540          };
+2541          
+2542          struct tw_gicon code page_main_internal_s1_d9 = {
+2543                  ID_ICON_S1_D9,
+2544                  8,
+2545                  0,
+2546                  0,
+2547                  3,
+2548                  1,
+2549                  89,
+2550                  0X0f30,
+2551          };
+2552          
+2553          struct tw_gicon code page_main_internal_s1_d10 = {
+2554                  ID_ICON_S1_D10,
+2555                  8,
+2556                  0,
+2557                  0,
+2558                  3,
+2559                  1,
+2560                  89,
+2561                  0X0f30,
+2562          };
+2563          
+2564          struct tw_gicon code page_main_internal_s1_d11 = {
+2565                  ID_ICON_S1_D11,
+2566                  8,
+2567                  0,
+2568                  0,
+2569                  3,
+2570                  1,
+2571                  89,
+2572                  0X0f30,
+2573          };
+2574          
+2575          struct tw_gicon code page_main_internal_s1_d12 = {
+2576                  ID_ICON_S1_D12,
+2577                  8,
+2578                  0,
+2579                  0,
+2580                  3,
+2581                  1,
+2582                  89,
+2583                  0X0f30,
+2584          };
+2585          
+2586          struct tw_gicon code page_main_internal_s1_n = {
+2587                  ID_ICON_S1_N,
+2588                  8,
+2589                  0,
+2590                  0,
+2591                  3,
+2592                  1,
+2593                  89,
+2594                  0X0f30,
+2595          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 43  
+
+2596          
+2597          struct tw_gicon code page_main_internal_s1_p = {
+2598                  ID_ICON_S1_P,
+2599                  8,
+2600                  0,
+2601                  0,
+2602                  3,
+2603                  1,
+2604                  89,
+2605                  0X0f30,
+2606          };
+2607          
+2608          struct tw_gicon code page_main_internal_s1_r = {
+2609                  ID_ICON_S1_R,
+2610                  8,
+2611                  0,
+2612                  0,
+2613                  3,
+2614                  1,
+2615                  89,
+2616                  0X0f30,
+2617          };
+2618          
+2619          struct tw_gicon code page_main_internal_s16_tingji = {
+2620                  ID_ICON_S16_TINGJI,
+2621                  4,
+2622                  0,
+2623                  0,
+2624                  3,
+2625                  1,
+2626                  89,
+2627                  0X0f30,
+2628          };
+2629          
+2630          struct tw_icon code page_main_internal_wuxiao = {
+2631                  ID_ICON_WUXIAO,
+2632                  8,
+2633                  0,
+2634                  0,
+2635                  3,
+2636                  1,
+2637                  92,
+2638          };
+2639          
+2640          struct tw_icon code page_main_internal_youxiao = {
+2641                  ID_ICON_YOUXIAO,
+2642                  8,
+2643                  0,
+2644                  0,
+2645                  3,
+2646                  1,
+2647                  95,
+2648          };
+2649          
+2650          struct tw_gicon code page_main_internal_gz = {
+2651                  ID_ICON_GZ,
+2652                  4,
+2653                  0,
+2654                  0,
+2655                  3,
+2656                  1,
+2657                  98,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 44  
+
+2658                  0X10e0,
+2659          };
+2660          
+2661          struct tw_gicon code page_main_internal_tingji = {
+2662                  ID_ICON_TINGJI,
+2663                  4,
+2664                  0,
+2665                  0,
+2666                  3,
+2667                  1,
+2668                  98,
+2669                  0X10e0,
+2670          };
+2671          
+2672          struct tw_gicon code page_main_internal_weitingji = {
+2673                  ID_ICON_WEITINGJI,
+2674                  8,
+2675                  0,
+2676                  0,
+2677                  4,
+2678                  1,
+2679                  98,
+2680                  0X10e0,
+2681          };
+2682          
+2683          struct tw_gicon code page_main_internal_yitingji = {
+2684                  ID_ICON_YITINGJI,
+2685                  8,
+2686                  0,
+2687                  0,
+2688                  4,
+2689                  1,
+2690                  98,
+2691                  0X10e0,
+2692          };
+2693          
+2694          struct tw_gicon code page_main_internal_s1_chadian = {
+2695                  ID_ICON_S1_CHADIAN,
+2696                  8,
+2697                  0,
+2698                  0,
+2699                  3,
+2700                  1,
+2701                  98,
+2702                  0X10e0,
+2703          };
+2704          
+2705          struct tw_gicon code page_main_internal_s1_chundian = {
+2706                  ID_ICON_S1_CHUNDIAN,
+2707                  8,
+2708                  0,
+2709                  0,
+2710                  3,
+2711                  1,
+2712                  98,
+2713                  0X10e0,
+2714          };
+2715          
+2716          struct tw_gicon code page_main_internal_s1_hundong = {
+2717                  ID_ICON_S1_HUNDONG,
+2718                  8,
+2719                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 45  
+
+2720                  0,
+2721                  3,
+2722                  1,
+2723                  98,
+2724                  0X10e0,
+2725          };
+2726          
+2727          struct tw_gicon code page_main_internal_diya = {
+2728                  ID_ICON_DIYA,
+2729                  8,
+2730                  0,
+2731                  0,
+2732                  3,
+2733                  1,
+2734                  102,
+2735                  0X11a0,
+2736          };
+2737          
+2738          struct tw_gicon code page_main_internal_gaoya = {
+2739                  ID_ICON_GAOYA,
+2740                  8,
+2741                  0,
+2742                  0,
+2743                  3,
+2744                  1,
+2745                  102,
+2746                  0X11a0,
+2747          };
+2748          
+2749          struct tw_gicon code page_main_internal_s1_kuaichong = {
+2750                  ID_ICON_S1_KUAICHONG,
+2751                  8,
+2752                  0,
+2753                  0,
+2754                  3,
+2755                  1,
+2756                  102,
+2757                  0X11a0,
+2758          };
+2759          
+2760          struct tw_gicon code page_main_internal_s1_manchong = {
+2761                  ID_ICON_S1_MANCHONG,
+2762                  8,
+2763                  0,
+2764                  0,
+2765                  3,
+2766                  1,
+2767                  102,
+2768                  0X11a0,
+2769          };
+2770          
+2771          struct tw_gicon code page_main_internal_s1_zijian = {
+2772                  ID_ICON_S1_ZIJIAN,
+2773                  8,
+2774                  0,
+2775                  0,
+2776                  3,
+2777                  1,
+2778                  102,
+2779                  0X11a0,
+2780          };
+2781          
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 46  
+
+2782          struct tw_gicon code page_main_internal_erjigz = {
+2783                  ID_ICON_ERJIGZ,
+2784                  4,
+2785                  0,
+2786                  0,
+2787                  6,
+2788                  1,
+2789                  105,
+2790                  0X1230,
+2791          };
+2792          
+2793          struct tw_gicon code page_main_internal_sanjigz = {
+2794                  ID_ICON_SANJIGZ,
+2795                  4,
+2796                  0,
+2797                  0,
+2798                  6,
+2799                  1,
+2800                  105,
+2801                  0X1230,
+2802          };
+2803          
+2804          struct tw_gicon code page_main_internal_yijigz = {
+2805                  ID_ICON_YIJIGZ,
+2806                  4,
+2807                  0,
+2808                  0,
+2809                  6,
+2810                  1,
+2811                  105,
+2812                  0X1230,
+2813          };
+2814          
+2815          struct tw_gicon code page_main_internal_s20_g1_can = {
+2816                  ID_ICON_S20_G1_CAN,
+2817                  3,
+2818                  0,
+2819                  0,
+2820                  9,
+2821                  1,
+2822                  105,
+2823                  0X1230,
+2824          };
+2825          
+2826          struct tw_gicon code page_main_internal_s20_g1_chuanganqi = {
+2827                  ID_ICON_S20_G1_CHUANGANQI,
+2828                  3,
+2829                  0,
+2830                  0,
+2831                  9,
+2832                  1,
+2833                  105,
+2834                  0X1230,
+2835          };
+2836          
+2837          struct tw_gicon code page_main_internal_s20_g1_ebs = {
+2838                  ID_ICON_S20_G1_EBS,
+2839                  3,
+2840                  0,
+2841                  0,
+2842                  9,
+2843                  1,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 47  
+
+2844                  105,
+2845                  0X1230,
+2846          };
+2847          
+2848          struct tw_gicon code page_main_internal_s20_g1_fadian = {
+2849                  ID_ICON_S20_G1_FADIAN,
+2850                  3,
+2851                  0,
+2852                  0,
+2853                  9,
+2854                  1,
+2855                  105,
+2856                  0X1230,
+2857          };
+2858          
+2859          struct tw_gicon code page_main_internal_s20_g1_jinqi = {
+2860                  ID_ICON_S20_G1_JINQI,
+2861                  3,
+2862                  0,
+2863                  0,
+2864                  9,
+2865                  1,
+2866                  105,
+2867                  0X1230,
+2868          };
+2869          
+2870          struct tw_gicon code page_main_internal_s20_g1_kaiguan = {
+2871                  ID_ICON_S20_G1_KAIGUAN,
+2872                  3,
+2873                  0,
+2874                  0,
+2875                  9,
+2876                  1,
+2877                  105,
+2878                  0X1230,
+2879          };
+2880          
+2881          struct tw_gicon code page_main_internal_s20_g1_mokuai = {
+2882                  ID_ICON_S20_G1_MOKUAI,
+2883                  3,
+2884                  0,
+2885                  0,
+2886                  9,
+2887                  1,
+2888                  105,
+2889                  0X1230,
+2890          };
+2891          
+2892          struct tw_gicon code page_main_internal_s20_g1_paiqi = {
+2893                  ID_ICON_S20_G1_PAIQI,
+2894                  3,
+2895                  0,
+2896                  0,
+2897                  9,
+2898                  1,
+2899                  105,
+2900                  0X1230,
+2901          };
+2902          
+2903          struct tw_gicon code page_main_internal_s20_g1_zhidong = {
+2904                  ID_ICON_S20_G1_ZHIDONG,
+2905                  3,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 48  
+
+2906                  0,
+2907                  0,
+2908                  9,
+2909                  1,
+2910                  105,
+2911                  0X1230,
+2912          };
+2913          
+2914          struct tw_gicon code page_main_internal_s3_daiji = {
+2915                  ID_ICON_S3_DAIJI,
+2916                  4,
+2917                  0,
+2918                  0,
+2919                  3,
+2920                  1,
+2921                  114,
+2922                  0X13e0,
+2923          };
+2924          
+2925          struct tw_gicon code page_main_internal_s3_yunxing = {
+2926                  ID_ICON_S3_YUNXING,
+2927                  4,
+2928                  0,
+2929                  0,
+2930                  3,
+2931                  1,
+2932                  114,
+2933                  0X13e0,
+2934          };
+2935          
+2936          struct tw_gicon code page_main_internal_s20_g2_canduanlu = {
+2937                  ID_ICON_S20_G2_CANDUANLU,
+2938                  3,
+2939                  0,
+2940                  0,
+2941                  8,
+2942                  1,
+2943                  114,
+2944                  0X13e0,
+2945          };
+2946          
+2947          struct tw_gicon code page_main_internal_s20_g2_chuanganqi = {
+2948                  ID_ICON_S20_G2_CHUANGANQI,
+2949                  3,
+2950                  0,
+2951                  0,
+2952                  8,
+2953                  1,
+2954                  114,
+2955                  0X13e0,
+2956          };
+2957          
+2958          struct tw_gicon code page_main_internal_s20_g2_di = {
+2959                  ID_ICON_S20_G2_DI,
+2960                  3,
+2961                  0,
+2962                  0,
+2963                  8,
+2964                  1,
+2965                  114,
+2966                  0X13e0,
+2967          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 49  
+
+2968          
+2969          struct tw_gicon code page_main_internal_s20_g2_dianyadi = {
+2970                  ID_ICON_S20_G2_DIANYADI,
+2971                  3,
+2972                  0,
+2973                  0,
+2974                  8,
+2975                  1,
+2976                  114,
+2977                  0X13e0,
+2978          };
+2979          
+2980          struct tw_gicon code page_main_internal_s20_g2_dianyagao = {
+2981                  ID_ICON_S20_G2_DIANYAGAO,
+2982                  3,
+2983                  0,
+2984                  0,
+2985                  8,
+2986                  1,
+2987                  114,
+2988                  0X13e0,
+2989          };
+2990          
+2991          struct tw_gicon code page_main_internal_s20_g2_dianyuan = {
+2992                  ID_ICON_S20_G2_DIANYUAN,
+2993                  3,
+2994                  0,
+2995                  0,
+2996                  8,
+2997                  1,
+2998                  114,
+2999                  0X13e0,
+3000          };
+3001          
+3002          struct tw_gicon code page_main_internal_s20_g2_diushi = {
+3003                  ID_ICON_S20_G2_DIUSHI,
+3004                  3,
+3005                  0,
+3006                  0,
+3007                  8,
+3008                  1,
+3009                  114,
+3010                  0X13e0,
+3011          };
+3012          
+3013          struct tw_gicon code page_main_internal_s20_g2_duanlu = {
+3014                  ID_ICON_S20_G2_DUANLU,
+3015                  3,
+3016                  0,
+3017                  0,
+3018                  8,
+3019                  1,
+3020                  114,
+3021                  0X13e0,
+3022          };
+3023          
+3024          struct tw_gicon code page_main_internal_s20_g2_ebs = {
+3025                  ID_ICON_S20_G2_EBS,
+3026                  3,
+3027                  0,
+3028                  0,
+3029                  8,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 50  
+
+3030                  1,
+3031                  114,
+3032                  0X13e0,
+3033          };
+3034          
+3035          struct tw_gicon code page_main_internal_s20_g2_fati = {
+3036                  ID_ICON_S20_G2_FATI,
+3037                  3,
+3038                  0,
+3039                  0,
+3040                  8,
+3041                  1,
+3042                  114,
+3043                  0X13e0,
+3044          };
+3045          
+3046          struct tw_gicon code page_main_internal_s20_g2_kaiguan = {
+3047                  ID_ICON_S20_G2_KAIGUAN,
+3048                  3,
+3049                  0,
+3050                  0,
+3051                  8,
+3052                  1,
+3053                  114,
+3054                  0X13e0,
+3055          };
+3056          
+3057          struct tw_gicon code page_main_internal_s20_g2_three = {
+3058                  ID_ICON_S20_G2_THREE,
+3059                  3,
+3060                  0,
+3061                  0,
+3062                  8,
+3063                  1,
+3064                  114,
+3065                  0X13e0,
+3066          };
+3067          
+3068          struct tw_icon code page_main_internal_guzhang = {
+3069                  ID_ICON_GUZHANG,
+3070                  4,
+3071                  0,
+3072                  0,
+3073                  3,
+3074                  1,
+3075                  122,
+3076          };
+3077          
+3078          struct tw_icon code page_main_internal_zhengchang = {
+3079                  ID_ICON_ZHENGCHANG,
+3080                  4,
+3081                  0,
+3082                  0,
+3083                  3,
+3084                  1,
+3085                  125,
+3086          };
+3087          
+3088          struct tw_icon code page_main_internal_guanbi = {
+3089                  ID_ICON_GUANBI,
+3090                  8,
+3091                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 51  
+
+3092                  0,
+3093                  3,
+3094                  1,
+3095                  128,
+3096          };
+3097          
+3098          struct tw_icon code page_main_internal_qidong = {
+3099                  ID_ICON_QIDONG,
+3100                  8,
+3101                  0,
+3102                  0,
+3103                  3,
+3104                  1,
+3105                  131,
+3106          };
+3107          
+3108          struct tw_icon code page_main_internal_fault_number_0 = {
+3109                  ID_ICON_FAULT_NUMBER_0,
+3110                  8,
+3111                  0,
+3112                  0,
+3113                  1,
+3114                  2,
+3115                  134,
+3116          };
+3117          
+3118          struct tw_icon code page_main_internal_fault_number_1 = {
+3119                  ID_ICON_FAULT_NUMBER_1,
+3120                  8,
+3121                  0,
+3122                  0,
+3123                  1,
+3124                  2,
+3125                  136,
+3126          };
+3127          
+3128          struct tw_icon code page_main_internal_fault_number_2 = {
+3129                  ID_ICON_FAULT_NUMBER_2,
+3130                  8,
+3131                  0,
+3132                  0,
+3133                  1,
+3134                  2,
+3135                  138,
+3136          };
+3137          
+3138          struct tw_icon code page_main_internal_fault_number_3 = {
+3139                  ID_ICON_FAULT_NUMBER_3,
+3140                  8,
+3141                  0,
+3142                  0,
+3143                  1,
+3144                  2,
+3145                  140,
+3146          };
+3147          
+3148          struct tw_icon code page_main_internal_fault_number_4 = {
+3149                  ID_ICON_FAULT_NUMBER_4,
+3150                  8,
+3151                  0,
+3152                  0,
+3153                  1,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 52  
+
+3154                  2,
+3155                  142,
+3156          };
+3157          
+3158          struct tw_icon code page_main_internal_fault_number_5 = {
+3159                  ID_ICON_FAULT_NUMBER_5,
+3160                  8,
+3161                  0,
+3162                  0,
+3163                  1,
+3164                  2,
+3165                  144,
+3166          };
+3167          
+3168          struct tw_icon code page_main_internal_fault_number_6 = {
+3169                  ID_ICON_FAULT_NUMBER_6,
+3170                  8,
+3171                  0,
+3172                  0,
+3173                  1,
+3174                  2,
+3175                  146,
+3176          };
+3177          
+3178          struct tw_icon code page_main_internal_fault_number_7 = {
+3179                  ID_ICON_FAULT_NUMBER_7,
+3180                  8,
+3181                  0,
+3182                  0,
+3183                  1,
+3184                  2,
+3185                  148,
+3186          };
+3187          
+3188          struct tw_icon code page_main_internal_fault_number_8 = {
+3189                  ID_ICON_FAULT_NUMBER_8,
+3190                  8,
+3191                  0,
+3192                  0,
+3193                  1,
+3194                  2,
+3195                  150,
+3196          };
+3197          
+3198          struct tw_icon code page_main_internal_fault_number_9 = {
+3199                  ID_ICON_FAULT_NUMBER_9,
+3200                  8,
+3201                  0,
+3202                  0,
+3203                  1,
+3204                  2,
+3205                  152,
+3206          };
+3207          
+3208          struct tw_icon code page_main_internal_s9_ready = {
+3209                  ID_ICON_S9_READY,
+3210                  3,
+3211                  0,
+3212                  0,
+3213                  4,
+3214                  1,
+3215                  154,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 53  
+
+3216          };
+3217          
+3218          struct tw_gicon code page_main_internal_alarm_pos_0 = {
+3219                  ID_ICON_ALARM_POS_0,
+3220                  8,
+3221                  0,
+3222                  0,
+3223                  4,
+3224                  2,
+3225                  158,
+3226                  0X1c20,
+3227          };
+3228          
+3229          struct tw_gicon code page_main_internal_alarm_pos_1 = {
+3230                  ID_ICON_ALARM_POS_1,
+3231                  8,
+3232                  0,
+3233                  0,
+3234                  4,
+3235                  2,
+3236                  158,
+3237                  0X1c20,
+3238          };
+3239          
+3240          struct tw_gicon code page_main_internal_alarm_pos_2 = {
+3241                  ID_ICON_ALARM_POS_2,
+3242                  8,
+3243                  0,
+3244                  0,
+3245                  6,
+3246                  2,
+3247                  158,
+3248                  0X1c20,
+3249          };
+3250          
+3251          struct tw_gicon code page_main_internal_alarm_pos_3 = {
+3252                  ID_ICON_ALARM_POS_3,
+3253                  8,
+3254                  0,
+3255                  0,
+3256                  6,
+3257                  2,
+3258                  158,
+3259                  0X1c20,
+3260          };
+3261          
+3262          struct tw_gicon code page_main_internal_alarm_pos_4 = {
+3263                  ID_ICON_ALARM_POS_4,
+3264                  8,
+3265                  0,
+3266                  0,
+3267                  6,
+3268                  2,
+3269                  158,
+3270                  0X1c20,
+3271          };
+3272          
+3273          struct tw_gicon code page_main_internal_alarm_pos_5 = {
+3274                  ID_ICON_ALARM_POS_5,
+3275                  8,
+3276                  0,
+3277                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 54  
+
+3278                  6,
+3279                  2,
+3280                  158,
+3281                  0X1c20,
+3282          };
+3283          
+3284          struct tw_gicon code page_main_internal_fault_alarm_185 = {
+3285                  ID_ICON_FAULT_ALARM_185,
+3286                  8,
+3287                  0,
+3288                  0,
+3289                  19,
+3290                  2,
+3291                  45,
+3292                  0X06f0,
+3293          };
+3294          
+3295          struct tw_gicon code page_main_internal_fault_alarm_186 = {
+3296                  ID_ICON_FAULT_ALARM_186,
+3297                  8,
+3298                  0,
+3299                  0,
+3300                  19,
+3301                  2,
+3302                  45,
+3303                  0X06f0,
+3304          };
+3305          
+3306          struct tw_gicon code page_main_internal_fault_alarm_187 = {
+3307                  ID_ICON_FAULT_ALARM_187,
+3308                  8,
+3309                  0,
+3310                  0,
+3311                  19,
+3312                  2,
+3313                  45,
+3314                  0X06f0,
+3315          };
+3316          
+3317          struct tw_gicon code page_main_internal_fault_alarm_188 = {
+3318                  ID_ICON_FAULT_ALARM_188,
+3319                  8,
+3320                  0,
+3321                  0,
+3322                  19,
+3323                  2,
+3324                  45,
+3325                  0X06f0,
+3326          };
+3327          
+3328          struct tw_gicon code page_main_internal_fault_alarm_189 = {
+3329                  ID_ICON_FAULT_ALARM_189,
+3330                  8,
+3331                  0,
+3332                  0,
+3333                  19,
+3334                  2,
+3335                  45,
+3336                  0X06f0,
+3337          };
+3338          
+3339          struct tw_gicon code page_main_internal_fault_alarm_190 = {
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 55  
+
+3340                  ID_ICON_FAULT_ALARM_190,
+3341                  8,
+3342                  0,
+3343                  0,
+3344                  19,
+3345                  2,
+3346                  45,
+3347                  0X06f0,
+3348          };
+3349          
+3350          struct tw_gicon code page_main_internal_fault_alarm_191 = {
+3351                  ID_ICON_FAULT_ALARM_191,
+3352                  8,
+3353                  0,
+3354                  0,
+3355                  19,
+3356                  2,
+3357                  45,
+3358                  0X06f0,
+3359          };
+3360          
+3361          struct tw_gicon code page_main_internal_fault_alarm_192 = {
+3362                  ID_ICON_FAULT_ALARM_192,
+3363                  8,
+3364                  0,
+3365                  0,
+3366                  19,
+3367                  2,
+3368                  45,
+3369                  0X06f0,
+3370          };
+3371          
+3372          struct tw_gicon code page_main_internal_fault_alarm_193 = {
+3373                  ID_ICON_FAULT_ALARM_193,
+3374                  8,
+3375                  0,
+3376                  0,
+3377                  19,
+3378                  2,
+3379                  45,
+3380                  0X06f0,
+3381          };
+3382          
+3383          struct tw_gicon code page_main_internal_fault_alarm_194 = {
+3384                  ID_ICON_FAULT_ALARM_194,
+3385                  8,
+3386                  0,
+3387                  0,
+3388                  20,
+3389                  2,
+3390                  45,
+3391                  0X06f0,
+3392          };
+3393          
+3394          struct tw_gicon code page_main_internal_fault_alarm_195 = {
+3395                  ID_ICON_FAULT_ALARM_195,
+3396                  8,
+3397                  0,
+3398                  0,
+3399                  10,
+3400                  2,
+3401                  45,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 56  
+
+3402                  0X06f0,
+3403          };
+3404          
+3405          struct tw_gicon code page_main_internal_fault_alarm_196 = {
+3406                  ID_ICON_FAULT_ALARM_196,
+3407                  8,
+3408                  0,
+3409                  0,
+3410                  10,
+3411                  2,
+3412                  45,
+3413                  0X06f0,
+3414          };
+3415          
+3416          struct tw_gicon code page_main_internal_fault_alarm_197 = {
+3417                  ID_ICON_FAULT_ALARM_197,
+3418                  8,
+3419                  0,
+3420                  0,
+3421                  10,
+3422                  2,
+3423                  45,
+3424                  0X06f0,
+3425          };
+3426          
+3427          struct tw_gicon code page_main_internal_fault_alarm_198 = {
+3428                  ID_ICON_FAULT_ALARM_198,
+3429                  8,
+3430                  0,
+3431                  0,
+3432                  14,
+3433                  2,
+3434                  45,
+3435                  0X06f0,
+3436          };
+3437          
+3438          struct tw_gicon code page_main_internal_fault_alarm_199 = {
+3439                  ID_ICON_FAULT_ALARM_199,
+3440                  8,
+3441                  0,
+3442                  0,
+3443                  8,
+3444                  2,
+3445                  45,
+3446                  0X06f0,
+3447          };
+3448          
+3449          struct tw_gicon code page_main_internal_bihe = {
+3450                  ID_ICON_BIHE,
+3451                  4,
+3452                  0,
+3453                  0,
+3454                  3,
+3455                  1,
+3456                  170,
+3457                  0X1e60,
+3458          };
+3459          
+3460          struct tw_gicon code page_main_internal_duankai = {
+3461                  ID_ICON_DUANKAI,
+3462                  4,
+3463                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 57  
+
+3464                  0,
+3465                  3,
+3466                  1,
+3467                  170,
+3468                  0X1e60,
+3469          };
+3470          
+3471          struct tw_icon code page_main_internal_arrows = {
+3472                  ID_ICON_ARROWS,
+3473                  1,
+3474                  0,
+3475                  0,
+3476                  2,
+3477                  1,
+3478                  174,
+3479          };
+3480          
+3481          struct tw_icon code page_main_internal_fault_flag_red = {
+3482                  ID_ICON_FAULT_FLAG_RED,
+3483                  2,
+3484                  0,
+3485                  0,
+3486                  3,
+3487                  2,
+3488                  176,
+3489          };
+3490          
+3491          struct tw_icon code page_main_internal_status_green = {
+3492                  ID_ICON_STATUS_GREEN,
+3493                  3,
+3494                  0,
+3495                  0,
+3496                  2,
+3497                  1,
+3498                  182,
+3499          };
+3500          
+3501          struct tw_icon code page_main_internal_status_red = {
+3502                  ID_ICON_STATUS_RED,
+3503                  4,
+3504                  0,
+3505                  0,
+3506                  2,
+3507                  1,
+3508                  184,
+3509          };
+3510          
+3511          struct tw_gicon code page_main_internal_mark_d = {
+3512                  ID_ICON_MARK_D,
+3513                  3,
+3514                  0,
+3515                  0,
+3516                  3,
+3517                  2,
+3518                  186,
+3519                  0X23a0,
+3520          };
+3521          
+3522          struct tw_gicon code page_main_internal_mark_d1 = {
+3523                  ID_ICON_MARK_D1,
+3524                  3,
+3525                  0,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 58  
+
+3526                  0,
+3527                  3,
+3528                  2,
+3529                  186,
+3530                  0X23a0,
+3531          };
+3532          
+3533          struct tw_gicon code page_main_internal_mark_d2 = {
+3534                  ID_ICON_MARK_D2,
+3535                  3,
+3536                  0,
+3537                  0,
+3538                  3,
+3539                  2,
+3540                  186,
+3541                  0X23a0,
+3542          };
+3543          
+3544          struct tw_gicon code page_main_internal_mark_d3 = {
+3545                  ID_ICON_MARK_D3,
+3546                  3,
+3547                  0,
+3548                  0,
+3549                  3,
+3550                  2,
+3551                  186,
+3552                  0X23a0,
+3553          };
+3554          
+3555          struct tw_gicon code page_main_internal_mark_d4 = {
+3556                  ID_ICON_MARK_D4,
+3557                  3,
+3558                  0,
+3559                  0,
+3560                  3,
+3561                  2,
+3562                  186,
+3563                  0X23a0,
+3564          };
+3565          
+3566          struct tw_gicon code page_main_internal_mark_d5 = {
+3567                  ID_ICON_MARK_D5,
+3568                  3,
+3569                  0,
+3570                  0,
+3571                  3,
+3572                  2,
+3573                  186,
+3574                  0X23a0,
+3575          };
+3576          
+3577          struct tw_gicon code page_main_internal_mark_d6 = {
+3578                  ID_ICON_MARK_D6,
+3579                  3,
+3580                  0,
+3581                  0,
+3582                  3,
+3583                  2,
+3584                  186,
+3585                  0X23a0,
+3586          };
+3587          
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 59  
+
+3588          struct tw_gicon code page_main_internal_mark_d7 = {
+3589                  ID_ICON_MARK_D7,
+3590                  3,
+3591                  0,
+3592                  0,
+3593                  3,
+3594                  2,
+3595                  186,
+3596                  0X23a0,
+3597          };
+3598          
+3599          struct tw_gicon code page_main_internal_mark_d8 = {
+3600                  ID_ICON_MARK_D8,
+3601                  3,
+3602                  0,
+3603                  0,
+3604                  3,
+3605                  2,
+3606                  186,
+3607                  0X23a0,
+3608          };
+3609          
+3610          struct tw_gicon code page_main_internal_mark_d9 = {
+3611                  ID_ICON_MARK_D9,
+3612                  3,
+3613                  0,
+3614                  0,
+3615                  3,
+3616                  2,
+3617                  186,
+3618                  0X23a0,
+3619          };
+3620          
+3621          struct tw_gicon code page_main_internal_mark_d10 = {
+3622                  ID_ICON_MARK_D10,
+3623                  3,
+3624                  0,
+3625                  0,
+3626                  3,
+3627                  2,
+3628                  186,
+3629                  0X23a0,
+3630          };
+3631          
+3632          struct tw_gicon code page_main_internal_mark_d11 = {
+3633                  ID_ICON_MARK_D11,
+3634                  3,
+3635                  0,
+3636                  0,
+3637                  3,
+3638                  2,
+3639                  186,
+3640                  0X23a0,
+3641          };
+3642          
+3643          struct tw_gicon code page_main_internal_mark_d12 = {
+3644                  ID_ICON_MARK_D12,
+3645                  3,
+3646                  0,
+3647                  0,
+3648                  3,
+3649                  2,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 60  
+
+3650                  186,
+3651                  0X23a0,
+3652          };
+3653          
+3654          struct tw_gicon code page_main_internal_mark_n = {
+3655                  ID_ICON_MARK_N,
+3656                  5,
+3657                  0,
+3658                  0,
+3659                  3,
+3660                  2,
+3661                  186,
+3662                  0X23a0,
+3663          };
+3664          
+3665          struct tw_gicon code page_main_internal_mark_r = {
+3666                  ID_ICON_MARK_R,
+3667                  4,
+3668                  0,
+3669                  0,
+3670                  3,
+3671                  2,
+3672                  186,
+3673                  0X23a0,
+3674          };
+3675          
+3676          struct tw_gicon code page_main_internal_mark_bai = {
+3677                  ID_ICON_MARK_BAI,
+3678                  5,
+3679                  0,
+3680                  0,
+3681                  3,
+3682                  2,
+3683                  192,
+3684                  0X25e0,
+3685          };
+3686          
+3687          struct tw_gicon code page_main_internal_mark_hong = {
+3688                  ID_ICON_MARK_HONG,
+3689                  4,
+3690                  0,
+3691                  0,
+3692                  3,
+3693                  2,
+3694                  192,
+3695                  0X25e0,
+3696          };
+3697          
+3698          struct tw_gicon code page_main_internal_mark_r_stop = {
+3699                  ID_ICON_MARK_R_STOP,
+3700                  4,
+3701                  0,
+3702                  0,
+3703                  3,
+3704                  2,
+3705                  198,
+3706                  0X2820,
+3707          };
+3708          
+3709          struct tw_gicon code page_main_internal_mark_y_stop = {
+3710                  ID_ICON_MARK_Y_STOP,
+3711                  6,
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 61  
+
+3712                  0,
+3713                  0,
+3714                  3,
+3715                  2,
+3716                  198,
+3717                  0X2820,
+3718          };
+3719          
+3720          struct tw_gicon code page_main_internal_door_close_0 = {
+3721                  ID_ICON_DOOR_CLOSE_0,
+3722                  7,
+3723                  0,
+3724                  0,
+3725                  3,
+3726                  3,
+3727                  204,
+3728                  0X2a60,
+3729          };
+3730          
+3731          struct tw_gicon code page_main_internal_door_open_0 = {
+3732                  ID_ICON_DOOR_OPEN_0,
+3733                  8,
+3734                  0,
+3735                  0,
+3736                  3,
+3737                  3,
+3738                  204,
+3739                  0X2a60,
+3740          };
+3741          
+3742          struct tw_gicon code page_main_internal_door_close_1 = {
+3743                  ID_ICON_DOOR_CLOSE_1,
+3744                  7,
+3745                  0,
+3746                  0,
+3747                  4,
+3748                  5,
+3749                  213,
+3750                  0X2dc0,
+3751          };
+3752          
+3753          struct tw_gicon code page_main_internal_door_open_1 = {
+3754                  ID_ICON_DOOR_OPEN_1,
+3755                  8,
+3756                  0,
+3757                  0,
+3758                  4,
+3759                  5,
+3760                  213,
+3761                  0X2dc0,
+3762          };
+3763          
+3764          struct tw_gicon code page_main_internal_door_close_2 = {
+3765                  ID_ICON_DOOR_CLOSE_2,
+3766                  7,
+3767                  0,
+3768                  0,
+3769                  4,
+3770                  4,
+3771                  233,
+3772                  0X3540,
+3773          };
+C51 COMPILER V9.00   PAGE_MAIN_INTERNAL_STRUCT                                             12/13/2022 09:00:40 PAGE 62  
+
+3774          
+3775          struct tw_gicon code page_main_internal_door_open_2 = {
+3776                  ID_ICON_DOOR_OPEN_2,
+3777                  8,
+3778                  0,
+3779                  0,
+3780                  4,
+3781                  4,
+3782                  233,
+3783                  0X3540,
+3784          };
+3785          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   3733    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

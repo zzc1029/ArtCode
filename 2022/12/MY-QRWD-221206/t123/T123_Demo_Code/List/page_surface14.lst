@@ -1,0 +1,88 @@
+C51 COMPILER V9.00   PAGE_SURFACE14                                                        12/13/2022 09:00:42 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_SURFACE14
+OBJECT MODULE PLACED IN .\Object\page_surface14.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE Source\page_surface14.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\
+                    -tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_surface14.lst) OBJECT(.\Object\pag
+                    -e_surface14.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "disp_config.h"
+   9          
+  10          #if (PAGE_ADD > 13)
+  11          
+  12          #include "page_surface14.h"
+  13          #include "display.h"
+  14          #include "mydrivers.h"
+  15          #include "uart.h"
+  16          
+  17          
+  18          unsigned char page_surface14_process (TW_EVENT* event)
+  19          {
+  20   1              unsigned char i,j;
+  21   1              switch(event->type)
+  22   1              {
+  23   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  24   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  25   2                              tw_td_draw(&main_surface14);
+  26   2                              sosd_td_enable();
+  27   2                              sosd_enable(DONT_LOAD);
+  28   2                              clear_unalarm_area();
+  29   2                              if(LIGHT_EN)
+  30   2                              {
+  31   3                                      LIGHT_EN = 0;
+  32   3                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  33   3                              }
+  34   2                              for (i = 0; i < 6; i++)
+  35   2                                      for (j = 0; j < 8; j++)
+  36   2                                              surface_data[i][j] = 0;
+  37   2                              display_surface14();
+  38   2      
+  39   2                              /* todo: Write Your Code Here */
+  40   2      
+  41   2                      break;
+  42   2      
+  43   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  44   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  45   2      
+  46   2                              /* todo: Write Your Code Here */
+  47   2      
+  48   2                      break;
+  49   2      
+  50   2                      default:        /* put to nodify if no process this event */
+  51   2                              return TW_RETURN_NO_PROCESS;
+  52   2      
+  53   2      
+C51 COMPILER V9.00   PAGE_SURFACE14                                                        12/13/2022 09:00:42 PAGE 2   
+
+  54   2              }
+  55   1              return TW_RETURN_NONE;
+  56   1      }
+  57          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    111    ----
+   CONSTANT SIZE    =     78    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,1242 @@
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE VGADETECT
+OBJECT MODULE PLACED IN .\Object\VGADetect.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\tw_lib\drivers\VGADetect.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_
+                    -lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\VGADetect.lst) TABS(2) OBJECT(.\Object\VGA
+                    -Detect.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <math.h>
+   3          #include "Panel.h"
+   4          #include "reg_tw.h"
+   5          #include "sys.h"
+   6          #include "cq.h"
+   7          #include "tw_widget_sys.h"
+   8          #include "tw_timer.h"
+   9          #include "Modedata.h"
+  10          #include "VGADetect.h"
+  11          
+  12          uCHAR xdata   m_cBuff[4];
+  13          uWORD xdata   m_wBuff[6];
+  14          uDWORD  xdata  m_dwBuff[2];
+  15          
+  16          uWORD xdata m_wHRes;
+  17          uWORD xdata m_wVRes;
+  18          uCHAR xdata  m_bAlt;
+  19          uCHAR xdata  m_cModeStatus;
+  20          uCHAR xdata  m_bInterlaced;
+  21          uCHAR xdata   m_cDspPllSwitch;
+  22          uWORD xdata  m_wVTotal;       // Vertical lines total. This will be change with TV system.
+  23          uCHAR xdata  m_Synctype;
+  24          uCHAR xdata  m_bDosMode;
+  25          
+  26          EEPPRIVATE  xdata   EepPrivate;
+  27          EEPPUBLIC xdata  tagEEPPUBLIC;
+  28          
+  29          VGAPOSTATE  xdata VGAState;         // For User Fine-Tune VGA State.
+  30          
+  31          MODE_DESCRIPTOR code *m_pModeDescriptorPtr;
+  32          RESOLUTION  code *m_pResolutionPtr;
+  33          ALT_HTOTAL  code *m_pAltHTotalPtr;
+  34          
+  35          uCHAR xdata Boundary_det_count=0;
+  36          uWORD xdata VGAPosData[4];
+  37          unsigned int HSYNC_PW;
+  38          unsigned int VSYNC_PW;
+  39          
+  40          //#define DEBUGMSG
+  41          //#define DEBUGMSG1
+  42          
+  43          
+  44          // ================================================================
+  45          //  ModeDetect      Kevin Hsu.  Mar. 2th, 2006
+  46          // ================================================================
+  47          //  Description: Detect what kind of Mode in VGA signal. 
+  48          //  Output:    m_Synctype : VGA Mode.
+  49          //  ---------------------------------------------------------------
+  50          bit ModeDetect(uCHAR *vga_std)
+  51          {
+  52   1        int i;
+  53   1        int mode_count=0;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 2   
+
+  54   1        int v_total_div=0;   
+  55   1        uWORD wHPeriodCount;
+  56   1      
+  57   1        m_cModeStatus = 0;
+  58   1        m_wVTotal = 0;
+  59   1        m_dwBuff[0]=GetInputVSyncXclkCnt(); 
+  60   1        
+  61   1        if(m_dwBuff[0]<(27000000/84))   // Not support the frame rate bigger than 84
+  62   1        {
+  63   2          DBG_PRINT("NOT SUPPORT ,high than 84\r\n");
+  64   2          m_cModeStatus = OVERRANGE;
+  65   2            goto EXIT;
+  66   2        }
+  67   1        if(m_dwBuff[0]>(27000000/55))   // Not support the frame rate slow than 55
+  68   1        {
+  69   2          DBG_PRINT("NOT SUPPORT ,less than 55\r\n");
+  70   2          m_cModeStatus = OVERRANGE;
+  71   2            goto EXIT;
+  72   2        }
+  73   1        GetModeInfo(&m_wVTotal, &wHPeriodCount, m_dwBuff[0]);
+  74   1        
+  75   1        if(m_wVTotal < ModeTable[0].wVTotal)
+  76   1        {
+  77   2          //putString(pstrOutrange);
+  78   2          m_cModeStatus = SYNCERROR;  //unreasonable result, sync error
+  79   2          goto EXIT;
+  80   2        }
+  81   1      //#ifdef DEBUGMSG
+  82   1        DBG_PRINT("====================================\r\n",0);
+  83   1        DBG_PRINT("dwVPeriodCount=%d\r\n",(unsigned int)(27000000/m_dwBuff[0]));
+  84   1        DBG_PRINT("wVTotal=%d\r\n",(unsigned int)m_wVTotal);
+  85   1        DBG_PRINT("wHPeriodCount=%d\r\n",(unsigned int)(27000000/(wHPeriodCount/32)));// 843750 = 27000000/32
+  86   1      //#endif
+  87   1       
+  88   1        m_cBuff[0] = 0;
+  89   1        m_cBuff[1] = 0;
+  90   1        EepPrivate.cModeID = 0;
+  91   1        if(m_wVTotal<(ModeTable[0].wVTotal-10))
+  92   1        {
+  93   2          m_cModeStatus = SYNCERROR;  //unreasonable result, sync error
+  94   2          return 0;
+  95   2        }
+  96   1      
+  97   1        //Find Bottom Boundary
+  98   1        while ((m_wVTotal > ModeTable[m_cBuff[0]].wVTotal) && (m_cBuff[0] <= TOTALMODES))
+  99   1        {
+ 100   2          m_cBuff[0]++;
+ 101   2        }
+ 102   1        if(m_cBuff[0]>0)
+ 103   1          m_cBuff[0]--;
+ 104   1        //Find Up Boundary
+ 105   1        m_cBuff[1] = m_cBuff[0];
+ 106   1        while ((m_wVTotal >= ModeTable[m_cBuff[1]].wVTotal) && (m_cBuff[1] <= TOTALMODES))
+ 107   1        {
+ 108   2          m_cBuff[1]++;
+ 109   2        }
+ 110   1      #ifdef DEBUGMSG1
+                DBG_PRINT("B=%d\r\n",(unsigned int)m_cBuff[0]);
+                DBG_PRINT("U=%d\r\n",(unsigned int)m_cBuff[1]);
+              #endif
+ 114   1        EepPrivate.cModeID = m_cBuff[0];
+ 115   1        m_cModeStatus = MODEGUEST;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 3   
+
+ 116   1        m_pModeDescriptorPtr = &ModeTable[m_cBuff[0]];
+ 117   1        m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 118   1        /* table match */
+ 119   1        if((m_cBuff[1] - m_cBuff[0])==1)
+ 120   1        {
+ 121   2          if(m_wVTotal == ModeTable[m_cBuff[0]].wVTotal)
+ 122   2          {
+ 123   3      #ifdef DEBUGMSG1    
+                      DBG_PRINT("B match: d2=%d\r\n",(unsigned int)(abs(m_dwBuff[0]-ModeTable[m_cBuff[0]].dwVPeriodCount)));
+                      DBG_PRINT("B match: d3=%d\r\n",(unsigned int)(ModeTable[i].dwVPeriodCount/20));
+              #endif
+ 127   3            if(abs(m_dwBuff[0]-ModeTable[m_cBuff[0]].dwVPeriodCount)<(ModeTable[m_cBuff[0]].dwVPeriodCount/20))
+ 128   3            {
+ 129   4              EepPrivate.cModeID = m_cBuff[0];
+ 130   4              m_cModeStatus = MODEFOUND;
+ 131   4              m_pModeDescriptorPtr = &ModeTable[m_cBuff[0]];
+ 132   4              m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 133   4              goto EXIT;
+ 134   4            }
+ 135   3          }
+ 136   2        }
+ 137   1          /* set the same Vtotal bottom boundary from first to the last */
+ 138   1        for(i=m_cBuff[0]; i<m_cBuff[1]; i++)
+ 139   1        {
+ 140   2          if(m_wVTotal == ModeTable[i].wVTotal)
+ 141   2          {
+ 142   3            EepPrivate.cModeID = m_cBuff[i];
+ 143   3            m_cModeStatus = MODEGUEST;
+ 144   3            m_pModeDescriptorPtr = &ModeTable[m_cBuff[i]];
+ 145   3            m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 146   3            break;
+ 147   3          }
+ 148   2        }
+ 149   1      
+ 150   1        v_total_div = 999;
+ 151   1        if(i==m_cBuff[1])
+ 152   1        {
+ 153   2          for(i=m_cBuff[0]; i<=m_cBuff[1]; i++)
+ 154   2          {
+ 155   3            if(v_total_div>= abs(m_wVTotal - ModeTable[i].wVTotal))
+ 156   3            {
+ 157   4      #ifdef DEBUGMSG1    
+                      DBG_PRINT("d2=%d\r\n",(unsigned int)(abs(wHPeriodCount-ModeTable[i].wHPeriodCount)));
+                      DBG_PRINT("d3=%d\r\n",(unsigned int)(ModeTable[i].wHPeriodCount/100));
+              #endif
+ 161   4              if(abs(wHPeriodCount-ModeTable[i].wHPeriodCount)<(ModeTable[i].wHPeriodCount/20))
+ 162   4              {
+ 163   5                v_total_div = abs(m_wVTotal - ModeTable[i].wVTotal);
+ 164   5                EepPrivate.cModeID = i;
+ 165   5                m_cModeStatus = MODEFOUND;
+ 166   5                m_pModeDescriptorPtr = &ModeTable[i];
+ 167   5                m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 168   5              }
+ 169   4              
+ 170   4            }
+ 171   3          }
+ 172   2          goto EXIT;
+ 173   2        }  
+ 174   1        else if(i<m_cBuff[1])
+ 175   1        {
+ 176   2          m_cBuff[0] = i;
+ 177   2        }
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 4   
+
+ 178   1          for(i=m_cBuff[0]; i<m_cBuff[1]; i++)
+ 179   1        {
+ 180   2          if(m_wVTotal != ModeTable[m_cBuff[0]].wVTotal)
+ 181   2          {
+ 182   3            break;
+ 183   3          }
+ 184   2        }
+ 185   1          m_cBuff[1] = i;
+ 186   1      #ifdef DEBUGMSG1  
+                DBG_PRINT("B=%d\r\n",(unsigned int)m_cBuff[0]);
+                DBG_PRINT("U=%d\r\n",(unsigned int)m_cBuff[1]);
+              #endif  
+ 190   1        if((m_cBuff[1]-m_cBuff[0])>=1)
+ 191   1        {
+ 192   2          for(i=m_cBuff[0]; i<m_cBuff[1]; i++)
+ 193   2          {
+ 194   3            if(m_wVTotal == ModeTable[i].wVTotal)
+ 195   3            {
+ 196   4      #ifdef DEBUGMSG1
+                      DBG_PRINT("i=%d\r\n",i);
+                      DBG_PRINT("d2=%d\r\n",(unsigned int)abs(m_dwBuff[0]-ModeTable[i].dwVPeriodCount));
+                      DBG_PRINT("d3=%d\r\n",(unsigned int)(ModeTable[i].dwVPeriodCount/100));
+              #endif
+ 201   4              if(abs(m_dwBuff[0]-ModeTable[i].dwVPeriodCount)<(ModeTable[i].dwVPeriodCount/100))
+ 202   4              {
+ 203   5                EepPrivate.cModeID = i;
+ 204   5                m_cModeStatus = MODEFOUND;
+ 205   5                m_pModeDescriptorPtr = &ModeTable[i];
+ 206   5                m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 207   5                mode_count++;
+ 208   5                //goto EXIT;
+ 209   5              }
+ 210   4            }
+ 211   3          }
+ 212   2        }
+ 213   1      //  DBG_PRINT("MC=%d\r\n",mode_count);
+ 214   1        if(mode_count==0)
+ 215   1          m_cModeStatus = OVERRANGE;
+ 216   1        if(mode_count>1)
+ 217   1        {
+ 218   2          for(i=m_cBuff[0]; i<m_cBuff[1]; i++)
+ 219   2          {
+ 220   3            if(m_wVTotal == ModeTable[i].wVTotal)
+ 221   3            {
+ 222   4              if(abs(m_dwBuff[0]-ModeTable[i].dwVPeriodCount)<(ModeTable[i].dwVPeriodCount/10))
+ 223   4              {
+ 224   5                if(abs(wHPeriodCount-ModeTable[i].wHPeriodCount)<(ModeTable[i].wHPeriodCount/100))
+ 225   5                {
+ 226   6                  EepPrivate.cModeID = i;
+ 227   6                  *vga_std = EepPrivate.cModeID;
+ 228   6                  m_cModeStatus = MODEFOUND;
+ 229   6                  m_pModeDescriptorPtr = &ModeTable[i];
+ 230   6                  m_pResolutionPtr = &ResolutionTable[m_pModeDescriptorPtr->cResID];
+ 231   6                  mode_count++;
+ 232   6                }
+ 233   5                //goto EXIT;
+ 234   5              }
+ 235   4            }
+ 236   3          }
+ 237   2        }       
+ 238   1      
+ 239   1      
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 5   
+
+ 240   1      EXIT:
+ 241   1      //#ifdef DEBUGMSG
+ 242   1        DBG_PRINT("Mode ID=%d\r\n",(unsigned int)EepPrivate.cModeID);
+ 243   1        if(m_cModeStatus==MODEFOUND)
+ 244   1          DBG_PRINT("Mode Match.\r\n",0);
+ 245   1        else if(m_cModeStatus==MODEGUEST)
+ 246   1          DBG_PRINT("Mode Guest!\r\n",0);
+ 247   1        else
+ 248   1            DBG_PRINT("Mode Not Support!\r\n",0);
+ 249   1        DBG_PRINT("====================================\r\n",0);
+ 250   1      //#endif
+ 251   1        if((m_cModeStatus==MODEGUEST)||(m_cModeStatus==MODEFOUND))
+ 252   1          return m_cModeStatus;
+ 253   1        else 
+ 254   1          return 0;
+ 255   1      }
+ 256          
+ 257          void SetModeCaptureData(uWORD wHTotal, uWORD wHsst, uCHAR cVsst, uCHAR cVCO, uCHAR HVSyncPol)
+ 258          {
+ 259   1          
+ 260   1        //~Get Sync Polarity. ~//
+ 261   1        IC_WritByte(TWIC_P0, 0x10, IC_ReadByte(TWIC_P0, 0x10)&0x3F); 
+ 262   1        twdDelay(30);
+ 263   1        HVSyncPol =  ((~IC_ReadByte(TWIC_P0, 0x3F))&0x0C)<<4;  
+ 264   1        //~Set Sync Polarity. Auto polarity have some thing wrong after T108.~//
+ 265   1        IC_WritByte(TWIC_P0, 0x10, IC_ReadByte(TWIC_P0, 0x10)|HVSyncPol);
+ 266   1      
+ 267   1        //~ Set PLL Freq. ~//   
+ 268   1        //~ Set PLL Divider 0x16[3~0],0x15[7~0] ~//
+ 269   1          IC_WritByte(TWIC_P0, 0x15, (uCHAR)(wHTotal)); 
+ 270   1        IC_WritByte(TWIC_P0, 0x16, (IC_ReadByte(TWIC_P0, 0x16)&0xf0)|(((uCHAR)(wHTotal>> 8))|((cVCO&0x01)<<6))); 
+ 271   1        //~ Set VCO and Charge Pump ~//      
+ 272   1        IC_WritByte(TWIC_P0, 0x17, cVCO&0xFE);  
+ 273   1        //~ Set ADC Capture HSync Back Proch 0x4C, 0x4D ~//
+ 274   1          IC_WritByte(TWIC_P0, 0x4C, (uCHAR)wHsst);
+ 275   1          IC_WritByte(TWIC_P0, 0x4D, (uCHAR)(wHsst>>8));
+ 276   1      
+ 277   1          //~ Set ADC Capture VSync Back Proch 0x4E, 0x4F ~//
+ 278   1        IC_WritByte(TWIC_P0, 0x4E, (uCHAR)cVsst);
+ 279   1        IC_WritByte(TWIC_P0, 0x4F, (uCHAR)(cVsst >> 8));
+ 280   1      
+ 281   1        //~ Set ADC Capture HSize 0x48, 0x49 ~//
+ 282   1          IC_WritByte(TWIC_P0, 0x48, (uCHAR)m_wHRes);
+ 283   1          IC_WritByte(TWIC_P0, 0x49, (uCHAR)(m_wHRes>>8));
+ 284   1        //~ Set ADC Capture VSize 0x4A, 0x4B ~//
+ 285   1          IC_WritByte(TWIC_P0, 0x4A, (uCHAR)m_wVRes);
+ 286   1          IC_WritByte(TWIC_P0, 0x4B, (uCHAR)(m_wVRes>>8));
+ 287   1      } 
+ 288          
+ 289          
+ 290          
+ 291          void SetupMode(void)
+ 292          {   
+ 293   1        m_wHRes = ResolutionTable[m_pModeDescriptorPtr->cResID].wHRes;
+ 294   1        m_wVRes = ResolutionTable[m_pModeDescriptorPtr->cResID].wVRes;  
+ 295   1        DBG_PRINT("m_wHRes=%d\r\n",(unsigned int)m_wHRes);
+ 296   1        DBG_PRINT("m_wVRes=%d\r\n",(unsigned int)m_wVRes);
+ 297   1        DBG_PRINT("m_pModeDescriptorPtr->wHTotal=%d\r\n",(unsigned int)m_pModeDescriptorPtr->wHTotal);
+ 298   1        DBG_PRINT("m_pModeDescriptorPtr->wHBackPorch=%d\r\n",(unsigned int)m_pModeDescriptorPtr->wHBackPorch);
+ 299   1        DBG_PRINT("m_pModeDescriptorPtr->cVBackPorch=%d\r\n",(unsigned int)m_pModeDescriptorPtr->cVBackPorch);
+ 300   1        DBG_PRINT("m_pModeDescriptorPtr->cModeFlags2=%x\r\n",(unsigned int)m_pModeDescriptorPtr->cModeFlags2);
+ 301   1        DBG_PRINT("m_pModeDescriptorPtr->cModeFlags1=%x\r\n",(unsigned int)m_pModeDescriptorPtr->cModeFlags1);
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 6   
+
+ 302   1        DBG_PRINT("m_pModeDescriptorPtr->cModeFlags0=%x\r\n",(unsigned int)m_pModeDescriptorPtr->cModeFlags0);
+ 303   1        SetModeCaptureData(m_pModeDescriptorPtr->wHTotal, m_pModeDescriptorPtr->wHBackPorch, 
+ 304   1                  m_pModeDescriptorPtr->cVBackPorch, m_pModeDescriptorPtr->cModeFlags2,
+ 305   1                  m_pModeDescriptorPtr->cModeFlags0);
+ 306   1        
+ 307   1        SetVGAoutputPll();
+ 308   1        VGAState.HDispSize = IC_ReadByte(TWIC_P0, 0xDC)|(IC_ReadByte(TWIC_P0, 0xDD)<<8);
+ 309   1        VGAState.VDispSize = IC_ReadByte(TWIC_P0, 0xDE)|(IC_ReadByte(TWIC_P0, 0xDF)<<8);
+ 310   1        VGAState.AdjHATV = VGAState.HATV = m_pModeDescriptorPtr->wHBackPorch;
+ 311   1        VGAState.AdjVATV = VGAState.VATV= m_pModeDescriptorPtr->cVBackPorch;
+ 312   1        twdDelay(1000);
+ 313   1      }
+ 314          
+ 315          void VGAScaling(void)
+ 316          {
+ 317   1      
+ 318   1        //Horizontal  
+ 319   1        m_wBuff[0] = (float)(m_wHRes)/VGAState.HDispSize*0x2000; 
+ 320   1        IC_WritByte(TWIC_P0, 0x72, (unsigned char)m_wBuff[0]);
+ 321   1          IC_WritByte(TWIC_P0, 0x73, (unsigned char)(m_wBuff[0]>>8));
+ 322   1      
+ 323   1        //Vertical 
+ 324   1        if(m_wVRes>=(VGAState.VDispSize*2))
+ 325   1        {
+ 326   2           m_wVRes = m_wVRes>>1;
+ 327   2           IC_WritByte(TWIC_P0, 0x70, IC_ReadByte(TWIC_P0, 0x70)|0x08);
+ 328   2        }
+ 329   1        else
+ 330   1           IC_WritByte(TWIC_P0, 0x70, IC_ReadByte(TWIC_P0, 0x70)&0xF7);
+ 331   1        m_wBuff[0] = (float)(m_wVRes)/(VGAState.VDispSize)*0x2000;   
+ 332   1        IC_WritByte(TWIC_P0, 0x74, (unsigned char)m_wBuff[0]);
+ 333   1        IC_WritByte(TWIC_P0, 0x75, (unsigned char)(m_wBuff[0]>>8)); 
+ 334   1      }
+ 335          
+ 336          void SetVGAoutputPll(void)
+ 337          {               
+ 338   1        switch((m_pModeDescriptorPtr->cModeFlags1))
+ 339   1        {
+ 340   2          case bDSPPLL_1:
+ 341   2            m_cDspPllSwitch=DFDIV_1;
+ 342   2            break;
+ 343   2          case bDSPPLL_2:
+ 344   2            m_cDspPllSwitch=DFDIV_2;
+ 345   2            break;
+ 346   2          case bDSPPLL_3:
+ 347   2            m_cDspPllSwitch=DFDIV_3;
+ 348   2            break;
+ 349   2          case bDSPPLL_4:
+ 350   2            m_cDspPllSwitch=DFDIV_4;
+ 351   2            break;
+ 352   2          case bDSPPLL_5:
+ 353   2            m_cDspPllSwitch=DFDIV_5;
+ 354   2            break;
+ 355   2          default:
+ 356   2            m_cDspPllSwitch=DFDIV_3;
+ 357   2            break;
+ 358   2        }
+ 359   1          IC_WritByte(TWIC_P0, 0xC8,m_cDspPllSwitch);       
+ 360   1        IC_WritByte(TWIC_P0, 0xC9,DPLL_DIV_I);
+ 361   1        IC_WritByte(TWIC_P0, 0xCA,(IC_ReadByte(TWIC_P0, 0xCA)&0xFC)|DPLL_DIV_R); 
+ 362   1      }                         
+ 363            
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 7   
+
+ 364          void Sync_Mode_Detect(void)
+ 365          {
+ 366   1        int i;
+ 367   1      
+ 368   1        //~ Enable Sync exist detect ~//
+ 369   1        IC_WritByte(TWIC_P0, 0x21, 0x04);
+ 370   1        
+ 371   1        //~ Wait for Checking HS/VS finish. ~//
+ 372   1        i=300;
+ 373   1        while(i)
+ 374   1        {
+ 375   2          twdDelay(20);
+ 376   2          i--;            
+ 377   2          if(IC_ReadByte(TWIC_P0, 0x21)&0x04) 
+ 378   2            break;
+ 379   2        }
+ 380   1        //~ Check if HS and VS is exist. ~//
+ 381   1        if((IC_ReadByte(TWIC_P0, 0x21)&0x03)==3)  //~ Synchronize is possible the Composite type or Separate type.
+             - ~//
+ 382   1        { 
+ 383   2          //~ Set up HS/VS polarity. We set it as auto-adjusting. ~// 
+ 384   2          IC_WritByte(TWIC_P0,0x10,0x09);     
+ 385   2          //~ Suppose that sync. is Composite type and setup its route. ~//
+ 386   2          m_Synctype=Sync_CS;
+ 387   2              IC_WritByte(TWIC_P0, 0x14, 0x61);
+ 388   2          twdDelay(500);
+ 389   2          //~ Enable CSync detect and XCLK ~//
+ 390   2          IC_WritByte(TWIC_P0,0x13,0x02);
+ 391   2          IC_WritByte(TWIC_P0,0x13,0x22);
+ 392   2          twdDelay(500);    
+ 393   2          if(IC_ReadByte(TWIC_P0, 0x13)&0x80) //~ Check CSync detection is done or not. ~//
+ 394   2          {
+ 395   3            //~ If true, sync is Composite type. ~//
+ 396   3            m_Synctype=Sync_CS;
+ 397   3          }
+ 398   2          else                   //~ Sync. is Separate type. ~//
+ 399   2          {
+ 400   3            //~ Setup Separate type. ~//          
+ 401   3            m_Synctype=Sync_SS;
+ 402   3            //~ Setup Separate type route. ~// 
+ 403   3            IC_WritByte(TWIC_P0,0x14,IC_ReadByte(TWIC_P0, 0x14)&0xF0);    
+ 404   3          }  
+ 405   2        }
+ 406   1        else                     //~ No HS and VS, we suppose that synchronize is SOG type. ~//
+ 407   1        { 
+ 408   2          //~ Setup SOG/SOY type. ~//
+ 409   2          m_Synctype=Sync_SOG;
+ 410   2          //~ Set up SOG/SOY  polarity. We set it as non-invert. ~//
+ 411   2          IC_WritByte(TWIC_P0,0x10,0x39);
+ 412   2          //~ Setup SOG/SOY  type route. ~//
+ 413   2          IC_WritByte(TWIC_P0,0x11,0x00);//20
+ 414   2          IC_WritByte(TWIC_P0,0x12,0xef);
+ 415   2          IC_WritByte(TWIC_P0,0x14,0x68); 
+ 416   2        }
+ 417   1        
+ 418   1      }
+ 419          
+ 420          void GetModeInfo(uWORD *wVTotal, uWORD *wHPeriodCount, uDWORD dwFrameCnt)
+ 421          { 
+ 422   1        unsigned short  wTemp;
+ 423   1        int i;
+ 424   1        
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 8   
+
+ 425   1        //~ Get HSync period. ~//
+ 426   1        IC_WritByte(TWIC_P0, 0x14, IC_ReadByte(TWIC_P0, 0x14)&0xEF);  // Disable HSo source from PLL.
+ 427   1        IC_WritByte(TWIC_P0, 0x16, IC_ReadByte(TWIC_P0, 0x16)|0x04);  // Set PLL divider default value.
+ 428   1        wTemp=0;
+ 429   1        for(i=0; i<30; i++)
+ 430   1        {
+ 431   2          twdDelay(50); 
+ 432   2          *wHPeriodCount = IC_ReadByte(TWIC_P0, 0x59);
+ 433   2          *wHPeriodCount <<= 8;
+ 434   2          *wHPeriodCount += IC_ReadByte(TWIC_P0, 0x58);
+ 435   2          if((wTemp&0xFF00)==((*wHPeriodCount)&0xFF00))
+ 436   2            break;
+ 437   2          else
+ 438   2            wTemp = *wHPeriodCount;
+ 439   2        }
+ 440   1        wTemp = dwFrameCnt * 32 * 10 / (*wHPeriodCount); 
+ 441   1        if(wTemp % 10 >= 9)
+ 442   1          m_wBuff[0] = wTemp/10 + 1;
+ 443   1        else  
+ 444   1          m_wBuff[0] = wTemp/10;
+ 445   1        
+ 446   1        *wVTotal = m_wBuff[0]; 
+ 447   1        IC_WritByte(TWIC_P0, 0x14, IC_ReadByte(TWIC_P0, 0x14)|(~0xEF));   // Enable HSo source from PLL.
+ 448   1      }        
+ 449          
+ 450          
+ 451          // ================================================================
+ 452          //  GetInputVSyncXclkCnt      Kevin Hsu.  Mar. 7th, 2006
+ 453          // ================================================================
+ 454          //  Description: Get VSync. period  
+ 455          //  Output:    dwVSyncCount : VSync period.
+ 456          //  ---------------------------------------------------------------
+ 457          uDWORD GetInputVSyncXclkCnt(void)      
+ 458          {
+ 459   1        uDWORD dwVSyncCount;
+ 460   1         IC_WritByte(TWIC_P0, 0x14, IC_ReadByte(TWIC_P0, 0x14)&0xEF); // Disable HSo source from PLL.
+ 461   1        
+ 462   1        m_dwBuff[0] = 0;
+ 463   1        m_cBuff[1]=20;
+ 464   1        m_cBuff[2]=7;
+ 465   1        IC_WritByte(TWIC_P0, 0x50, (IC_ReadByte(TWIC_P0, 0x50) & 0xEF));
+ 466   1      RECHECK:    
+ 467   1        twdDelay(1000);   
+ 468   1        m_cBuff[1]=m_cBuff[1]-1;
+ 469   1        //twdDelay(30); 
+ 470   1        //m_cBuff[0] = IC_ReadByte(TWIC_P0, 0x50);
+ 471   1        IC_WritByte(TWIC_P0, 0x50, (IC_ReadByte(TWIC_P0, 0x50) | 0x10));      //Enable VSYNC counter
+ 472   1        m_cBuff[0] = 100;
+ 473   1        while(m_cBuff[0]--)
+ 474   1        {
+ 475   2          twdDelay(30);
+ 476   2          if ((IC_ReadByte(TWIC_P0, 0x50)&0x20)) //V sync counter is done exit
+ 477   2            break;
+ 478   2        }
+ 479   1        m_cBuff[0] = IC_ReadByte(TWIC_P0, 0x50);
+ 480   1        m_cBuff[0] &= 0xCF;     //Disable Auto Position
+ 481   1        IC_WritByte(TWIC_P0, 0x50, m_cBuff[0]);
+ 482   1      
+ 483   1        dwVSyncCount =  IC_ReadByte(TWIC_P0, 0x53);
+ 484   1        dwVSyncCount <<= 8;
+ 485   1        dwVSyncCount |= IC_ReadByte(TWIC_P0, 0x52);
+ 486   1        dwVSyncCount <<= 8;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 9   
+
+ 487   1        dwVSyncCount |= IC_ReadByte(TWIC_P0, 0x51);
+ 488   1        if((m_dwBuff[0]&0xFFFF00)!=(dwVSyncCount&0xFFFF00))
+ 489   1        {
+ 490   2          m_cBuff[2]=7;
+ 491   2          m_dwBuff[0] = dwVSyncCount;
+ 492   2          if(m_cBuff[1])
+ 493   2            goto RECHECK;
+ 494   2        }
+ 495   1        else 
+ 496   1        {
+ 497   2          m_cBuff[2] = m_cBuff[2] - 1;
+ 498   2          if(m_cBuff[2] != 0)
+ 499   2            goto RECHECK;
+ 500   2        }
+ 501   1        IC_WritByte(TWIC_P0, 0x14, IC_ReadByte(TWIC_P0, 0x14)|(~0xEF));   // Enable HSo source from PLL.
+ 502   1        return dwVSyncCount;    
+ 503   1      }
+ 504          #if 0
+              bit AutoPositionAdj(uCHAR cTestMode)
+              {                 
+                int RestartCount = 0;
+                
+                if(cTestMode) 
+                {
+                  
+                  if(Boundary_det_count>=50)   
+                  {  
+                    return 1;     
+                  }
+                  else
+                    Boundary_det_count++;
+                }
+              //  char strTemp[20];
+                RestartCount = 0;
+              RESTART:     
+               
+                //Reset Hsync and Vsync offset.
+                IC_WritByte(TWIC_P0, 0x41, 0);
+                IC_WritByte(TWIC_P0, 0x43, 0);           
+                //~ Set threshold. ~//
+                IC_WritByte(TWIC_P0, 0x27, 0x40);
+              
+                //~ Enable boundary detection ~//       
+                IC_WritByte(TWIC_P0, 0x26, (IC_ReadByte(TWIC_P0, 0x26)&0x7F));
+                twdDelay(1000);
+                IC_WritByte(TWIC_P0, 0x26, (IC_ReadByte(TWIC_P0, 0x26)|0x80));
+                m_wBuff[0]=20;
+                while(m_wBuff[0])
+                {
+                  twdDelay(500);
+                  if(IC_ReadByte(TWIC_P0, 0x26)&0x80) break;
+                  m_wBuff[0]--;
+                }
+                //~ Disable boundary detection ~//
+                IC_WritByte(TWIC_P0, 0x26, (IC_ReadByte(TWIC_P0, 0x26)&0x7F));  
+                //data start
+              
+                m_wBuff[0] = IC_ReadByte(TWIC_P0, 0x29);
+                m_wBuff[0] <<= 8;
+                m_wBuff[0] |= IC_ReadByte(TWIC_P0, 0x28); 
+                m_wBuff[0] -= 2;//For more good edge.         
+                //data end
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 10  
+
+                m_wBuff[1] = IC_ReadByte(TWIC_P0, 0x2B);              
+                m_wBuff[1] <<= 8;
+                m_wBuff[1] |= IC_ReadByte(TWIC_P0, 0x2A);
+              
+                if(m_wBuff[1]<=m_wBuff[0])
+                {
+              
+                  RestartCount++;
+                  if(RestartCount<5)
+                      goto RESTART;
+                  else
+                    return 0;
+                    //return 0;
+                }
+              
+                if(cTestMode)
+                {        
+                    if(abs(VGAState.HATV-m_wBuff[0])>(VGAState.HATV))
+                  {
+                    m_wBuff[0] = VGAState.HATV;
+                  }
+                
+                      if((VGAPosData[0] != m_wBuff[0])||(VGAPosData[1] != m_wBuff[1]))
+                    {
+              //          DBG_PRINT("L1=  %d\r\n",VGAPosData[0]);
+              //        DBG_PRINT("L2=  %d\r\n",m_wBuff[0]);
+                      //DBG_PRINT("R1=  %d\r\n",VGAPosData[1]);
+                      //DBG_PRINT("R2=  %d\r\n",m_wBuff[1]);
+                        RestartCount++;
+                      if(RestartCount<10)
+                        goto RESTART;
+                      else
+                        return 0;
+                    }
+                    else
+                      return 1;
+                }
+                else{
+                  m_wHRes = m_wBuff[1] - m_wBuff[0] + 1;   
+                  HPosAutoAdj();   
+                  VGAPosData[0] = m_wBuff[0];
+                  VGAPosData[1] = m_wBuff[1]; 
+                }     
+                DBG_PRINT("m_wHRes =  %d\r\n",m_wHRes);
+                //data start
+                m_wBuff[0] = IC_ReadByte(TWIC_P0, 0x2D);
+                m_wBuff[0] <<= 8;
+                m_wBuff[0] |= IC_ReadByte(TWIC_P0, 0x2C); 
+              
+                //data end
+                m_wBuff[1] = IC_ReadByte(TWIC_P0, 0x2F);       
+                m_wBuff[1] <<= 8;
+                m_wBuff[1] |= IC_ReadByte(TWIC_P0, 0x2E);
+              
+              
+                if(m_wBuff[1]<=m_wBuff[0])
+                {
+                  RestartCount++;
+                  if(RestartCount<5)
+                      goto RESTART;
+                  else
+                    return 0;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 11  
+
+                }
+                if(cTestMode)
+                {   
+                  if(abs(VGAState.VATV-m_wBuff[0])>(VGAState.VATV))
+                  {
+                  
+                    m_wBuff[0] = m_pModeDescriptorPtr->cVBackPorch;
+                  }    
+                    if((VGAPosData[2] != m_wBuff[0])||(VGAPosData[3] != m_wBuff[1]))
+                    {
+                        RestartCount++;
+                      if(RestartCount<10)
+                      goto RESTART;
+                      else
+                      return 0;
+                    }
+                    else
+                      return 1;
+                }
+                else
+                {  
+                  m_wVRes = m_wBuff[1] - m_wBuff[0] + 1;
+                  VPosAutoAdj();  
+                  VGAPosData[2] = m_wBuff[0];
+                  VGAPosData[3] = m_wBuff[1];     
+                }
+                DBG_PRINT("m_wVRes =  %d\r\n",m_wVRes);
+                VGAState.AdjHATV = m_wHRes; 
+                VGAState.AdjVATV = m_wVRes; 
+                return 1;   
+              }
+              #endif
+ 643          bit AutoPhaseAdj(void)
+ 644          { 
+ 645   1        uWORD MaxTrackValue, MinTarckValue, TrackValue;
+ 646   1        uCHAR MaxTrackAddre, MinTrackAddre;
+ 647   1        uCHAR i, PhSetTemp, ADCDetTemp, CountTemp;
+ 648   1        
+ 649   1        //~ Find Max and Min phase ~//
+ 650   1        MaxTrackValue=0x0000;
+ 651   1        MinTarckValue=0xFFFF;
+ 652   1        PhSetTemp = IC_ReadByte(TWIC_P0, 0x20)&0x07;
+ 653   1        ADCDetTemp = IC_ReadByte(TWIC_P0, 0x21)&0x7F;
+ 654   1      
+ 655   1        //~ Find Max. and Min. phase tracking. ~//
+ 656   1        for(i=0; i<32; i+=2)
+ 657   1        {
+ 658   2          //~ Set pahse ~//
+ 659   2          IC_WritByte(TWIC_P0, 0x20,(PhSetTemp|(i<<3)));
+ 660   2          CountTemp = 255;
+ 661   2          //~ Enable phase tracking. ~//
+ 662   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp|0x80);
+ 663   2          /*if((I2CReadByte(TW803_P0, 0x21)&0x80)==0)
+ 664   2          {
+ 665   2              CountTemp =20;
+ 666   2          } */
+ 667   2          while(CountTemp)
+ 668   2          {
+ 669   3            if(IC_ReadByte(TWIC_P0, 0x21)&0x80) 
+ 670   3              break;
+ 671   3            else{ 
+ 672   4          /*    TrackValue = TrackValue*1000;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 12  
+
+ 673   4              TrackValue = TrackValue/1000;  */
+ 674   4              CountTemp--;
+ 675   4              twdDelay(50);
+ 676   4            }
+ 677   3          }
+ 678   2          TrackValue = IC_ReadByte(TWIC_P0, 0x23) | (IC_ReadByte(TWIC_P0, 0x24)<<8);
+ 679   2          //~ Disable phase tracking. ~//
+ 680   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp&0x7F);
+ 681   2      
+ 682   2          if(TrackValue>MaxTrackValue)
+ 683   2          {
+ 684   3            MaxTrackValue = TrackValue;
+ 685   3            MaxTrackAddre = i;
+ 686   3          }
+ 687   2          if(TrackValue<MinTarckValue)
+ 688   2          {
+ 689   3            MinTarckValue = TrackValue;
+ 690   3            MinTrackAddre = i;
+ 691   3          }  
+ 692   2        }
+ 693   1      
+ 694   1        //~ Define evaluation range. ~//
+ 695   1        if(MaxTrackAddre>MinTrackAddre)
+ 696   1        {
+ 697   2          if((MaxTrackAddre + 6) > 31 )
+ 698   2          {
+ 699   3            m_cBuff[1] = 31;
+ 700   3          }
+ 701   2          else
+ 702   2          {
+ 703   3            m_cBuff[1] = MaxTrackAddre + 6;
+ 704   3          }
+ 705   2          if(MaxTrackAddre<6)
+ 706   2          {
+ 707   3            m_cBuff[0] = 0;
+ 708   3          }
+ 709   2          else
+ 710   2          {
+ 711   3            m_cBuff[0] = MaxTrackAddre - 6;
+ 712   3          }
+ 713   2          }
+ 714   1        else
+ 715   1        {
+ 716   2          if((MaxTrackAddre + 6) > 31 )
+ 717   2          {
+ 718   3            m_cBuff[1] = 31;
+ 719   3          }
+ 720   2          else
+ 721   2          {
+ 722   3            m_cBuff[1] = MaxTrackAddre + 6;
+ 723   3          }
+ 724   2          if(MaxTrackAddre<6)
+ 725   2          {
+ 726   3            m_cBuff[0] = 0;
+ 727   3          }
+ 728   2          else
+ 729   2          {
+ 730   3            m_cBuff[0] = MaxTrackAddre - 6;
+ 731   3          }
+ 732   2        }
+ 733   1      
+ 734   1        //~ Find Min. Delta ~//
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 13  
+
+ 735   1        MaxTrackValue = 0xFFFF;
+ 736   1        MaxTrackAddre = 0;
+ 737   1        if(m_cBuff[0]==0) m_cBuff[0] += 1;
+ 738   1        if(m_cBuff[1]==31) m_cBuff[1] -= 1;
+ 739   1        for(i=m_cBuff[0]; i<m_cBuff[1]; i++)
+ 740   1        {
+ 741   2          //~ Set pahse 1 ~//
+ 742   2          
+ 743   2          IC_WritByte(TWIC_P0, 0x20,(PhSetTemp|((i-1)<<3)));
+ 744   2          CountTemp = 255;
+ 745   2          //~ Enable phase tracking. ~//
+ 746   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp|0x80);
+ 747   2          while(CountTemp)
+ 748   2          {
+ 749   3            if(IC_ReadByte(TWIC_P0, 0x21)&0x80) 
+ 750   3              break;
+ 751   3            else
+ 752   3            {
+ 753   4              twdDelay(50);
+ 754   4              CountTemp--;
+ 755   4            }
+ 756   3          }
+ 757   2          m_wBuff[0] = IC_ReadByte(TWIC_P0, 0x23) | (IC_ReadByte(TWIC_P0, 0x24)<<8);
+ 758   2          //~ Disable phase tracking. ~//
+ 759   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp&0x7F);    
+ 760   2          //~ Set pahse 2 ~//
+ 761   2          IC_WritByte(TWIC_P0, 0x20, (PhSetTemp|((i)<<3)));
+ 762   2          CountTemp = 255;
+ 763   2          //~ Enable phase tracking. ~//
+ 764   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp|0x80);
+ 765   2          while(CountTemp)
+ 766   2          {
+ 767   3            if(IC_ReadByte(TWIC_P0, 0x21)&0x80) 
+ 768   3              break;
+ 769   3            else 
+ 770   3            {
+ 771   4              twdDelay(50);
+ 772   4              CountTemp--;
+ 773   4            }
+ 774   3          }
+ 775   2          m_wBuff[1] = IC_ReadByte(TWIC_P0, 0x23) | (IC_ReadByte(TWIC_P0, 0x24)<<8);  
+ 776   2          //~ Disable phase tracking. ~//
+ 777   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp&0x7F);
+ 778   2          //~ Set pahse 3 ~//
+ 779   2          IC_WritByte(TWIC_P0, 0x20,(PhSetTemp|((i+1)<<3)));
+ 780   2          CountTemp = 255;
+ 781   2          //~ Enable phase tracking. ~//
+ 782   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp|0x80);
+ 783   2          while(CountTemp)
+ 784   2          {
+ 785   3            if(IC_ReadByte(TWIC_P0, 0x21)&0x80)   //
+ 786   3              break;
+ 787   3            else {
+ 788   4              twdDelay(50);
+ 789   4              CountTemp--;
+ 790   4            }
+ 791   3          }
+ 792   2          m_wBuff[2] = IC_ReadByte(TWIC_P0, 0x23) | (IC_ReadByte(TWIC_P0, 0x24)<<8);
+ 793   2          //~ Disable phase tracking. ~//
+ 794   2          IC_WritByte(TWIC_P0, 0x21, ADCDetTemp&0x7F);
+ 795   2          MinTarckValue = (abs(m_wBuff[1]-m_wBuff[0]) + abs(m_wBuff[2]-m_wBuff[1]))>>1;
+ 796   2          if(MinTarckValue<MaxTrackValue)
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 14  
+
+ 797   2          {
+ 798   3            MaxTrackValue = MinTarckValue;
+ 799   3            MaxTrackAddre = i;
+ 800   3          }
+ 801   2        }
+ 802   1      
+ 803   1        //~ Set phase ~//
+ 804   1        IC_WritByte(TWIC_P0, 0x20,(PhSetTemp|((MaxTrackAddre)<<3)));
+ 805   1        
+ 806   1        return 1;   
+ 807   1      }
+ 808          
+ 809          
+ 810          bit SrcVGAProcess(uCHAR *std,uCHAR autoadj)
+ 811          { 
+ 812   1        if(!ModeDetect(std))
+ 813   1          return 0; 
+ 814   1        SetupMode();   
+ 815   1        
+ 816   1      #if 0
+                if(AutoPositionAdj(0)==0) 
+                {
+                  DBG_PRINT("AutoPositionAdj failed \r\n");
+                  return 0;   
+                }
+              #endif  
+ 823   1        ACal_output_timing(); 
+ 824   1        Boundary_det_count = 0;
+ 825   1        DBG_PRINT("Open panel\r\n");
+ 826   1        if(autoadj)
+ 827   1          AutoPhaseAdj(); 
+ 828   1        IC_WritByte(TWIC_P6, 0x12, 0x3f);
+ 829   1        return 1;
+ 830   1      }
+ 831          
+ 832          void HPosAutoAdj(void)
+ 833          {
+ 834   1        if(abs(m_pResolutionPtr->wHRes-m_wHRes)>(m_pResolutionPtr->wHRes*0.2))
+ 835   1        {
+ 836   2          //~ Difference is too large, so following the mode table. ~//
+ 837   2          m_wHRes=m_pResolutionPtr->wHRes;
+ 838   2          IC_WritByte(TWIC_P0, 0x48, (uCHAR)m_wHRes);
+ 839   2          IC_WritByte(TWIC_P0, 0x49, (uCHAR)(m_wHRes>>8));
+ 840   2        }
+ 841   1        else
+ 842   1        {
+ 843   2          //~ Reset ADC Capture HSize 0x48, 0x49 ~//
+ 844   2          IC_WritByte(TWIC_P0, 0x48, (uCHAR)m_wHRes);
+ 845   2          IC_WritByte(TWIC_P0, 0x49, (uCHAR)(m_wHRes>>8));
+ 846   2        }
+ 847   1        //~ Fill in the HSync Start Point by the register POS_LB. ~//
+ 848   1      
+ 849   1        if(abs(m_pModeDescriptorPtr->wHBackPorch-m_wBuff[0])>(m_pModeDescriptorPtr->wHBackPorch))
+ 850   1        {
+ 851   2          IC_WritByte(TWIC_P0, 0x4C, (uCHAR)m_pModeDescriptorPtr->wHBackPorch);
+ 852   2          IC_WritByte(TWIC_P0, 0x4D, (uCHAR)(m_pModeDescriptorPtr->wHBackPorch>>8));
+ 853   2          m_wBuff[0] = m_pModeDescriptorPtr->wHBackPorch;
+ 854   2        }
+ 855   1        else
+ 856   1        {
+ 857   2          IC_WritByte(TWIC_P0, 0x4C, (uCHAR)m_wBuff[0]);
+ 858   2          IC_WritByte(TWIC_P0, 0x4D, (uCHAR)(m_wBuff[0]>>8));
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 15  
+
+ 859   2        }
+ 860   1      
+ 861   1      }
+ 862          
+ 863          void VPosAutoAdj()
+ 864          {
+ 865   1        if(abs(m_pResolutionPtr->wVRes-m_wVRes)>(m_pResolutionPtr->wVRes*0.2))
+ 866   1        {
+ 867   2          //~ Difference is too large, so following the mode table. ~//
+ 868   2          m_wVRes=m_pResolutionPtr->wVRes;
+ 869   2          IC_WritByte(TWIC_P0, 0x4A, (uCHAR)m_wVRes);
+ 870   2          IC_WritByte(TWIC_P0, 0x4B, (uCHAR)(m_wVRes>>8));
+ 871   2        }
+ 872   1        else
+ 873   1        {
+ 874   2          //~ Reset ADC Capture VSize 0x4A, 0x4B ~//
+ 875   2          IC_WritByte(TWIC_P0, 0x4A, (uCHAR)m_wVRes);
+ 876   2          IC_WritByte(TWIC_P0, 0x4B, (uCHAR)(m_wVRes>>8));
+ 877   2        }
+ 878   1        //~ Fill in the VSync Start Point by the register POS_LB. ~//  
+ 879   1        if(abs(m_pModeDescriptorPtr->cVBackPorch-m_wBuff[0])>(m_pModeDescriptorPtr->cVBackPorch))
+ 880   1        {
+ 881   2          IC_WritByte(TWIC_P0, 0x4E, (uCHAR)m_pModeDescriptorPtr->cVBackPorch);
+ 882   2          IC_WritByte(TWIC_P0, 0x4F, (uCHAR)(m_pModeDescriptorPtr->cVBackPorch>>8));
+ 883   2          m_wBuff[0] = m_pModeDescriptorPtr->cVBackPorch;
+ 884   2        }
+ 885   1        else
+ 886   1        {
+ 887   2          IC_WritByte(TWIC_P0, 0x4E, (uCHAR)m_wBuff[0]);
+ 888   2          IC_WritByte(TWIC_P0, 0x4F, (uCHAR)(m_wBuff[0]>>8));
+ 889   2        }
+ 890   1      }
+ 891          unsigned char VGA_res_change_check(void)
+ 892          {
+ 893   1        unsigned int val;
+ 894   1        unsigned long FrmXclk;
+ 895   1      
+ 896   1        FrmXclk = IC_ReadByte(TWIC_P0,0x53);
+ 897   1        FrmXclk = FrmXclk << 8;
+ 898   1        FrmXclk = FrmXclk | IC_ReadByte(TWIC_P0,0x52);
+ 899   1        FrmXclk = FrmXclk << 8;
+ 900   1        FrmXclk = FrmXclk | IC_ReadByte(TWIC_P0,0x51);
+ 901   1      
+ 902   1        val = IC_ReadByte(TWIC_P0,0x59);
+ 903   1        val = val <<8;
+ 904   1        val = val | IC_ReadByte(TWIC_P0,0x58);
+ 905   1      #ifdef DEBUGMSG1  
+                DBG_PRINT("-->h val=%d\n",(int)val/32);
+                DBG_PRINT("-->HSYNC_PW=%d\n",(int)HSYNC_PW/32);
+              #endif
+ 909   1        if (abs((val-HSYNC_PW)/32) >= 10)
+ 910   1          return 1;
+ 911   1        
+ 912   1        val = FrmXclk*32/val;
+ 913   1      #ifdef DEBUGMSG1
+                DBG_PRINT("-->v val=%d\n",(int)val);
+                DBG_PRINT("-->VSYNC_PW=%d\n",(int)VSYNC_PW);
+              #endif
+ 917   1        if (abs(val-VSYNC_PW) >= 12)
+ 918   1          return 1;
+ 919   1        
+ 920   1        return 0;
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 16  
+
+ 921   1      }
+ 922          
+ 923          void ACal_output_timing(void)
+ 924          {
+ 925   1        unsigned long FrmXclk;
+ 926   1        unsigned long VBi_Xclk;
+ 927   1        unsigned int h_size;
+ 928   1        unsigned int v_size;
+ 929   1        unsigned int DWVSZ;
+ 930   1        unsigned int DWVS;
+ 931   1        unsigned int DWHSZ;
+ 932   1        unsigned int DWHS;
+ 933   1        unsigned int PH_TOT;
+ 934   1        unsigned int PV_TOT;
+ 935   1        unsigned char PLLDIV_F;
+ 936   1        unsigned char PLLDIV_I;
+ 937   1        unsigned char PLLDIV_O;
+ 938   1        unsigned int PV_PW;
+ 939   1        unsigned int PH_PW;
+ 940   1        unsigned int LBprfl;
+ 941   1        unsigned int N; 
+ 942   1        unsigned long val;
+ 943   1        unsigned int scalling_v;
+ 944   1        unsigned int scalling_h;
+ 945   1        float Tpll;
+ 946   1        unsigned long XTALI;
+ 947   1        float hz;
+ 948   1        float Thi; 
+ 949   1        float val_d;
+ 950   1        float v_i_tot;
+ 951   1        float f;
+ 952   1        float val_f;
+ 953   1        float Temp;
+ 954   1        unsigned int i;
+ 955   1        
+ 956   1        XTALI = 27000000;
+ 957   1        DWVSZ = IC_ReadByte(TWIC_P0,0xB7);
+ 958   1        DWVSZ = DWVSZ << 8;
+ 959   1        DWVSZ = DWVSZ | IC_ReadByte(TWIC_P0,0xB6);
+ 960   1      #ifdef VGA_DBG  
+                DBG_PRINT("DWVSZ=%d\n",(int)DWVSZ);
+              #endif  
+ 963   1        DWHSZ = IC_ReadByte(TWIC_P0,0xB5);
+ 964   1        DWHSZ = DWHSZ << 8;
+ 965   1        DWHSZ = DWHSZ | IC_ReadByte(TWIC_P0,0xB4);
+ 966   1      #ifdef VGA_DBG
+                DBG_PRINT("DWHSZ=%d\n",(int)DWHSZ);
+              #endif
+ 969   1      
+ 970   1        /* get parameter from reg. */
+ 971   1        VBi_Xclk = IC_ReadByte(TWIC_P0,0x83); 
+ 972   1        VBi_Xclk = VBi_Xclk << 8;
+ 973   1        VBi_Xclk = VBi_Xclk | IC_ReadByte(TWIC_P0,0x82);  
+ 974   1        VBi_Xclk = VBi_Xclk << 8;
+ 975   1        VBi_Xclk = VBi_Xclk | IC_ReadByte(TWIC_P0,0x81);
+ 976   1        //DBG_PRINT("VBi_Xclk=%x h\n",(int)VBi_Xclk);
+ 977   1        
+ 978   1        PH_PW = IC_ReadByte(TWIC_P0,0xBD);
+ 979   1        PH_PW = PH_PW << 8;
+ 980   1        PH_PW = PH_PW | IC_ReadByte(TWIC_P0,0xBC);
+ 981   1      #ifdef VGA_DBG  
+                DBG_PRINT("PH_PW=%d\n",(int)PH_PW);
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 17  
+
+              #endif
+ 984   1      
+ 985   1        PV_PW = IC_ReadByte(TWIC_P0,0xBF);
+ 986   1        PV_PW = PV_PW << 8;
+ 987   1        PV_PW = PV_PW | IC_ReadByte(TWIC_P0,0xBE);
+ 988   1      #ifdef VGA_DBG  
+                DBG_PRINT("PV_PW=%d\n",(int)PV_PW);
+              #endif
+ 991   1      
+ 992   1        h_size = IC_ReadByte(TWIC_P0,0x55);
+ 993   1        h_size = h_size << 8;
+ 994   1        h_size = h_size | IC_ReadByte(TWIC_P0,0x54);
+ 995   1      #ifdef VGA_DBG  
+                DBG_PRINT("h_size=%d\n",(int)h_size);
+              #endif
+ 998   1      
+ 999   1        v_size = IC_ReadByte(TWIC_P0,0x57);
+1000   1        v_size = v_size << 8;
+1001   1        v_size = v_size | IC_ReadByte(TWIC_P0,0x56);
+1002   1      #ifdef VGA_DBG  
+                DBG_PRINT("v_size=%d\n",(int)v_size);
+              #endif
+1005   1      
+1006   1        FrmXclk = IC_ReadByte(TWIC_P0,0x53);
+1007   1        FrmXclk = FrmXclk << 8;
+1008   1        FrmXclk = FrmXclk | IC_ReadByte(TWIC_P0,0x52);
+1009   1        FrmXclk = FrmXclk << 8;
+1010   1        FrmXclk = FrmXclk | IC_ReadByte(TWIC_P0,0x51);
+1011   1      #ifdef VGA_DBG
+                DBG_PRINT("FrmXclk=%x h\n",(int)FrmXclk);
+              #endif
+1014   1      
+1015   1        HSYNC_PW = IC_ReadByte(TWIC_P0,0x59);
+1016   1        HSYNC_PW = HSYNC_PW << 8;
+1017   1        HSYNC_PW = HSYNC_PW | IC_ReadByte(TWIC_P0,0x58);
+1018   1      #ifdef VGA_DBG
+                DBG_PRINT("HSYNC_PW=%x h\n",(int)HSYNC_PW);
+              #endif
+1021   1      
+1022   1        PLLDIV_F= IC_ReadByte(TWIC_P0,0xC8)&0x7F;
+1023   1        PLLDIV_I= IC_ReadByte(TWIC_P0,0xC9)&0x1F;
+1024   1        PLLDIV_O= IC_ReadByte(TWIC_P0,0xCA)&0x03;
+1025   1      #ifdef VGA_DBG
+                DBG_PRINT("PLLDIV_F=%x h\n",(int)PLLDIV_F);
+                DBG_PRINT("PLLDIV_I=%x h\n",(int)PLLDIV_I);
+                DBG_PRINT("PLLDIV_O=%x h\n",(int)PLLDIV_O);
+              #endif  
+1030   1        
+1031   1        /* SET SCALLING (P0_72~P0_75)*/ 
+1032   1        scalling_h = ((unsigned long)h_size*0x2000)/(unsigned long)DWHSZ;
+1033   1        if ((h_size/2) > DWHSZ)
+1034   1        {
+1035   2      #ifdef VGA_DBG  
+                  DBG_PRINT("H INPUT DIV2\n");
+              #endif
+1038   2          IC_WritByte(TWIC_P0,0x78,IC_ReadByte(TWIC_P0,0x78)|0x80);
+1039   2          scalling_h=scalling_h/2;
+1040   2        }
+1041   1        else
+1042   1          IC_WritByte(TWIC_P0,0x78,IC_ReadByte(TWIC_P0,0x78)&0x7F);
+1043   1      #ifdef VGA_DBG
+                DBG_PRINT("scalling_h=%d\n",(int)scalling_h);
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 18  
+
+              #endif
+1046   1        IC_WritByte(TWIC_P0,0x72,scalling_h&0xff);
+1047   1        IC_WritByte(TWIC_P0,0x73,(scalling_h >> 8));
+1048   1      
+1049   1        
+1050   1        scalling_v = ((unsigned long)v_size*0x2000)/(unsigned long)DWVSZ;
+1051   1        if ((v_size/2) > DWVSZ)
+1052   1        {
+1053   2      #ifdef VGA_DBG  
+                  DBG_PRINT("V INPUT DIV2\n");
+              #endif
+1056   2          IC_WritByte(TWIC_P0,0x70,IC_ReadByte(TWIC_P0,0x70)|0x08);
+1057   2          scalling_v=scalling_v/2;
+1058   2        }
+1059   1        else
+1060   1          IC_WritByte(TWIC_P0,0x70,IC_ReadByte(TWIC_P0,0x70)&0xF7);
+1061   1      #ifdef VGA_DBG
+                DBG_PRINT("scalling_v=%d\n",(int)scalling_v);
+              #endif
+1064   1        IC_WritByte(TWIC_P0,0x74,scalling_v&0xff);
+1065   1        IC_WritByte(TWIC_P0,0x75,(scalling_v >> 8));
+1066   1      
+1067   1        IC_WritByte(TWIC_P0,0x50,IC_ReadByte(TWIC_P0,0x50)|0x10);
+1068   1        for(i=0;i<10000;i++)
+1069   1        {
+1070   2          if (IC_ReadByte(TWIC_P0,0x50)&0x20)
+1071   2            break;
+1072   2          twdDelay(10);
+1073   2        }
+1074   1        
+1075   1        /* SET H TOTAL (P0_B8 P0_B9) */
+1076   1        hz = (float)XTALI/FrmXclk;
+1077   1      #ifdef VGA_DBG  
+                DBG_PRINT("hz=%f\n",(float)hz);
+              #endif
+1080   1        v_i_tot = (FrmXclk*32) / HSYNC_PW;
+1081   1        VSYNC_PW = v_i_tot+0.5;
+1082   1      #ifdef VGA_DBG
+                DBG_PRINT("HSYNC_PW=%d\n",(int)HSYNC_PW/32);
+                DBG_PRINT("VSYNC_PW=%d\n",(int)VSYNC_PW);
+                DBG_PRINT("v_i_tot=%f\n",v_i_tot);
+              #endif
+1087   1        Thi = (1/hz)/(VSYNC_PW);
+1088   1      #ifdef VGA_DBG
+                DBG_PRINT("Thi=%f\n",(float)Thi);
+              #endif
+1091   1        Tpll = 1/(((PLLDIV_F+2)/((PLLDIV_I+2)*(pow(2,(double)(PLLDIV_O+1)))))*XTALI);
+1092   1      #ifdef VGA_DBG
+                DBG_PRINT("TPLL=%d\n",(int)Tpll);
+              #endif
+1095   1        if (v_size ==  480 )      //fix for V detect not stable issue
+1096   1          PH_TOT = ((Thi * v_size)/ (Tpll * DWVSZ))+2;
+1097   1        else
+1098   1          PH_TOT = ((Thi * v_size)/ (Tpll * DWVSZ))+0.5;
+1099   1      #ifdef VGA_DBG
+                DBG_PRINT("PH_TOT=%x h\n",(int)PH_TOT);
+              #endif
+1102   1      
+1103   1        IC_WritByte(TWIC_P0,0xB8,PH_TOT&0xff);
+1104   1        IC_WritByte(TWIC_P0,0xB9,(PH_TOT >> 8));
+1105   1      
+1106   1        /* SET V BACK PORCH (P0_B2, P0_B3)  */
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 19  
+
+1107   1        val = VBi_Xclk * (PLLDIV_F+2);
+1108   1      #ifdef VGA_DBG
+                DBG_PRINT("BP step1 val=%lx h\n",val);
+              #endif
+1111   1        val_f = (float)val / ((PLLDIV_I+2) * pow(2,(double)(PLLDIV_O+1)) );
+1112   1      #ifdef VGA_DBG
+                DBG_PRINT("BP step2 val=%f\n",val_f);
+              #endif
+1115   1        val_f = val_f / PH_TOT;
+1116   1      #ifdef VGA_DBG
+                DBG_PRINT("BP setp3 val=%f\n",val_f);
+              #endif
+1119   1        N = (int)val_f-1;
+1120   1        f = val_f - N;
+1121   1        DWVS = N - PV_PW;
+1122   1      #ifdef VGA_DBG  
+                DBG_PRINT("N=%d\n",(int)N);
+                DBG_PRINT("f=%f\n",f);
+                DBG_PRINT("DWVS=%d\n",(int)DWVS);
+              #endif  
+1127   1        IC_WritByte(TWIC_P0,0xB2,(DWVS&0xff));
+1128   1        IC_WritByte(TWIC_P0,0xB3,(DWVS >> 8));
+1129   1      
+1130   1        /* SET H BACK PORCH (P0_B0, P0_B1) */
+1131   1        DWHS = (PH_TOT - PH_PW - DWHSZ)/2;
+1132   1      #ifdef VGA_DBG  
+                DBG_PRINT("DWHS=%d\n",(int)DWHS);
+              #endif
+1135   1      
+1136   1        IC_WritByte(TWIC_P0,0xB0,DWHS&0xff);
+1137   1        IC_WritByte(TWIC_P0,0xB1,(DWHS >> 8));
+1138   1      
+1139   1        /* SET LINE BUFFER PREFILL (P0_84, P0_85) */
+1140   1        if (v_size >= 1024 )
+1141   1          val_d = ((3.5 * (1/hz))/(VSYNC_PW));
+1142   1        else if (v_size <= 800)
+1143   1          val_d = ((2.2 * (1/hz))/(VSYNC_PW));
+1144   1        else
+1145   1          val_d = ((2.5 * (1/hz))/(VSYNC_PW));
+1146   1        val_d = val_d*XTALI + (f * PH_TOT * ((PLLDIV_I+2) * pow(2,(double)(PLLDIV_O+1)) ) / (PLLDIV_F+2));
+1147   1        LBprfl = (int)(val_d+0.5);
+1148   1      #ifdef VGA_DBG  
+                DBG_PRINT("val_d=%f h\n",val_d);
+                DBG_PRINT("LBprfl=%x h\n",(int)LBprfl);
+              #endif
+1152   1      
+1153   1        IC_WritByte(TWIC_P0,0x84,LBprfl&0xff);
+1154   1        IC_WritByte(TWIC_P0,0x85,(LBprfl >> 8));
+1155   1      
+1156   1        /* SET V TOTAL (P0_BA, P0_BB) */
+1157   1        PV_TOT = (((unsigned long)PLLDIV_F+2) * XTALI) / (hz * PH_TOT * (PLLDIV_I+2)* pow(2,(double)(PLLDIV_O+1))
+             -);
+1158   1      #ifdef VGA_DBG
+                DBG_PRINT("PV_TOT=%x h\n",(int)PV_TOT);
+              #endif
+1161   1      
+1162   1        IC_WritByte(TWIC_P0,0xBA,PV_TOT&0xff);
+1163   1        IC_WritByte(TWIC_P0,0xBB,(PV_TOT >> 8));
+1164   1      
+1165   1        /* SET CLK FASTER (P0_70) */
+1166   1        Temp = 27000000.0*m_pModeDescriptorPtr->wHTotal/((float)HSYNC_PW/32);
+1167   1        if(Temp>(((float)(IC_ReadByte(TWIC_P0, 0xc8)+2)/(DPLL_DIV_I+2)/DRDIV)*27000000.0))
+C51 COMPILER V9.00   VGADETECT                                                             09/18/2015 14:54:42 PAGE 20  
+
+1168   1          IC_WritByte(TWIC_P0, 0x70, IC_ReadByte(TWIC_P0, 0x70)|0x10);
+1169   1        else
+1170   1          IC_WritByte(TWIC_P0, 0x70, IC_ReadByte(TWIC_P0, 0x70)&0xEF);
+1171   1      
+1172   1      }
+1173          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   9371    ----
+   CONSTANT SIZE    =    477    ----
+   XDATA SIZE       =     91     138
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

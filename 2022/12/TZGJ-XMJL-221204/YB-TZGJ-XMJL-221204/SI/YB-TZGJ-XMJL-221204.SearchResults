@@ -1,0 +1,6 @@
+---- DIS_PEIDIANHE_MENU Matches (5 in 3 files) ----
+Display.c (g:\workspace32\yb-tzgj-xmjl-221204\source):        ChangeToSubPage (DIS_PEIDIANHE_MENU, flag);
+Display.c (g:\workspace32\yb-tzgj-xmjl-221204\source):    return DIS_PEIDIANHE_MENU;
+Display.c (g:\workspace32\yb-tzgj-xmjl-221204\source):    AddMenu(Menu_PEIDIANHE, DIS_PEIDIANHE_MENU);//3 可行驶里程和功率
+Display.h (g:\workspace32\yb-tzgj-xmjl-221204\source):    DIS_PEIDIANHE_MENU,	
+Displayhelper.c (g:\workspace32\yb-tzgj-xmjl-221204\source):		 case DIS_PEIDIANHE_MENU:

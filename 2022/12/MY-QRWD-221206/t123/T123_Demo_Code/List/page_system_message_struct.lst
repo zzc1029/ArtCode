@@ -1,0 +1,38 @@
+C51 COMPILER V9.00   PAGE_SYSTEM_MESSAGE_STRUCT                                            08/14/2015 08:54:54 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_SYSTEM_MESSAGE_STRUCT
+OBJECT MODULE PLACED IN .\Object\page_system_message_struct.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE i51\page_system_message_struct.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\
+                    -tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_system_message_struct.lst) TABS(2)
+                    - OBJECT(.\Object\page_system_message_struct.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "page_system_message.h"
+   5          
+   6          struct tw_td code main_system_message = {
+   7              ID_MAIN_SYSTEM_MESSAGE, 0, 0, 800, 480
+   8          };
+   9          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

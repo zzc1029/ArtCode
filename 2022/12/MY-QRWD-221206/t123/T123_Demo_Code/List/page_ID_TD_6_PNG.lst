@@ -1,0 +1,152 @@
+C51 COMPILER V9.00   PAGE_ID_TD_6_PNG                                                      08/05/2014 10:20:07 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_ID_TD_6_PNG
+OBJECT MODULE PLACED IN .\Object\page_ID_TD_6_PNG.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SourceFile\page_ID_TD_6_PNG.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_
+                    -lib\sys;..\tw_lib\drivers) DEFINE(T123AI) DEBUG PRINT(.\List\page_ID_TD_6_PNG.lst) OBJECT(.\Object\page_ID_TD_6_PNG.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "spiosd.h"
+   4          #include "osd2api.h"
+   5          #include "keypad.h"
+   6          #include "touch.h"
+   7          #include "ir.h"
+   8          #include "res.h"
+   9          #include "page_ID_TD_1_PNG.h"
+  10          #include "page_ID_TD_2_PNG.h"
+  11          #include "page_ID_TD_3_PNG.h"
+  12          #include "page_ID_TD_4_PNG.h"
+  13          #include "page_ID_TD_5_PNG.h"
+  14          #include "page_ID_TD_6_PNG.h"
+  15          #include "page_ID_TD_7_PNG.h"
+  16          #include "page_ID_TD_8_PNG.h"
+  17          #include "page_ID_TD_9_PNG.h"
+  18          
+  19          extern void slide2page_event(unsigned char cur, unsigned char target);
+  20          extern void touch_slide_check(TW_EVENT* event);
+  21          extern void fade_inout_event(unsigned char ch);
+  22          
+  23          unsigned char page_ID_TD_6_PNG_process (TW_EVENT* event)
+  24          {
+  25   1              switch(event->type)
+  26   1              {
+  27   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  28   2                              dbg(2, (">>>>> Enter Page6 Page\n\r"));
+  29   2      
+  30   2                              /* todo: Write Your Code Here */
+  31   2                              tw_slide_init();
+  32   2      
+  33   2                              if(event->page.mode!=PAGE_EVENT_SLIDE) {
+  34   3                                      ir_clear();
+  35   3                                      touch_clear();
+  36   3                                      //tw_td_draw(&td_6_png);
+  37   3                                      //tw_img_force_alpha(1);        // for fade-in effect
+  38   3                                      //sosd_enable(DONT_LOAD);
+  39   3                                      tw_load_emu(ID_5039);           // fade-in emulation                            
+  40   3                                      tw_wait_emu_done();
+  41   3                              }
+  42   2                              tw_spr_draw(&spr_icons_e_effect_png);
+  43   2                              sosd_sp_enable(LOAD_LUT);
+  44   2                              tw_menu_draw(&osd2_5060_menu);  // draw OSD2
+  45   2                              osd_enable();
+  46   2                              tw_load_emu(ID_EMU_5074);       // animation effect
+  47   2      
+  48   2                      break;
+  49   2      
+  50   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  51   2                              dbg(2, (">>>>> QUIT Page6 Page\n\r"));
+  52   2      
+  53   2                              /* todo: Write Your Code Here */
+  54   2                              if(event->page.mode!=PAGE_EVENT_SLIDE) {
+C51 COMPILER V9.00   PAGE_ID_TD_6_PNG                                                      08/05/2014 10:20:07 PAGE 2   
+
+  55   3                                      tw_emu_exit();
+  56   3                                      osd_disable();
+  57   3                                      sosd_sp_disable();
+  58   3                                      tw_load_emu(ID_5040);   // fade-out emulation
+  59   3                                      tw_wait_emu_done();
+  60   3                                      sosd_disable();
+  61   3                              }
+  62   2      
+  63   2                      break;
+  64   2      
+  65   2                      case TW_EVENT_TYPE_IR_DOWN:
+  66   2                              dbg(2, (">>>>>> IR Down Event\n\r"));
+  67   2                              dbg(2, ("ircode = 0x%bx\n\r", event->ircode.ch));
+  68   2      
+  69   2                              switch(event->ircode.ch) {
+  70   3                                      case IR_LEFT_CODE:
+  71   3                                                                                              
+  72   3                                              break;
+  73   3                                      case IR_RIGHT_CODE:
+  74   3                                              tw_emu_exit();
+  75   3                                              osd_disable();
+  76   3                                              sosd_sp_disable();
+  77   3                                              tw_load_emu(ID_5037);
+  78   3                                              tw_wait_emu_done();
+  79   3                                              put_quit_slide_page_event(PAGE_ID_TD_6_PNG);
+  80   3                                              put_enter_slide_page_event(PAGE_ID_TD_5_PNG);                                           
+  81   3                                              break;
+  82   3                                      case IR_UP_CODE:
+  83   3                                              tw_emu_exit();
+  84   3                                              osd_disable();
+  85   3                                              sosd_sp_disable();
+  86   3                                              tw_load_emu(ID_5038);
+  87   3                                              tw_wait_emu_done();
+  88   3                                              put_quit_slide_page_event(PAGE_ID_TD_6_PNG);
+  89   3                                              put_enter_slide_page_event(PAGE_ID_TD_9_PNG);
+  90   3      
+  91   3                                              break;
+  92   3                                      case IR_DOWN_CODE:
+  93   3                                              tw_emu_exit();
+  94   3                                              osd_disable();
+  95   3                                              sosd_sp_disable();
+  96   3                                              tw_load_emu(ID_5036);
+  97   3                                              tw_wait_emu_done();
+  98   3                                              put_quit_slide_page_event(PAGE_ID_TD_6_PNG);
+  99   3                                              put_enter_slide_page_event(PAGE_ID_TD_3_PNG);
+ 100   3                                              break;
+ 101   3                                      default:
+ 102   3                                              fade_inout_event(event->ircode.ch);
+ 103   3                                              break;
+ 104   3                              }
+ 105   2                              break;
+ 106   2      
+ 107   2                      case TW_EVENT_TYPE_TOUCH_DOWN:
+ 108   2                      case TW_EVENT_TYPE_TOUCH_RELEASE:
+ 109   2                      case TW_EVENT_TYPE_TOUCH_MOTION:
+ 110   2                              touch_slide_check(event);
+ 111   2                              break;
+ 112   2      
+ 113   2                      default:        /* put to nodify if no process this event */
+ 114   2                              return TW_RETURN_NO_PROCESS;
+ 115   2                              break;
+ 116   2      
+C51 COMPILER V9.00   PAGE_ID_TD_6_PNG                                                      08/05/2014 10:20:07 PAGE 3   
+
+ 117   2      
+ 118   2              }
+ 119   1              return TW_RETURN_NONE;
+ 120   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    343    ----
+   CONSTANT SIZE    =    126    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

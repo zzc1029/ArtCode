@@ -1,0 +1,5 @@
+---- 0x18FFA898 Matches (4 in 2 files) ----
+Canreceive.c (driver):	0x18FFA898,
+System.c (source):	0x18FFA898,
+System.c (source):	TIP_0XAB  = TestBits(CanData[ID(0x18FFA898)][0],0,2,2);
+System.c (source):	TIP_0XAC  = (CanData[ID(0x18FFA898)][1] == 0X01);

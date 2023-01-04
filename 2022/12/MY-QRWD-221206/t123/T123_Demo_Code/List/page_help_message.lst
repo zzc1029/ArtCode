@@ -1,0 +1,76 @@
+C51 COMPILER V9.00   PAGE_HELP_MESSAGE                                                     12/13/2022 09:00:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_HELP_MESSAGE
+OBJECT MODULE PLACED IN .\Object\page_help_message.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE Source\page_help_message.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;
+                    -..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_help_message.lst) OBJECT(.\Obje
+                    -ct\page_help_message.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_help_message.h"
+   9          #include "display.h"
+  10          #include "mydrivers.h"
+  11          
+  12          unsigned char page_help_message_process (TW_EVENT* event)
+  13          {
+  14   1              switch(event->type)
+  15   1              {
+  16   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  17   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  18   2                              tw_td_draw(&main_help_message);
+  19   2                              sosd_td_enable();
+  20   2                              sosd_enable(DONT_LOAD);
+  21   2                              if(LIGHT_EN)
+  22   2                              {
+  23   3                                      LIGHT_EN = 0;
+  24   3                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  25   3                              }
+  26   2                              clear_unalarm_area();
+  27   2      
+  28   2                              /* todo: Write Your Code Here */
+  29   2      
+  30   2                      break;
+  31   2      
+  32   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  33   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  34   2      
+  35   2                              /* todo: Write Your Code Here */
+  36   2      
+  37   2                      break;
+  38   2      
+  39   2                      default:        /* put to nodify if no process this event */
+  40   2                              return TW_RETURN_NO_PROCESS;
+  41   2      
+  42   2      
+  43   2              }
+  44   1              return TW_RETURN_NONE;
+  45   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     68    ----
+   CONSTANT SIZE    =     81    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+C51 COMPILER V9.00   PAGE_HELP_MESSAGE                                                     12/13/2022 09:00:41 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

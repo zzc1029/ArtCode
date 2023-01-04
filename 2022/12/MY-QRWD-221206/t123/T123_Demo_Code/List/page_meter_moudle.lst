@@ -1,0 +1,104 @@
+C51 COMPILER V9.00   PAGE_METER_MOUDLE                                                     12/13/2022 09:00:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_METER_MOUDLE
+OBJECT MODULE PLACED IN .\Object\page_meter_moudle.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE Source\page_meter_moudle.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;
+                    -..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_meter_moudle.lst) OBJECT(.\Obje
+                    -ct\page_meter_moudle.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_meter_moudle.h"
+   9          #include "display.h"
+  10          #include "uart.h"
+  11          #include "mydrivers.h"
+  12          #include "disp_config.h"
+  13          
+  14          unsigned char page_meter_moudle_process (TW_EVENT* event)
+  15          {
+  16   1              switch(event->type)
+  17   1              {
+  18   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  19   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  20   2                              tw_td_draw(&main_meter_moudle);
+  21   2                              sosd_td_enable();
+  22   2                              sosd_enable(DONT_LOAD);
+  23   2                              clear_unalarm_area();
+  24   2                              if(LIGHT_EN)
+  25   2                              {
+  26   3                                      LIGHT_EN = 0;
+  27   3                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  28   3                              }
+  29   2                              display_meter_status();
+  30   2                              #if METER_C50
+                                      displayu16(43,11,meter_para_A2,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,12,meter_para_A3,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,13,meter_para_A4,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,14,meter_para_A5,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,15,meter_para_A13,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,16,meter_para_A14,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      #endif
+  38   2                              #if METER_C61
+                                      displayu16(43,6,meter_para_A2,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,7,meter_para_A3,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,8,meter_para_A4,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,9,meter_para_A5,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      displayu16(43,10,meter_para_A13,5,0,GREEN,FULLSPACE,FONT_SMALL);
+                                      #endif
+  45   2                              #if METER_C52
+  46   2                              displayu16 (43, 10, meter_para_A2, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  47   2                              displayu16 (43, 11, meter_para_A3, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  48   2                              displayu16 (43, 12, meter_para_A4, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  49   2                              displayu8  (27, 17, meter_para_K, 2, 0, GREEN, FULLSPACE, FONT_SMALL);//逻辑版本
+  50   2                              displayu8  (37, 17, meter_para_T, 2, 0, GREEN, FULLSPACE, FONT_SMALL);//显示版本
+  51   2                              displayu16 (43, 13, meter_para_A5, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  52   2                              displayu16 (43, 14, meter_para_A13, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  53   2                              displayu16 (43, 15, meter_para_A14, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+C51 COMPILER V9.00   PAGE_METER_MOUDLE                                                     12/13/2022 09:00:41 PAGE 2   
+
+  54   2                              displayu16 (43, 16, meter_para_A15, 5, 0, GREEN, FULLSPACE, FONT_SMALL);
+  55   2                              #endif
+  56   2                              /* todo: Write Your Code Here */
+  57   2      
+  58   2                      break;
+  59   2      
+  60   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  61   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  62   2      
+  63   2                              /* todo: Write Your Code Here */
+  64   2      
+  65   2                      break;
+  66   2      
+  67   2                      default:        /* put to nodify if no process this event */
+  68   2                              return TW_RETURN_NO_PROCESS;
+  69   2      
+  70   2      
+  71   2              }
+  72   1              return TW_RETURN_NONE;
+  73   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    366    ----
+   CONSTANT SIZE    =     81    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,4 @@
+---- 0x18EBFF00 Matches (3 in 1 files) ----
+Canreceive.c (source):	0x18EBFF00,//发动机故障多报文
+Canreceive.c (source):		case 0x18EBFF00:
+Canreceive.c (source):		case 0x18EBFF00:

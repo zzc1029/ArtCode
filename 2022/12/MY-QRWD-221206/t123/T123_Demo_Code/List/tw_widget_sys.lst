@@ -1,0 +1,2826 @@
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TW_WIDGET_SYS
+OBJECT MODULE PLACED IN .\Object\tw_widget_sys.obj
+COMPILER INVOKED BY: F:\¹¤×÷Èí¼þ\Keil\C51\BIN\C51.EXE ..\tw_lib\sys\tw_widget_sys.c LARGE OMF2 BROWSE INCDIR(.\IncludeFi
+                    -le;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\tw_widget_sys.lst) OBJECT(.\Objec
+                    -t\tw_widget_sys.obj)
+
+line level    source
+
+   1          /**
+   2           *  @file   tw_widget_sys.c
+   3           *  @brief  terawins UI widget system
+   4           *  $Id: tw_widget_sys.c,v 1.51 2013/11/21 10:46:44 onejoe Exp $
+   5           *  $Author: onejoe $
+   6           *  $Revision: 1.51 $
+   7           *
+   8           *  Copyright (c) 2011 Terawins Inc. All rights reserved.
+   9           *
+  10           *  @date   2011/09/15  ken     New file.
+  11           *
+  12           */
+  13          
+  14          #include "tw_widget_sys.h"
+  15          #include "sys.h"
+  16          #include "spiosd.h"
+  17          #include "osd2api.h"
+  18          #include "spirw.h"
+  19          #include "iccontrol.h"
+  20          #include "rc.h"
+  21          #include "reg_tw.h"
+  22          
+  23          /* DEBUG MODE SETTING */
+  24          //#define TW_WG_DEBUG_MODE
+  25          
+  26          /* Status variable 
+  27           *              CUR_PAGE_ID             current of page ID
+  28           *              CUR_MENU_P              current of OSD2 menu of struct
+  29           *              CUR_MENU_RES    current of OSD2 menu of resource
+  30           *              CUR_TOF_RES             current of TOF  of resource
+  31           *              CUR_BK_ID               current of Background (IMG/TWBC) of ID
+  32           *              CUR_SPR_ID          current of Sprite of ID
+  33           *              CUR_ICONSET_NUM current of ICON SET of number
+  34           *      CUR_2BP_IDX     current of OSD2 2BP start index
+  35           */
+  36          unsigned char CUR_PAGE_ID=0xFF;
+  37          struct tw_menu* CUR_MENU_P;
+  38          struct res_menu_t CUR_MENU_RES;  
+  39          struct res_tof_t CUR_TOF_RES;
+  40          static unsigned short CUR_BK_ID= 0xFFFF;
+  41          static unsigned short CUR_SPR_ID= 0xFFFF; 
+  42          static unsigned short CUR_2BP_IDX _at_ 0x00A8;     //add for 2bp twfont, use _at_ preempt important memory
+             -.
+  43          static unsigned char CUR_ICONSET_NUM= 0;
+  44          static unsigned short menu_string_start_index = 0;
+  45          
+  46          #ifndef NO_SUPPORT_1BP_ROM_FONT
+  47          static unsigned char SUPPORT_1BP_ROM= 0;
+  48          #endif
+  49          
+  50          extern unsigned char tw_page_handler(unsigned char id, TW_EVENT* event);
+  51          
+  52          /*
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 2   
+
+  53           * Synopsis     unsigned char region_check(TW_EVENT* event, 
+  54           *                                                                                      unsigned int x,
+  55           *                                                                                      unsigned int y,
+  56           *                                                                                      unsigned int w,
+  57           *                                                                                      unsigned int h,
+  58           *                                                                                      unsigned char type);
+  59           * Description  check touch location whether in region.                                 ´_ÕJÓ|ÅöücÊÇ·ñÎ»ì¶ÔO¶¨…^Óò
+  60           * Parameters   event   - event (touch event) of tw widget system               ?ÃæÏµ½yÖ®ÊÂ¼þ
+  61           *                              x               - x of coordinate of region                                             xÝS×ù˜Ë
+  62           *              y               - y of coordinate of region                                             yÝS×ù˜Ë
+  63           *              w               - width of region                                                               …^Óò?¶È 
+  64           *              h               - height of region                                                              …^Óò¸ß¶È
+  65           *              type    - 1: image/twbc, 2: sprite, 3: OSD2
+  66           * Return       1 for in region.
+  67           */
+  68          unsigned char region_check(TW_EVENT* event, unsigned int x, unsigned int y, unsigned int w, unsigned int h
+             -, unsigned char type)
+  69          {
+  70   1          char ret = 0;
+  71   1      
+  72   1              if(type==TW_UI_TYPE_OSD2) {
+  73   2                      x=x*CUR_MENU_P->font_w; y=y*CUR_MENU_P->font_h; w=w*CUR_MENU_P->font_w; h=h*CUR_MENU_P->font_h;
+  74   2              }               
+  75   1      
+  76   1          dbg(3, ("x=[%u] y=[%u] w=[%u] h=[%u]!\n", x, y, w, h));
+  77   1      
+  78   1          if((event->type==TW_EVENT_TYPE_TOUCH_DOWN)||(event->type==TW_EVENT_TYPE_TOUCH_RELEASE)||(event->type==
+             -TW_EVENT_TYPE_TOUCH_MOTION)||(event->type==TW_EVENT_TYPE_TOUCH_REPEAT))
+  79   1              if((event->touch_panel.x > x) && (event->touch_panel.x < x+w) && (event->touch_panel.y > y) && (ev
+             -ent->touch_panel.y < y+h)) {
+  80   2                  dbg(3, ("in region!\n"));
+  81   2                  ret = 1;
+  82   2              }
+  83   1      
+  84   1          return ret;
+  85   1      }
+  86          
+  87          /*
+  88           * Synopsis     void next_iconset(void);
+  89           * Description  change to next icon set. (multi-language)       ÇÐ“QÖÁÏÂÒ»½MˆD˜Ë(¶à‡øÕZÑÔ)
+  90           * Parameters   none
+  91           * Return       none
+  92           * NOTE         max of icon set is 8
+  93           */
+  94          void next_iconset(void)
+  95          {
+  96   1              CUR_ICONSET_NUM++;
+  97   1              if(CUR_ICONSET_NUM>8)
+  98   1                      CUR_ICONSET_NUM= 1;     
+  99   1              dbg(3, ("CUR_ICONSET_NUM= %bu!\n\r", CUR_ICONSET_NUM));
+ 100   1      }
+ 101          
+ 102          /*
+ 103           * Synopsis     void set_iconset_num(unsigned char num);
+ 104           * Description  setting number of icon set. (multi-language)    ÔO¶¨ï@Ê¾ˆD˜Ë½M„e(¶à‡øÕZÑÔ)
+ 105           * Parameters   num     - number of icon set            ˆD˜Ë½M??
+ 106           * Return       none
+ 107           * NOTE         max of icon set is 8
+ 108           */
+ 109          void set_iconset_num(unsigned char num)
+ 110          {
+ 111   1              CUR_ICONSET_NUM= num;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 3   
+
+ 112   1              if(CUR_ICONSET_NUM>8)
+ 113   1                      CUR_ICONSET_NUM= 1;     
+ 114   1              dbg(3, ("CUR_ICONSET_NUM= %bu!\n\r", CUR_ICONSET_NUM));
+ 115   1      }
+ 116          
+ 117          /*
+ 118           * Synopsis     unsigned char get_iconset_num(void);
+ 119           * Description  getting number of icon set. (multi-language)    ×xÈ¡ˆD˜Ë½M”µÁ¿(¶à‡øÕZÑÔ)
+ 120           * Parameters   none
+ 121           * Return       current of number of icon set
+ 122           * NOTE         max of icon set is 8
+ 123           */
+ 124          unsigned char get_iconset_num(void)
+ 125          {       
+ 126   1              dbg(3, ("CUR_ICONSET_NUM= %bu!\n\r", CUR_ICONSET_NUM));
+ 127   1              return CUR_ICONSET_NUM;
+ 128   1      }
+ 129          
+ 130          /*
+ 131           * Synopsis     void tw_load_oregs(unsigned short id);
+ 132           * Description  loading for OSD2 of registers table                             ×xÈ¡OSD2ÔO¶¨±í
+ 133           * Parameters   id      - OSD2 registers table of resource ID           ÔO¶¨±íÎï¼þID
+ 134           * Return       none
+ 135           * NOTE         OSD_31[0] as a use 1BP/ROM font of bit for firmware,
+ 136           *                              so pattern fill function is can't use 
+ 137           */
+ 138          void tw_load_oregs(unsigned short id)
+ 139          {
+ 140   1              char rc= 0;
+ 141   1              struct res_oreg_t oreg_s;
+ 142   1              
+ 143   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif
+ 146   1              
+ 147   1              get_res_oreg(id, &oreg_s);
+ 148   1              
+ 149   1              osd_wr_regs_tbl(oreg_s.base_addr, oreg_s.length);
+ 150   1      
+ 151   1              SUPPORT_1BP_ROM= 0;
+ 152   1      
+ 153   1      #ifndef NO_SUPPORT_1BP_ROM_FONT
+ 154   1              if(osd_cfg_read(OSD_PT_LUT_BASEADD)==0x01) {
+ 155   2                      SUPPORT_1BP_ROM= 1;
+ 156   2                      dbg(3, ("Support 1BP/ROM Font version!\n"));
+ 157   2              }
+ 158   1      #endif        
+ 159   1      }
+ 160          
+ 161          /*
+ 162           * Synopsis     void _tw_load_menu_at(unsigned short id, unsigned short addr);
+ 163           * Description  loading for OSD2 of MEMU data (advaced application)             ×xÈ¡OSD2 menuÙYÁÏ(ßMëAº¯Ê½)
+ 164           * Parameters   id              - OSD2 MENU data of resource ID                                 menuÎï¼þID
+ 165           *                              addr    - assingned a OSD2 RAM of base address                  oRAMµØÖ·
+ 166           * Return       none
+ 167           * NOTE         assingend a OSD2 RAM of base address for application,
+ 168           *                              ex. double buffer for OSD2 MENU swap 
+ 169           */
+ 170          #define DMA_MAX_LENGTH  0x2000 
+ 171          void _tw_load_menu_at(unsigned short id, unsigned short addr)
+ 172          {
+ 173   1              char rc= 0;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 4   
+
+ 174   1              unsigned char i=0, count=0;
+ 175   1              struct res_menu_t menu_s;
+ 176   1      
+ 177   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif
+ 180   1      
+ 181   1              get_res_menu(id, &menu_s);
+ 182   1      
+ 183   1              count = (menu_s.length/DMA_MAX_LENGTH);
+ 184   1      
+ 185   1      #ifdef TW_WG_DEBUG_MODE
+                      dbg(0, (">>>> MENU LENGTH %u !\n", menu_s.length));
+              #endif
+ 188   1      
+ 189   1          for(i=0; i< count; i++) {
+ 190   2                      spi_dma2oram((menu_s.base_addr+(i*DMA_MAX_LENGTH)), 
+ 191   2                                      (addr+(i*DMA_MAX_LENGTH/2)), 
+ 192   2                                      DMA_MAX_LENGTH);
+ 193   2      #ifdef TW_WG_DEBUG_MODE         
+                              dbg(0, ("spi_dma2oram(%08lX, %08X, %08X)\n", 
+                                              (menu_s.base_addr+(i*DMA_MAX_LENGTH)), 
+                                              (addr+(i*DMA_MAX_LENGTH/2)), 
+                                              DMA_MAX_LENGTH));
+              
+                              osd_oram_dump((addr+(i*DMA_MAX_LENGTH/2)), DMA_MAX_LENGTH/2);
+              #endif
+ 201   2              }
+ 202   1              if((menu_s.length%DMA_MAX_LENGTH)) {
+ 203   2                      spi_dma2oram((menu_s.base_addr+(i*DMA_MAX_LENGTH)), 
+ 204   2                                      (addr+(i*DMA_MAX_LENGTH/2)), 
+ 205   2                                      (menu_s.length%DMA_MAX_LENGTH));
+ 206   2      #ifdef TW_WG_DEBUG_MODE         
+                              dbg(0, ("spi_dma2oram(%08lX, %08X, %08X)\n", 
+                                              (menu_s.base_addr+(i*DMA_MAX_LENGTH)), 
+                                              (addr+(i*DMA_MAX_LENGTH/2)), 
+                                              (menu_s.length%DMA_MAX_LENGTH)));
+                              osd_oram_dump((addr+(i*DMA_MAX_LENGTH/2)), (menu_s.length%DMA_MAX_LENGTH)/2);
+              #endif  
+ 213   2              }
+ 214   1      
+ 215   1              /* setup to 2bp tof */
+ 216   1              CUR_2BP_IDX = osd_cfg_read(0x02) * 2;
+ 217   1      }
+ 218          
+ 219          /*
+ 220           * Synopsis     void tw_load_menu(struct tw_menu* pmenu);
+ 221           * Description  loading for OSD2 of MEMU data                           ×xÈ¡OSD2 menuÙYÁÏ
+ 222           * Parameters   pmenu   - point of OSD2 MENU of struct          menuÎï¼þÖ¸˜Ë
+ 223           * Return       none
+ 224           */
+ 225          void tw_load_menu(struct tw_menu* pmenu)
+ 226          {
+ 227   1              _tw_load_menu_at(pmenu->menuID, pmenu->addr);
+ 228   1      }
+ 229          
+ 230          /*
+ 231           * Synopsis     void tw_load_icon(unsigned short id, unsigned short *oaddr);
+ 232           * Description  loading for OSD2 of ICON(Fonts) data                    ×xÈ¡osd2 icon(×ÖÐÍ)ÙYÁÏ
+ 233           * Parameters   id              - OSD2 MENU data of resource ID                 iconÎï¼þÖ¸˜Ë            
+ 234           *                              *oaddr  - point of OSD2 base address (load after add a size of ICON)
+ 235           * Return       none
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 5   
+
+ 236           */
+ 237          void tw_load_icon(unsigned short id, unsigned short *oaddr)
+ 238          {
+ 239   1              char rc= 0;
+ 240   1              unsigned char i= 0;
+ 241   1              unsigned short count= 0;
+ 242   1              struct res_icon_t icon_s;
+ 243   1      
+ 244   1              if(id == 0xFFFF)
+ 245   1                      return;
+ 246   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif
+ 249   1      
+ 250   1              get_res_icon(id, &icon_s);
+ 251   1      
+ 252   1              count = (icon_s.font_h*icon_s.font_w/((8/icon_s.bp)));
+ 253   1              if(count%2) 
+ 254   1                      count++;         
+ 255   1              count*= icon_s.count;  
+ 256   1              count = (count/DMA_MAX_LENGTH);                                                  
+ 257   1      
+ 258   1          for(i=0; i< count; i++) {
+ 259   2                      (*oaddr)+= (i==0?0:(DMA_MAX_LENGTH/2));
+ 260   2                      spi_dma2oram((icon_s.base_addr+(i*DMA_MAX_LENGTH)), 
+ 261   2                                      (*oaddr), 
+ 262   2                                      DMA_MAX_LENGTH);
+ 263   2      #ifdef TW_WG_DEBUG_MODE         
+                              dbg(0, ("spi_dma2oram(%08lX, %08X, %08X)\n", 
+                                              (icon_s.base_addr+(i*DMA_MAX_LENGTH)), 
+                                              (*oaddr), 
+                                              DMA_MAX_LENGTH));
+                              osd_oram_dump((*oaddr), DMA_MAX_LENGTH/2);
+              #endif
+ 270   2              }
+ 271   1              //count = ((icon_s.count*icon_s.font_h*icon_s.font_w)/((8/icon_s.bp)));
+ 272   1              count = (icon_s.font_h*icon_s.font_w/((8/icon_s.bp)));
+ 273   1              if(count%2) 
+ 274   1                      count++;         
+ 275   1              count*= icon_s.count;  
+ 276   1      
+ 277   1              if((count%DMA_MAX_LENGTH)) {
+ 278   2                      (*oaddr)+= (i==0?0:(DMA_MAX_LENGTH/2));
+ 279   2                      spi_dma2oram((icon_s.base_addr+(i*DMA_MAX_LENGTH)), 
+ 280   2                                      (*oaddr), 
+ 281   2                                      (count%DMA_MAX_LENGTH));
+ 282   2                      
+ 283   2      #ifdef TW_WG_DEBUG_MODE         
+                              dbg(0, ("spi_dma2oram(%08lX, %08X, %08X)\n", 
+                                              (icon_s.base_addr+(i*DMA_MAX_LENGTH)), 
+                                              (*oaddr), 
+                                              (count%DMA_MAX_LENGTH)));
+                              osd_oram_dump((*oaddr), (count%DMA_MAX_LENGTH)/2);
+              #endif
+ 290   2                      (*oaddr)+= ((count%DMA_MAX_LENGTH)/2);
+ 291   2              }
+ 292   1      }
+ 293          
+ 294          /*
+ 295           * Synopsis     void _tw_load_tiles_at(unsigned short id, unsigned short oram_addr);
+ 296           * Description  loading for OSD2 of tiles(ICONs) table (advaced application)    ×xÈ¡OSD2 tile±í(ßMëAº¯”µ)
+ 297           * Parameters   id                      - OSD2 tiles(ICONs) table of resource ID        tile±í ID
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 6   
+
+ 298           *                              oram_addr       - assingned a OSD2 RAM of base address          ORAM µØÖ·
+ 299           * Return       none
+ 300           * NOTE         assingend a OSD2 RAM of base address for application,
+ 301           *                              ex. double buffer for OSD2 ICON swap 
+ 302           */
+ 303          void _tw_load_tiles_at(unsigned short id, unsigned short oram_addr)
+ 304          {
+ 305   1              char rc= 0;
+ 306   1              unsigned char i= 0;
+ 307   1              unsigned short icon_id= 0;
+ 308   1              unsigned short tmp_addr= oram_addr;
+ 309   1              
+ 310   1              struct res_tile_t tile_s;
+ 311   1      
+ 312   1              if(id == 0xFFFF)
+ 313   1                      return;
+ 314   1      
+ 315   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif  
+ 318   1              
+ 319   1              get_res_tile(id, &tile_s);
+ 320   1              spi_dma2xram(tile_s.base_addr, (unsigned short)(&icon_id), sizeof(unsigned short));
+ 321   1              if(icon_id==0) {
+ 322   2                      //INFO(("This Cangeable Tables!\n\r"));
+ 323   2      
+ 324   2                      if((CUR_ICONSET_NUM>=tile_s.length)||(CUR_ICONSET_NUM<=0))
+ 325   2                              CUR_ICONSET_NUM= 1;
+ 326   2      
+ 327   2                      spi_dma2xram((tile_s.base_addr+(2*CUR_ICONSET_NUM)), (unsigned short)(&icon_id), sizeof(unsigned short))
+             -;
+ 328   2                      get_res_tile(icon_id, &tile_s);
+ 329   2              }
+ 330   1      
+ 331   1              for(i=0; i<tile_s.length; i++) {
+ 332   2                      spi_dma2xram((tile_s.base_addr+(i*2)), (unsigned short)(&icon_id), sizeof(unsigned short));             
+ 333   2                      tw_load_icon(icon_id, &tmp_addr);               
+ 334   2              }       
+ 335   1      }
+ 336          
+ 337          /**
+ 338           * @func    find_ch_icon
+ 339           * @brief   icon ID of mapping function with ICONSET (changeable).
+ 340           * @param   id          dynamic of icon ID
+ 341           *                      tilesID icon ID belongs to the this menu of tiles ID 
+ 342           * @return  0 if not changeable menu or other errors
+ 343           */
+ 344          unsigned short find_ch_icon(unsigned short id, unsigned short tilesID)
+ 345          {
+ 346   1              char rc= 0;
+ 347   1              unsigned char i= 0;
+ 348   1              unsigned short icon_id= 0;      
+ 349   1              unsigned long tmp_addr= 0;      
+ 350   1              struct res_tile_t tile_s;
+ 351   1      
+ 352   1              if(id == 0xFFFF)
+ 353   1                      return 0;       
+ 354   1              
+ 355   1              /* get menu of tiles structure with tiles ID */
+ 356   1              get_res_tile(tilesID, &tile_s);
+ 357   1              /* get table of first icon ID with base address */
+ 358   1              spi_dma2xram(tile_s.base_addr, (unsigned short)(&icon_id), sizeof(unsigned short));
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 7   
+
+ 359   1      
+ 360   1              if(icon_id==0) {        // this change table if icon ID is '0'
+ 361   2      
+ 362   2                      /* check current of ICONSET */
+ 363   2                      if((CUR_ICONSET_NUM>=tile_s.length)||(CUR_ICONSET_NUM<=1)) {
+ 364   3                              CUR_ICONSET_NUM= 1;
+ 365   3                              return id;      // default ICON SET if '1' or unknow
+ 366   3                      }
+ 367   2                      
+ 368   2                      /* get changeable of defalut table of tiles structure */
+ 369   2                      spi_dma2xram(tile_s.base_addr+2, (unsigned short)(&icon_id), sizeof(unsigned short));
+ 370   2                      tmp_addr = tile_s.base_addr;
+ 371   2                      get_res_tile(icon_id, &tile_s);
+ 372   2      
+ 373   2                      /* search icon ID of order in default table */
+ 374   2                      for(i=0; i<tile_s.length; i++) {
+ 375   3                              spi_dma2xram((tile_s.base_addr+(i*2)), (unsigned short)(&icon_id), sizeof(unsigned short));             
+ 376   3                              if(id == icon_id)
+ 377   3                                      break;          // find 
+ 378   3                      }
+ 379   2      
+ 380   2                      if(i >= tile_s.length) {
+ 381   3                              ERROR(("can't find chageable of icon id!\n"));
+ 382   3                              return 0;
+ 383   3                      }
+ 384   2      
+ 385   2                      /* get current ICON SET of tiles structure */
+ 386   2                      spi_dma2xram((tmp_addr+(2*CUR_ICONSET_NUM)), (unsigned short)(&icon_id), sizeof(unsigned short));
+ 387   2                      get_res_tile(icon_id, &tile_s);
+ 388   2      
+ 389   2                      /* get mapping of icon ID */
+ 390   2                      spi_dma2xram((tile_s.base_addr+(i*2)), (unsigned short)(&icon_id), sizeof(unsigned short));
+ 391   2                      return icon_id;
+ 392   2      
+ 393   2              } else {
+ 394   2                      ERROR(("this menu not has chageable fucntion!\n"));
+ 395   2                      return 0;       
+ 396   2              }       
+ 397   1      }
+ 398          
+ 399          /*
+ 400           * Synopsis     void tw_load_tiles(unsigned short id);
+ 401           * Description  loading for OSD2 of tiles(ICONs) table                  ×xÈ¡OSD2 tile±í
+ 402           * Parameters   id      - OSD2 tiles(ICONs) table of resource ID        tile±í ID
+ 403           * Return       none
+ 404           * NOTE         default ICON(Font) of start address is 0 for firmware
+ 405           */
+ 406          void tw_load_tiles(unsigned short id)
+ 407          {
+ 408   1              _tw_load_tiles_at(id, 0);
+ 409   1      }
+ 410          
+ 411          /*
+ 412           * Synopsis     void tw_load_luts(unsigned short id);
+ 413           * Description  loading for OSD2 of LUT table                   ×xÈ¡OSD2 lut±í
+ 414           * Parameters   id      - OSD2 LUT table of resource ID         lut±í ID
+ 415           * Return       none
+ 416           * NOTE         include are Main LUT, 2BP remap LUT, BG remap LUT
+ 417           */
+ 418          void tw_load_luts(unsigned short id)
+ 419          {
+ 420   1              char rc= 0;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 8   
+
+ 421   1              struct res_lut_t lut_s; 
+ 422   1              
+ 423   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif
+ 426   1      
+ 427   1              get_res_lut(id, &lut_s);
+ 428   1      
+ 429   1              osd_wr_lut_tbl(lut_s.lut_addr, (lut_s.main_len*4));     
+ 430   1              osd_wr_2bp_lut_tbl((lut_s.lut_addr+(lut_s.main_len*4)), (lut_s.re_2bp_len*1));  
+ 431   1              osd_wr_bg_lut_tbl((lut_s.lut_addr+(lut_s.main_len*4)+(lut_s.re_2bp_len*1)), (lut_s.re_bg_len*1));
+ 432   1              
+ 433   1      }
+ 434          
+ 435          /*
+ 436           * Synopsis     void tw_img_draw(struct tw_img* pimg);
+ 437           * Description  setting registers for show image (SPIOSD)       ÔO¶¨imgï@Ê¾ËùÐè•º´æÆ÷
+ 438           * Parameters   pimg    - point of image of struct                      imgÎï¼þÖ¸˜Ë
+ 439           * Return       none
+ 440           * NOTE         this function just setting registers,
+ 441           *                              if SPIOSD of status is disable, 
+ 442           *                              need change to enable (sosd_enable)
+ 443           */
+ 444          void tw_img_draw(struct tw_img* pimg)
+ 445          {
+ 446   1              char rc= 0;
+ 447   1              struct res_img_t img_s;
+ 448   1              
+ 449   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(pimg->imgID);
+              #endif
+ 452   1              
+ 453   1              get_res_img(pimg->imgID, &img_s);
+ 454   1              
+ 455   1              _sosd_pLUT_addr(img_s.lut_addr);
+ 456   1          _sosd_img_addr(img_s.index_addr);
+ 457   1          _sosd_img_ls(img_s.line_jump);
+ 458   1          _sosd_img_window(pimg->width, pimg->height);
+ 459   1              _sosd_img_loca(pimg->x, pimg->y);
+ 460   1      
+ 461   1              CUR_BK_ID = pimg->imgID;
+ 462   1      
+ 463   1      } 
+ 464          
+ 465          /*
+ 466           * Synopsis     void tw_spr_draw(struct tw_spr* pspr);
+ 467           * Description  setting registers for show sprite (SPIOSD)      ÔO¶¨sprï@Ê¾ËùÐè•º´æÆ÷
+ 468           * Parameters   pspr    - point of sprite of struct                     sprÎï¼þÖ¸˜Ë
+ 469           * Return       none
+ 470           * NOTE         this function just setting registers,
+ 471           *                              if SPIOSD-Sprite of status is disable, 
+ 472           *                              need change to enable (sosd_spr_enable)
+ 473           */
+ 474          void tw_spr_draw(struct tw_spr* pspr)
+ 475          {
+ 476   1              char rc= 0;
+ 477   1              struct res_spr_t spr_s;
+ 478   1              unsigned long tmpAddr= 0;
+ 479   1      
+ 480   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(pspr->sprID);
+              #endif
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 9   
+
+ 483   1                      
+ 484   1              get_res_spr(pspr->sprID, &spr_s);
+ 485   1      
+ 486   1          _sosd_sLUT_addr(spr_s.lut_addr);
+ 487   1              if(pspr->cnt<spr_s.count) {
+ 488   2                      tmpAddr = pspr->width*pspr->height;
+ 489   2                      tmpAddr *= pspr->cnt;
+ 490   2                      tmpAddr += spr_s.index_addr;
+ 491   2              } else if(pspr->cnt>spr_s.count) {
+ 492   2                      tmpAddr = (spr_s.index_addr);
+ 493   2                      ERROR(("Sprite count is outrange!\n"));
+ 494   2              } else {
+ 495   2                      tmpAddr = (spr_s.index_addr);
+ 496   2              }                                               
+ 497   1          _sosd_spr_addr(tmpAddr);
+ 498   1              _sosd_spr_ls(spr_s.line_jump);
+ 499   1          _sosd_spr_window(pspr->width, pspr->height);
+ 500   1              _sosd_spr_loca(pspr->x, pspr->y); 
+ 501   1              
+ 502   1              CUR_SPR_ID = pspr->sprID;  
+ 503   1      
+ 504   1      }
+ 505          
+ 506          /*
+ 507           * Synopsis     void tw_get_spr_idx(unsigned short id, unsigned long *addr);
+ 508           * Description  getting base address of sprite (SPIOSD)         ×xÈ¡sprÎï¼þµØÖ·
+ 509           * Parameters   id              - SPIOSD-Sprite of resource ID          sprÎï¼þID
+ 510           *                              *addr   - result was save in this point         sprÎï¼þµØÖ·(Ö¸˜Ë)
+ 511           * Return       none
+ 512           */
+ 513          void tw_get_spr_idx(unsigned short id, unsigned long *addr)
+ 514          {
+ 515   1              struct res_spr_t spr_s;
+ 516   1                      
+ 517   1              get_res_spr(id, &spr_s);
+ 518   1      
+ 519   1              *addr = spr_s.index_addr;
+ 520   1      }
+ 521          
+ 522          /*
+ 523           * Synopsis     void tw_spr_action(struct tw_spr* pspr);
+ 524           * Description  change a sprite. (animation)                    ÇÐ“Qï@Ê¾sprite
+ 525           * Parameters   pspr    - point of sprite of struct             spriteÎï¼þÖ¸˜Ë
+ 526           * Return       none
+ 527           * NOTE                 maybe some Sprite of LUT is same
+ 528           */
+ 529          void tw_spr_action(struct tw_spr* pspr)
+ 530          {       
+ 531   1              unsigned short id = CUR_SPR_ID;
+ 532   1              
+ 533   1              tw_spr_draw(pspr);
+ 534   1      
+ 535   1              if(pspr->sprID == id)
+ 536   1                      sosd_sp_enable(DONT_LOAD);
+ 537   1              else
+ 538   1                      sosd_sp_enable(LOAD_LUT);
+ 539   1      }
+ 540          
+ 541          /*
+ 542           * Synopsis     void tw_td_draw(struct tw_td* ptd);
+ 543           * Description  setting registers for show twbc (SPIOSD)        ÔO¶¨TD•º´æÆ÷
+ 544           * Parameters   ptd     - point of twbc of struct                               TDÎï¼þÖ¸˜Ë
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 10  
+
+ 545           * Return       none
+ 546           * NOTE         this function just setting registers,                           ¨Ô¨è¨É¨×¨É¨Ì!
+ 547           *                              if SPIOSD and SPIOSD-TD of status is disable, 
+ 548           *                              need change to enable (sosd_td_enable, sosd_enable)
+ 549           */
+ 550          void tw_td_draw(struct tw_td* ptd)
+ 551          {
+ 552   1              char rc= 0;
+ 553   1              struct res_td_t td_s;
+ 554   1              
+ 555   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(ptd->tdID);
+              #endif
+ 558   1              
+ 559   1              get_res_td(ptd->tdID, &td_s);
+ 560   1              
+ 561   1              _sosd_tdc_addr(td_s.color_addr);
+ 562   1          _sosd_img_addr(td_s.index_addr);
+ 563   1          _sosd_td_ls(td_s.line_jump);
+ 564   1              _sosd_tdc_h_size(td_s.line_jump);
+ 565   1          _sosd_td_window(ptd->width, ptd->height);
+ 566   1              _sosd_td_loca(ptd->x, ptd->y);
+ 567   1              _sosd_td_spilt_mode_en();
+ 568   1      
+ 569   1              CUR_BK_ID = ptd->tdID;
+ 570   1      
+ 571   1      }
+ 572          
+ 573          /*
+ 574           * Synopsis     static void tw_fixed_menu2(void);
+ 575           * Description  avoided incorrect of display when OSD2 MENU-2 no assigned a space       
+ 576           * Parameters   none
+ 577           * Return       none
+ 578           * NOTE         assigned 2 words space in last RAM for OSD2 MENU-2 
+ 579           */
+ 580          static void tw_fixed_menu2(void)
+ 581          {
+ 582   1              osd_set_ram_addr(0x3FFE);
+ 583   1              osd_set_ram_data(0x0801);
+ 584   1              osd_set_ram_data(0x0000);       // 0 char
+ 585   1      }
+ 586          
+ 587          /*
+ 588           * Synopsis     void tw_menu_draw(struct tw_menu* pmenu);
+ 589           * Description  load OSD2 data for show OSD2                    ÝdÈëOSD2ÙYÁÏ
+ 590           * Parameters   *tw_menu        - point of OSD2 of struct       OSD2Îï¼þÖ¸˜Ë
+ 591           * Return       none
+ 592           * NOTE         this function just load OSD2 data to OSD RAM,
+ 593           *                              need disable OSD2 before, 
+ 594           *                              and change to enable (sosd_enable) when load finish
+ 595           */
+ 596          void tw_menu_draw(struct tw_menu* pmenu)
+ 597          {       
+ 598   1              CUR_MENU_P = pmenu;
+ 599   1      
+ 600   1              get_res_menu(CUR_MENU_P->menuID, &CUR_MENU_RES);
+ 601   1              if(CUR_MENU_P->tofID != 0xffff)
+ 602   1                      get_res_tof(CUR_MENU_P->tofID, &CUR_TOF_RES);
+ 603   1      
+ 604   1          tw_load_oregs(pmenu->regsID);
+ 605   1              tw_load_luts(pmenu->lutsID);
+ 606   1          tw_load_tiles(pmenu->tilesID);
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 11  
+
+ 607   1          tw_load_menu(pmenu);
+ 608   1      
+ 609   1              if(osd_cfg_read(OSD_PT_LUT_BASEADD)==0x01)
+ 610   1                      tw_fixed_menu2();
+ 611   1      
+ 612   1              tw_menu_reset_index();
+ 613   1      }
+ 614          
+ 615          /*
+ 616           * Synopsis     unsigned char check_color_config(unsigned short index, 
+ 617           *                                                                                              unsigned char offset,
+ 618           *                                                                                              unsigned char color);
+ 619           * Description  check type of color index                                       ´_ÕJÉ«±P??Ö®?ÐÍ
+ 620           * Parameters   index   - font of start index of ICON           iconµÚÒ»?tileÖ®??
+ 621           *                              offset  - font of offset                                        iconì¶tile±íÖ®Æ«ÒÆÁ¿
+ 622           *                              color   - color index of ICON of struct         iconÉ«±P??
+ 623           * Return       color index (type of in RAM)                            iconÉ«±P??(¸ù“þbp”µ²»Í¬£¬ßMÐÐÆ«ÒÆ)
+ 624           * NOTE         1BP/ROM Font of color type is different,
+ 625           *                              check font of type by index and offset,
+ 626           *                              and change type of color index
+ 627           */
+ 628          #ifndef NO_SUPPORT_1BP_ROM_FONT
+ 629          unsigned char check_color_config(unsigned short index, unsigned char offset, unsigned char color)
+ 630          {
+ 631   1              unsigned short FONT_START= 0;
+ 632   1              unsigned char ccolor= 0;
+ 633   1      
+ 634   1              if(SUPPORT_1BP_ROM) {   
+ 635   2                      FONT_START= osd_cfg_read(OSD_CHAR2BP_FONT_INDEX);
+ 636   2                      if(FONT_START==0xFF)
+ 637   2                              FONT_START= osd_cfg_read(OSD_CHAR4BP_FONT_INDEX);
+ 638   2                      FONT_START <<= 1;
+ 639   2      
+ 640   2      #ifdef  VERSION_102
+                              if(index<0xFF)
+                                      index+= offset;
+                              else
+                                      index= offset;
+              #else
+ 646   2              /* add on version v1.04 */
+ 647   2              index+= offset;
+ 648   2      #endif                  
+ 649   2              
+ 650   2                      if(index<FONT_START) {
+ 651   3                              /* 1BP/ROM Font */
+ 652   3                              ccolor = color;//(color&0x0F)|((color&0xF0)<<1);
+ 653   3                      } else {
+ 654   3                              /* 2BP/4BP/8BP Font */
+ 655   3                              ccolor = (color&0x0F);
+ 656   3                      }
+ 657   2              } else {
+ 658   2                      /* 2BP/4BP/8BP Font */
+ 659   2                      ccolor = (color&0x0F);
+ 660   2              }
+ 661   1      
+ 662   1              return ccolor;
+ 663   1      }
+ 664          #endif
+ 665          
+ 666          /*
+ 667           * Synopsis     void _icon_draw_at(unsigned short index,
+ 668           *                                                                      unsigned char color,
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 12  
+
+ 669           *                                                                      unsigned char x,
+ 670           *                                                                      unsigned char y,
+ 671           *                                                                      unsigned char width,
+ 672           *                                                                      unsigned char height,
+ 673           *                                                                      unsigned short menu_addr,
+ 674           *                                                                      unsigned char menu_width,
+ 675           *                                                                      unsigned short offset,
+ 676           *                                                                      unsigned char blinking);
+ 677           * Description  writting ICON(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application) Œ¢i
+             -conÙNÉÏmenu(ßMëAº¯Ê½)
+ 678           * Parameters   index           - start font index of ICON                                                      iconÆðÊ¼tile??
+ 679           *                              color           - color index of ICON                                                           iconÉ«±P??
+ 680           *                              x                       - x of coordinate of OSD2-MENU (unit is font)           menu XÝSÎ»ÖÃ(tile)
+ 681           *              y                       - y of coordinate of OSD2-MENU (unit is font)           menu YÝSÎ»ÖÃ(tile)
+ 682           *              width           - width of ICON (unit is font)                                          icon ?¶È(tile)                                          
+ 683           *              height          - height of ICON (unit is font)                                         icon ¸ß¶È(tile)
+ 684           *              menu_addr       - base address of OSD2-MENU                                                     menu oramµØÖ·
+ 685           *              menu_width      - width of OSD2-MENU (unit is font)                                     menu ?¶È(tile)
+ 686           *                              offset          - font index of offset (for double buffer, etc.)        tile Æ«ÒÆÁ¿
+ 687           *                              blinking        - 0: none, 1: blinking                                                          éW q
+ 688           * Return       none
+ 689           * NOTE         OSD2-MENU of every ROW of char count need same
+ 690           */
+ 691          void _icon_draw_at(unsigned short index, unsigned char color, unsigned char x, unsigned char y, unsigned c
+             -har width, unsigned char height,
+ 692                           unsigned short menu_addr, unsigned char menu_width, unsigned short offset, unsigned char blinking)
+ 693          {
+ 694   1              unsigned char w,h = 0;
+ 695   1              unsigned short i = 0, temp = 0;
+ 696   1      
+ 697   1      #ifdef EX_I2C_SAFE_MODE
+ 698   1              IC_WRITBYTE(TWIC_P0, 0xF0, SLAVE_SAFE_ADDR);
+ 699   1      #endif
+ 700   1              i=0;
+ 701   1      
+ 702   1              color <<= 1;    // lut index[8:5]
+ 703   1              if(blinking)
+ 704   1                      color |= 0x20;
+ 705   1      
+ 706   1          for(h=0; h< height; h++) {
+ 707   2              if((y+h)<CUR_MENU_P->height){
+ 708   3                      osd_set_location_addr(x, y+h,  menu_addr, menu_width);
+ 709   3                      for(w=0; w< width; w++) {
+ 710   4                              temp = index+i+offset;
+ 711   4                              temp |= (color<<8);
+ 712   4                              if((x+w)<CUR_MENU_P->width)
+ 713   4                                      osd_set_ram_data(temp);
+ 714   4                              else
+ 715   4                                      break;
+ 716   4                              i++;
+ 717   4                      }
+ 718   3              }
+ 719   2          }
+ 720   1      #ifdef EX_I2C_SAFE_MODE 
+ 721   1              IC_WRITBYTE(TWIC_P0, 0xF0, SLAVE_WORK_ADDR);
+ 722   1      #endif
+ 723   1      }
+ 724          
+ 725          /*
+ 726           * Synopsis     void _tw_icon_draw_at(struct tw_icon* picon,
+ 727           *                                                                      unsigned short menu_addr,
+ 728           *                                                                      unsigned char menu_width,
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 13  
+
+ 729           *                                                                      unsigned short offset,
+ 730           *                                                                      unsigned char blinking);
+ 731           * Description  writting ICON(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application)  Œ¢i
+             -conÙNÉÏosd2 menu(ßMëAº¯Ê½)
+ 732           * Parameters   menu_addr       - base address of OSD2-MENU                                                     menu oram µØÖ·
+ 733           *              menu_width      - width of OSD2-MENU (unit is font)                                     menu ?¶È(tile)
+ 734           *                              offset          - font index of offset (for double buffer, etc.)        icon??ì¶tile±íÖÐÖ®Æ«ÒÆÁ¿
+ 735           *                              blinking        - 0: none, 1: blinking                                                          éW q
+ 736           * Return       none
+ 737           * NOTE         can assigned base address and width of OSD2-MENU
+ 738           *                              for advance application,
+ 739           *                              ex. double buffer
+ 740           */
+ 741          void _tw_icon_draw_at(struct tw_icon* picon, unsigned short menu_addr, unsigned char menu_width, unsigned 
+             -short offset, unsigned char blinking)
+ 742          {   
+ 743   1      #ifndef NO_SUPPORT_1BP_ROM_FONT
+ 744   1              unsigned char color= 0;
+ 745   1      
+ 746   1              color = check_color_config(picon->index, 0, picon->color);
+ 747   1      
+ 748   1              _icon_draw_at(picon->index, color, picon->x, picon->y, picon->width, picon->height, menu_addr, menu_width
+             -, offset, blinking);
+ 749   1      #else
+                      _icon_draw_at(picon->index, (picon->color&0x0F), picon->x, picon->y, picon->width, picon->height, menu_ad
+             -dr, menu_width, offset, blinking);    
+              #endif
+ 752   1      }
+ 753          
+ 754          /*
+ 755           * Synopsis     void _icon_draw(unsigned short index,
+ 756           *                                                                      unsigned char color,
+ 757           *                                                                      unsigned char x,
+ 758           *                                                                      unsigned char y,
+ 759           *                                                                      unsigned char width,
+ 760           *                                                                      unsigned char height,
+ 761           *                                                                      unsigned char blinking);
+ 762           * Description  writting ICON(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application)  Œ¢i
+             -conÙNÉÏosd2 menu(ßMëAº¯Ê½)    
+ 763           * Parameters   index           - start font index of ICON                                              icon ÆðÊ¼tile??
+ 764           *                              color           - color index of ICON                                                   icon É«±P??
+ 765           *                              x                       - x of coordinate of OSD2-MENU (unit is font)   xÝSÎ»ÖÃ(tile)
+ 766           *              y                       - y of coordinate of OSD2-MENU (unit is font)   yÝSÎ»ÖÃ(tile)
+ 767           *              width           - width of ICON (unit is font)                                  icon ?¶È(tile) 
+ 768           *              height          - height of ICON (unit is font)                                 icon ¸ß¶È(tile)
+ 769           *                              blinking        - 0: none, 1: blinking                                                  éW q
+ 770           * Return       none
+ 771           */
+ 772          void _icon_draw(unsigned short index, unsigned char color, unsigned char x, unsigned char y, unsigned char
+             - width, unsigned char height, unsigned char blinking)
+ 773          {
+ 774   1              _icon_draw_at(index, color, x, y, width, height, CUR_MENU_P->addr, CUR_MENU_P->width, 0, blinking);
+ 775   1      }
+ 776          
+ 777          /*
+ 778           * Synopsis     void tw_icon_color_change(struct tw_icon* picon,
+ 779           *                                                                              unsigned char color);
+ 780           * Description  change color index of ICON                                              ÇÐ“QiconÖ®É«±P??
+ 781           * Parameters   *tw_icon        - point of icon struct                          iconÎï¼þÖ¸˜Ë
+ 782           *                              color           - want to change of color index         Óû¸ü“QÖ®É«±P??
+ 783           * Return       none
+ 784           * NOTE         for 1BP/ROM Font
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 14  
+
+ 785           */
+ 786          void tw_icon_color_change(struct tw_icon* picon, unsigned char color)
+ 787          {
+ 788   1              _icon_draw_at(picon->index, color, picon->x, picon->y, picon->width, picon->height, CUR_MENU_P->addr, CUR
+             -_MENU_P->width, 0, 0);
+ 789   1      }
+ 790          
+ 791          /*
+ 792           * Synopsis     void tw_icon_1st_color(struct tw_icon* picon);
+ 793           * Description  change to 1st color of ICON                             ÇÐ“QÖÁµÚÒ»½MÉ«±P
+ 794           * Parameters   *tw_icon        - point of icon struct          iconÎï¼þÖ¸˜Ë
+ 795           * Return       none
+ 796           * NOTE         for 2BP/4BP Font
+ 797           */
+ 798          void tw_icon_1st_color(struct tw_icon* picon)
+ 799          {
+ 800   1              tw_icon_draw(picon);
+ 801   1      }
+ 802          
+ 803          /*
+ 804           * Synopsis     void tw_icon_2nd_color(struct tw_icon* picon);
+ 805           * Description  change to 2nd color of ICON                             ÇÐ“QÖÁµÚ¶þ½MÉ«±P
+ 806           * Parameters   *tw_icon        - point of icon struct          iconÎï¼þÖ¸˜Ë
+ 807           * Return       none
+ 808           * NOTE         for 2BP/4BP Font
+ 809           */
+ 810          void tw_icon_2nd_color(struct tw_icon* picon)
+ 811          {
+ 812   1              _icon_draw_at(picon->index, ((picon->color)>>4), picon->x, picon->y, picon->width, picon->height, CUR_MEN
+             -U_P->addr, CUR_MENU_P->width, 0, 0);
+ 813   1      }
+ 814          
+ 815          /*
+ 816           * Synopsis     void tw_icon_draw(struct tw_icon* picon);
+ 817           * Description  show ICON(OSD2)                                                 ï@Ê¾iconì¶menuÉÏ
+ 818           * Parameters   *tw_icon        - point of icon struct          iconÎï¼þÖ¸˜Ë
+ 819           * Return       none
+ 820           * NOTE         OSD2 need init and load data (tw_menu_draw) before the show ICON
+ 821           */
+ 822          void tw_icon_draw(struct tw_icon* picon)
+ 823          {   
+ 824   1      #ifndef NO_SUPPORT_1BP_ROM_FONT
+ 825   1              unsigned char color= 0;
+ 826   1      
+ 827   1              color = check_color_config(picon->index, 0, picon->color);
+ 828   1      
+ 829   1              _icon_draw(picon->index, color, picon->x, picon->y, picon->width, picon->height, 0);
+ 830   1      #else
+                      _icon_draw(picon->index, (picon->color&0x0F), picon->x, picon->y, picon->width, picon->height, 0);      
+              #endif
+ 833   1      }
+ 834          
+ 835          unsigned short check_gicon_id (unsigned short id)
+ 836          {
+ 837   1              unsigned char type = 0;
+ 838   1              unsigned short icon_id = 0;
+ 839   1              struct res_tile_t tile_s;
+ 840   1              
+ 841   1              type = rc_type(id);
+ 842   1              if(type == TYPE_TILE) {
+ 843   2              /* get current ICON SET of group ICON */
+ 844   2              dbg(2, ("Group ICON + Changeable!\n\r"));
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 15  
+
+ 845   2              get_res_tile(id, &tile_s);
+ 846   2              if((CUR_ICONSET_NUM>tile_s.length)||(CUR_ICONSET_NUM<=0))
+ 847   2                              CUR_ICONSET_NUM= 1;
+ 848   2                      spi_dma2xram((tile_s.base_addr+(2*(CUR_ICONSET_NUM-1))), (unsigned short)(&icon_id), sizeof(unsigned sho
+             -rt));            
+ 849   2          } else if(type == TYPE_ICON) {
+ 850   2              icon_id = id;
+ 851   2          } else {
+ 852   2              ERROR(("group icon of ID type is error!\n\r"));
+ 853   2              return NULL;    
+ 854   2          }
+ 855   1          
+ 856   1          return icon_id;
+ 857   1      }
+ 858          
+ 859          /*
+ 860           * Synopsis     void tw_gicon_draw(struct tw_gicon* pgicon);
+ 861           * Description  show ICON(OSD2)                                                 ï@Ê¾iconì¶menuÉÏ
+ 862           * Parameters   *tw_icon        - point of icon struct          iconÎï¼þÖ¸˜Ë
+ 863           * Return       none
+ 864           * NOTE         OSD2 need init and load data (tw_menu_draw) before the show ICON
+ 865           */
+ 866          void tw_gicon_draw(struct tw_gicon* pgicon)
+ 867          {
+ 868   1              unsigned short icon_id = 0;
+ 869   1              unsigned char color = 0;
+ 870   1              unsigned short tmp_addr = 0;
+ 871   1              
+ 872   1          icon_id = check_gicon_id(pgicon->gicon_id);
+ 873   1          if(!icon_id)
+ 874   1              return;
+ 875   1          
+ 876   1          tmp_addr = pgicon->oram_addr;
+ 877   1          /* dynamic load ICON to OSDRAM */
+ 878   1          tw_load_icon(icon_id, &tmp_addr);
+ 879   1      
+ 880   1              color = check_color_config(pgicon->index, 0, pgicon->color);
+ 881   1              _icon_draw(pgicon->index, color, pgicon->x, pgicon->y, pgicon->width, pgicon->height, 0);
+ 882   1      }
+ 883          
+ 884          /*
+ 885           * Synopsis     void _icons_draw_at(unsigned char *table,
+ 886           *                                                                      unsigned char color,
+ 887           *                                                                      unsigned char x,
+ 888           *                                                                      unsigned char y,
+ 889           *                                                                      unsigned char width,
+ 890           *                                                                      unsigned char height,
+ 891           *                                                                      unsigned short menu_addr,
+ 892           *                                                                      unsigned char menu_width,
+ 893           *                                                                      unsigned short offset,
+ 894           *                                                                      unsigned char blinking);
+ 895           * Description  writting ICONS(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application) Œ¢
+             -iconsÙNÉÏosd2 menu(ßMëAº¯Ê½)
+ 896           * Parameters   *table          - point of font index of table                                  icons index±íÖ¸˜Ë
+ 897           *                              color           - color index of ICON                                                   É«±P??
+ 898           *                              x                       - x of coordinate of OSD2-MENU (unit is font)   xÝSÎ»ÖÃ(tile)
+ 899           *              y                       - y of coordinate of OSD2-MENU (unit is font)   yÝSÎ»ÖÃ(tile)
+ 900           *              width           - width of ICON (unit is font)                                  icon?¶È
+ 901           *              height          - height of ICON (unit is font)                                 icon¸ß¶È
+ 902           *              menu_addr       - base address of OSD2-MENU                                             menu oram Î»Ö·
+ 903           *              menu_width      - width of OSD2-MENU (unit is font)                             memu ?¶È(tile)
+ 904           *                              offset          - font index of offset                                                  indexì¶tile±íÖ®Æ«ÒÆÁ¿
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 16  
+
+ 905           *                              blinking        - 0: none, 1: blinking                                                  éW q
+ 906           * Return       none
+ 907           * NOTE         OSD2-MENU of every ROW of char count need same
+ 908           */
+ 909          void _icons_draw_at(unsigned char *table, unsigned char color, unsigned char x, unsigned char y, unsigned 
+             -char width, unsigned char height,
+ 910                           unsigned short menu_addr, unsigned char menu_width, unsigned short offset, unsigned char blinking)
+ 911          {
+ 912   1              unsigned char w,h = 0;
+ 913   1              unsigned short i = 0, temp = 0;
+ 914   1      
+ 915   1      #ifdef EX_I2C_SAFE_MODE
+ 916   1              IC_WRITBYTE(TWIC_P0, 0xF0, SLAVE_SAFE_ADDR);
+ 917   1      #endif
+ 918   1              i=0;
+ 919   1      
+ 920   1              color <<= 1;    // lut index[8:5]
+ 921   1              if(blinking)
+ 922   1                      color |= 0x20;
+ 923   1      
+ 924   1          for(h=0; h< height; h++) {
+ 925   2              if((y+h)<CUR_MENU_P->height){
+ 926   3                              osd_set_location_addr(x, y+h,  menu_addr, menu_width);
+ 927   3                      for(w=0; w< width; w++) {
+ 928   4                              temp = table[i];
+ 929   4                              if(temp==0xFF)  /* for Blank ROM Font */
+ 930   4                                      temp= 0;
+ 931   4                              else {
+ 932   5                                      temp = table[i]+offset;
+ 933   5                                      temp |= (color<<8);
+ 934   5                              }
+ 935   4                              if((x+w)<CUR_MENU_P->width)
+ 936   4                                      osd_set_ram_data(temp);
+ 937   4                              else
+ 938   4                                      break;
+ 939   4                              i++;
+ 940   4                      }
+ 941   3              }
+ 942   2          }
+ 943   1      #ifdef EX_I2C_SAFE_MODE 
+ 944   1              IC_WRITBYTE(TWIC_P0, 0xF0, SLAVE_WORK_ADDR);
+ 945   1      #endif
+ 946   1      }
+ 947          
+ 948          /*
+ 949           * Synopsis     void _icons_draw(unsigned char x,
+ 950           *                                                                      unsigned char y,
+ 951           *                                                                      unsigned char width,
+ 952           *                                                                      unsigned char height,
+ 953           *                                                                      unsigned char *table,
+ 954           *                                                                      unsigned char color,
+ 955           *                                                                      unsigned char offset,
+ 956           *                                                                      unsigned char blinking);
+ 957           * Description  writting ICON(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application)  Œ¢i
+             -consÙNÉÏosd2 menu(ßMëAº¯Ê½)
+ 958           * Parameters   x                       - x of coordinate of OSD2-MENU (unit is font)   xÝSÎ»ÖÃ(tile)
+ 959           *              y                       - y of coordinate of OSD2-MENU (unit is font)   yÝSÎ»ÖÃ(tile)
+ 960           *              width           - width of ICON (unit is font)                                  icon?¶È(tile)   
+ 961           *              height          - height of ICON (unit is font)                                 icon¸ß¶È(tile)
+ 962           *                              *table          - point of font index of table                                  icon index±íÖ¸˜Ë
+ 963           *                              color           - color index of ICONS                                                  É«±P??  
+ 964           *                              offset          - font index of offset                                                  indexì¶tile±íÖÐÖ®Æ«ÒÆÁ¿
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 17  
+
+ 965           *                              blinking        - 0: none, 1: blinking                                                  éW q
+ 966           * Return       none
+ 967           */
+ 968          void _icons_draw(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned cha
+             -r *table, unsigned char color, unsigned short offset, unsigned char blinking)
+ 969          {
+ 970   1      #ifndef NO_SUPPORT_1BP_ROM_FONT
+ 971   1              unsigned char ccolor= 0;
+ 972   1      
+ 973   1              ccolor = check_color_config(table[0], (SUPPORT_1BP_ROM?offset:0), color);
+ 974   1      
+ 975   1              _icons_draw_at(table, ccolor, x, y, width, height, CUR_MENU_P->addr, CUR_MENU_P->width, offset, blinking)
+             -;
+ 976   1      #else
+                      _icons_draw_at(table, (color&0x0F), x, y, width, height, CUR_MENU_P->addr, CUR_MENU_P->width, offset, bli
+             -nking);
+              #endif
+ 979   1      }
+ 980          
+ 981          /*
+ 982           * Synopsis     void _tw_icons_draw_at(struct tw_icon* picon,
+ 983           *                                                                      unsigned short menu_addr,
+ 984           *                                                                      unsigned char menu_width,
+ 985           *                                                                      unsigned short offset,
+ 986           *                                                                      unsigned char blinking);
+ 987           * Description  writting ICON(Font) of index(font, color) at OSD2-MENU(OSD RAM) (advanced application)  Œ¢i
+             -conÙNÉÏosd2 menu(ßMëAº¯Ê½)
+ 988           * Parameters   menu_addr       - base address of OSD2-MENU                                                     menu oram Î»ÖÃ
+ 989           *              menu_width      - width of OSD2-MENU (unit is font)                                     menu ?¶È
+ 990           *                              offset          - menu_addr of offset (for double buffer, etc.)         menu Æ«ÒÆÁ¿
+ 991           *                              blinking        - 0: none, 1: blinking                                                          éW q
+ 992           * Return       none
+ 993           * NOTE         can assigned base address and width of OSD2-MENU
+ 994           *                              for advance application,
+ 995           *                              ex. double buffer
+ 996           */
+ 997          void _tw_icons_draw_at(struct tw_icons* picon, unsigned short menu_addr, unsigned char menu_width, unsigne
+             -d short offset, unsigned char blinking)
+ 998          {   
+ 999   1      #ifndef NO_SUPPORT_1BP_ROM_FONT
+1000   1              unsigned char color= 0;
+1001   1      
+1002   1              color = check_color_config(picon->table[0], (SUPPORT_1BP_ROM?picon->offset:0), picon->color);
+1003   1              _icons_draw_at(picon->table, color, picon->x, picon->y, picon->width, picon->height, menu_addr, menu_widt
+             -h, (SUPPORT_1BP_ROM?picon->offset:0)+offset, blinking);
+1004   1      #else
+                      _icons_draw_at(picon->table, (picon->color&0x0F), picon->x, picon->y, picon->width, picon->height, menu_a
+             -ddr, menu_width, offset, blinking);   
+              #endif
+1007   1      }
+1008          
+1009          /*
+1010           * Synopsis     void tw_icons_color_change(struct tw_icons* picon,
+1011           *                                                                              unsigned char color);
+1012           * Description  change color index of ICONS                                             ÇÐ“QiconsÉ«±P
+1013           * Parameters   *tw_icons       - point of icon struct                          iconsÎï¼þÖ¸˜Ë
+1014           *                              color           - want to change of color index         ÓûÇÐ“QÖ®É«±P??
+1015           * Return       none
+1016           * NOTE         for 1BP/ROM Font
+1017           */
+1018          void tw_icons_color_change(struct tw_icons* picon, unsigned char color)
+1019          {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 18  
+
+1020   1              _icons_draw_at(picon->table, color, picon->x, picon->y, picon->width, picon->height, CUR_MENU_P->addr, CU
+             -R_MENU_P->width, (SUPPORT_1BP_ROM?picon->offset:0), 0);
+1021   1      }
+1022          
+1023          /*
+1024           * Synopsis     void tw_icons_1st_color(struct tw_icons* picon);
+1025           * Description  change to 1st color of ICONS                    ÔO¶¨iconsžéµÚÒ»½MÉ«±P
+1026           * Parameters   *tw_icons       - point of icon struct          iconsÎï¼þ??
+1027           * Return       none
+1028           * NOTE         for 2BP/4BP Font
+1029           */
+1030          void tw_icons_1st_color(struct tw_icons* picon)
+1031          {
+1032   1              tw_icons_draw(picon);
+1033   1      }
+1034          
+1035          /*
+1036           * Synopsis     void tw_icons_2nd_color(struct tw_icons* picon);
+1037           * Description  change to 2nd color of ICONS                    ÔO¶¨iconsžéµÚ¶þ½MÉ«±P
+1038           * Parameters   *tw_icons       - point of icon struct          iconsÎï¼þ??
+1039           * Return       none
+1040           * NOTE         for 2BP/4BP Font
+1041           */
+1042          void tw_icons_2nd_color(struct tw_icons* picon)
+1043          {
+1044   1              _icons_draw_at(picon->table, ((picon->color)>>4), picon->x, picon->y, picon->width, picon->height, CUR_ME
+             -NU_P->addr, CUR_MENU_P->width, (SUPPORT_1BP_ROM?picon->offset:0), 0);
+1045   1      }
+1046          
+1047          /*
+1048           * Synopsis     void tw_gicons_draw(struct tw_gicons* pgicons);
+1049           * Description  show ICON(OSD2)                                                 ï@Ê¾iconì¶menuÉÏ
+1050           * Parameters   *tw_icon        - point of icon struct          iconÎï¼þÖ¸˜Ë
+1051           * Return       none
+1052           * NOTE         OSD2 need init and load data (tw_menu_draw) before the show ICON
+1053           */
+1054          void tw_gicons_draw(struct tw_gicons* pgicon)
+1055          {
+1056   1              unsigned char icon_id = 0;
+1057   1              unsigned short tmp_addr = 0;
+1058   1              
+1059   1          icon_id = check_gicon_id(pgicon->gicons_id);
+1060   1          if(!icon_id)
+1061   1              return;
+1062   1          
+1063   1          tmp_addr = pgicon->oram_addr;
+1064   1          /* dynamic load ICON to OSDRAM */
+1065   1          tw_load_icon(icon_id, &tmp_addr);
+1066   1      
+1067   1              _icons_draw(pgicon->x, pgicon->y, pgicon->width, pgicon->height, pgicon->table, 
+1068   1                                      pgicon->color, (SUPPORT_1BP_ROM?pgicon->offset:0), 0);
+1069   1      }
+1070          
+1071          /*
+1072           * Synopsis     void tw_icons_draw(struct tw_icons* picon);
+1073           * Description  show ICONS(OSD2)                                                ï@Ê¾iconsì¶menuÉÏ
+1074           * Parameters   *tw_icons       - point of icon struct          iconsÎï¼þÖ¸˜Ë
+1075           * Return       none
+1076           * NOTE         OSD2 need init and load data (tw_menu_draw) before the show ICONS
+1077           */
+1078          void tw_icons_draw(struct tw_icons* picon)
+1079          {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 19  
+
+1080   1              _icons_draw(picon->x, picon->y, picon->width, picon->height, picon->table, 
+1081   1                                      picon->color, (SUPPORT_1BP_ROM?picon->offset:0), 0);
+1082   1      }
+1083          
+1084          #define FONT_ASCII_OFFSET       10
+1085          void _romfont_draw_at(struct tw_txt* ptxt, unsigned char x, unsigned char y, const unsigned char *ucs, uns
+             -igned short menu_addr, unsigned char menu_width, unsigned char color, unsigned char blink)
+1086          {
+1087   1              unsigned char i;
+1088   1              unsigned short temp= 0;
+1089   1              
+1090   1              if(blink)
+1091   1                      color |= 0x20;
+1092   1                                                              
+1093   1              osd_set_location_addr(x, y, menu_addr, menu_width);
+1094   1              
+1095   1              for(i=0; (ucs[i]!=0) && (i < 255); i++) {
+1096   2                      if((x+i)>=CUR_MENU_P->width) 
+1097   2                              break;
+1098   2                      if(i>=ptxt->width)
+1099   2                              break;
+1100   2                      temp = (color<<9);
+1101   2                      if(ucs[i]==' ') //BLANK
+1102   2                              OSD_SET_RAM_DATA(temp);
+1103   2                      else if(ucs[i]=='^') {
+1104   3                              temp |= (ucs[i]+ptxt->index+2-FONT_ASCII_OFFSET);
+1105   3                              OSD_SET_RAM_DATA(temp);
+1106   3                      } else {
+1107   3                              temp |= (ucs[i]+ptxt->index-FONT_ASCII_OFFSET);
+1108   3                              OSD_SET_RAM_DATA(temp);
+1109   3                      }
+1110   2              }        
+1111   1      }
+1112          
+1113          void _romfont_draw(struct tw_txt* ptxt, unsigned char x, unsigned char y, const unsigned char *ucs, unsign
+             -ed char color, unsigned char blink)
+1114          {                                                       
+1115   1              _romfont_draw_at(ptxt, x, y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, color, blink);    
+1116   1      }
+1117          
+1118          void tw_romfont_draw(struct tw_txt* ptxt, const unsigned char *ucs)
+1119          {                                                       
+1120   1              _romfont_draw_at(ptxt, ptxt->x, ptxt->y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, ((ptxt->fg_color)<<
+             -0) + ((ptxt->bg_color)<<5), 0);        
+1121   1      }
+1122           
+1123          
+1124          /* T123 OSD Font Drawing Info Table         24x24 32x31 32x36 48x48(16x24) 48x48(12x24)  rev */
+1125          unsigned short code TOF_FONT_SPLIT_W[]    = { 2,    2,    2,    3,           4,           1};
+1126          unsigned short code TOF_FONT_SPLIT_H[]    = { 1,    1,    2,    2,           2,           2};
+1127          unsigned short code TOF_FONT_SPLIT_HSA[]  = { 1,    1,    1,    2,           2,           1};
+1128          
+1129          #define SINGLE_PIX 0
+1130          #define SUB_PIX    1 
+1131          
+1132          #define GB_ERROR_CODE 0xFFFF
+1133          
+1134          unsigned char _tw_half_alphabet_num()
+1135          {
+1136   1              return spi_read_byte(CUR_TOF_RES.base_addr + 0x54L);
+1137   1      }
+1138          
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 20  
+
+1139          unsigned char _tw_get_font_size_id()
+1140          {
+1141   1              return spi_read_byte(CUR_TOF_RES.base_addr + 0x55L);    
+1142   1      }
+1143          
+1144          unsigned char _tw_get_file_type() {
+1145   1              return spi_read_byte(CUR_TOF_RES.base_addr + 0x01L);
+1146   1      }
+1147          
+1148          unsigned short _Unicode_len(unsigned short *ucs) {
+1149   1          unsigned short i;
+1150   1      
+1151   1              for(i=0; ucs[i]!= 0 && i<0xffff; i++) { 
+1152   2              }
+1153   1      
+1154   1              return i;
+1155   1      }
+1156          
+1157          unsigned short _GB_code_len(unsigned short *ucs) {
+1158   1              unsigned char *gbs = ucs;
+1159   1              unsigned short len = 0;
+1160   1              int i;
+1161   1      
+1162   1              for(i=0, len=0; gbs[i]!=0 && len<GB_ERROR_CODE; len++) {
+1163   2                      if(gbs[i] >= 0xA1) { 
+1164   3                              if(gbs[i+1] < 0xA0) {
+1165   4                                      len = GB_ERROR_CODE - 1;
+1166   4                              }
+1167   3                              i+=2;
+1168   3                      }
+1169   2                      else {  
+1170   3                              i++;
+1171   3                      }               
+1172   2              }
+1173   1      
+1174   1              if(len == GB_ERROR_CODE) { 
+1175   2                      ERROR(("Fail To Get GB String Length!\n"));
+1176   2              }
+1177   1                       
+1178   1              return len;
+1179   1      }
+1180          
+1181          unsigned short _get_offset_GBS(unsigned short *ucs, unsigned short n) {  
+1182   1              unsigned char *gbs = ucs;
+1183   1              int i, idx;
+1184   1      
+1185   1              for(i=0, idx = 0;  gbs[idx]!=0 && i<0xFFFF; i++) { 
+1186   2                      if(i == n) {
+1187   3                              break;  
+1188   3                      }
+1189   2                      if(gbs[idx] >= 0xA1) {  
+1190   3                              idx+=2;
+1191   3                      }
+1192   2                      else {
+1193   3                              idx++;
+1194   3                      }               
+1195   2              }
+1196   1              
+1197   1              if(i == 0xFFFF) {  
+1198   2                      idx = GB_ERROR_CODE;
+1199   2                      ERROR(("Fail To Get GB String Offset!\n"));
+1200   2              }         
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 21  
+
+1201   1      
+1202   1              return idx;
+1203   1      }
+1204          
+1205          unsigned short _get_code_from_GBS(unsigned short *ucs, unsigned short n) {       
+1206   1              unsigned char *gbs = ucs;
+1207   1              unsigned short cod = GB_ERROR_CODE;
+1208   1              int i, idx;
+1209   1      
+1210   1              for(i=0, idx=0; gbs[idx]!=0 && i<0xFFFF; i++) { 
+1211   2                      if(i == n) {
+1212   3                              if(gbs[idx] >= 0xA1) {  
+1213   4                                      cod = gbs[idx+1L];
+1214   4                                      cod += (gbs[idx]<<8L);
+1215   4                              }
+1216   3                              else {                          
+1217   4                                      cod = gbs[idx];
+1218   4                              }       
+1219   3                              break;  
+1220   3                      }
+1221   2                      if(gbs[idx] >= 0xA1) {  
+1222   3                              idx+=2;
+1223   3                      }
+1224   2                      else {
+1225   3                              idx++;
+1226   3                      }               
+1227   2              }
+1228   1              
+1229   1              if(cod == GB_ERROR_CODE) {
+1230   2                      ERROR(("Fail To Get GB Code!\n"));
+1231   2              }         
+1232   1      
+1233   1              return cod;
+1234   1      }
+1235          
+1236          
+1237          unsigned char _tw_get_font_quality()
+1238          {       
+1239   1              return spi_read_byte(CUR_TOF_RES.base_addr + 0x50L);
+1240   1      }
+1241          
+1242          
+1243          void _twfont_draw_at(struct tw_txt* ptxt, unsigned char x, unsigned char y, unsigned short *ucs, unsigned 
+             -short menu_addr, unsigned char menu_width, unsigned char color, unsigned char blink)
+1244          {
+1245   1              unsigned char size_id, font_quality;    
+1246   1                                                                 
+1247   1              font_quality = _tw_get_font_quality();
+1248   1              size_id      = _tw_get_font_size_id();  
+1249   1              tw_menu_reset_index_n(ptxt->index);     
+1250   1              tw_menu_draw_nstring(x, y, ptxt->width, ucs, menu_addr, menu_width, (blink?(color|0x20):color), size_id, 
+             -font_quality!=SINGLE_PIX);      
+1251   1      }
+1252          
+1253          #define TOF_DIST_ERROR_CODE              0
+1254          #define TOF_DIST_BASIC_LATIN_START_CODE  0x0021 
+1255          #define TOF_DIST_BASIC_LATIN_END_CODE    0x007F
+1256                                                                                                           
+1257          #define TOF_DIST_LATIN_1_START_CODE      0x00A1
+1258          #define TOF_DIST_LATIN_1_END_CODE        0x00FF
+1259          
+1260          #define TOF_DIST_CYRILLIC_START_CODE     0x0400
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 22  
+
+1261          #define TOF_DIST_CYRILLIC_END_CODE       0x051D
+1262          
+1263          unsigned short _check_and_get_idx(unsigned short uc) {
+1264   1              if(uc >= TOF_DIST_BASIC_LATIN_START_CODE && uc <= TOF_DIST_BASIC_LATIN_END_CODE)
+1265   1                      return uc - TOF_DIST_BASIC_LATIN_START_CODE;
+1266   1              else
+1267   1                      return TOF_DIST_ERROR_CODE;                                                                                                             
+1268   1      }
+1269          
+1270          void _twfont_2bppic_st_draw_at(struct tw_txt* ptxt, unsigned char x, unsigned char y, unsigned short *ucs,
+             - unsigned short menu_addr, unsigned char menu_width, unsigned char color)
+1271          {
+1272   1              unsigned char i, j;
+1273   1              unsigned short index;
+1274   1              unsigned char draw_offset = 0;
+1275   1      
+1276   1              for(i=0; i<ptxt->height; i++) {
+1277   2                      for(j=0; j<ptxt->width && ucs[draw_offset]!= 0; j++, draw_offset++) {   
+1278   3                              index = _check_and_get_idx(ucs[draw_offset]) + ptxt->index;                                                                                      
+1279   3                              osd_menu_write(x+j, y+i, index, color, menu_addr, menu_width);  
+1280   3                      }                
+1281   2              }
+1282   1      }
+1283            
+1284          #define ID_TEXT_ROM          0  
+1285          #define ID_TEXT_PIC_2BP 0xFFFF  
+1286          //#define ID_TEXT_TOF_2BP 0xFFFE         
+1287          //#define ID_TEXT_TOF_1BP    1  
+1288          
+1289          void _twfont_draw(struct tw_txt* ptxt, unsigned char x, unsigned char y, unsigned short *ucs, unsigned cha
+             -r color, unsigned char blink)
+1290          {       
+1291   1              if(ptxt->icon_id == ID_TEXT_PIC_2BP)
+1292   1                      _twfont_2bppic_st_draw_at(ptxt, x, y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, ((ptxt->fg_color)<<1)); 
+1293   1              else
+1294   1                      _twfont_draw_at(ptxt, x, y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, color, blink);      
+1295   1      }
+1296          
+1297          void tw_twfont_draw(struct tw_txt* ptxt, unsigned short *ucs)
+1298          {          
+1299   1              if(ptxt->icon_id == ID_TEXT_PIC_2BP)
+1300   1                      _twfont_2bppic_st_draw_at(ptxt, ptxt->x, ptxt->y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, ((ptxt->fg_c
+             -olor)<<0));          
+1301   1              else
+1302   1                      _twfont_draw_at(ptxt, ptxt->x, ptxt->y, ucs, CUR_MENU_P->addr, CUR_MENU_P->width, ((ptxt->fg_color)<<0) 
+             -+ ((ptxt->bg_color)<<5), 0);    
+1303   1      }
+1304          
+1305          unsigned char _tw_draw_char_at(unsigned char x, unsigned char y, unsigned char w, unsigned h, 
+1306                                                    unsigned short idx, unsigned char color, unsigned short menu_addr, unsigned char menu_width)
+1307          {
+1308   1              unsigned char i, j;
+1309   1      
+1310   1              for(j=0; j<w; j++) {  
+1311   2                      for(i=0; i<h; i++) {
+1312   3                              osd_menu_write(x+j, y+i, idx+i+j*h, color, menu_addr, menu_width);                      
+1313   3                      }
+1314   2              }
+1315   1      
+1316   1              return w*h;
+1317   1      }
+1318          
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 23  
+
+1319          void _tw_burst_draw_line(unsigned char x, unsigned char y, unsigned char w, unsigned h, 
+1320                                                    unsigned short idx, unsigned char color, unsigned short menu_addr, unsigned char menu_width)
+1321          {
+1322   1              unsigned char i, j;
+1323   1              unsigned short dat;
+1324   1                                                        
+1325   1              for(i=0; i<h; i++) {            
+1326   2                      osd_set_location_addr(x, y+i, menu_addr, menu_width);
+1327   2                      for(j=0; j<w; j++) { 
+1328   3                              dat = (color<<9) + idx + j*h + i; 
+1329   3                              OSD_SET_RAM_DATA(dat);  
+1330   3                      }
+1331   2              }
+1332   1      }
+1333          
+1334          unsigned short tw_menu_draw_nstring(unsigned char x, unsigned char y, unsigned char max_w, const unsigned 
+             -short *ucs, unsigned short menu_addr, unsigned char menu_width, 
+1335                                                 unsigned char color, unsigned char size_id, unsigned char is2BP)
+1336          {
+1337   1              unsigned short i;
+1338   1              unsigned short font_size;  
+1339   1              unsigned char is_hsa = (_tw_half_alphabet_num() > 0);
+1340   1              unsigned short real_oaddr;
+1341   1              unsigned char bp = is2BP ? 2 : 1;
+1342   1      
+1343   1              unsigned char is_gb = ((_tw_get_file_type()=='G') ? 1 : 0);       
+1344   1              unsigned short len = ((is_gb) ? _GB_code_len(ucs) : _Unicode_len(ucs));
+1345   1              unsigned short uc;
+1346   1                      
+1347   1              unsigned char w_count = 0;
+1348   1              unsigned char w_sum = 0;
+1349   1              unsigned short temp_idx = menu_string_start_index;
+1350   1      
+1351   1              font_size = (CUR_MENU_P->font_w*CUR_MENU_P->font_h)/16;
+1352   1                                              
+1353   1              for(i=0; (i<len)&&(w_sum<=max_w); i++) { 
+1354   2                      uc = ((is_gb) ? _get_code_from_GBS(ucs, i) : ucs[i]);
+1355   2                      real_oaddr = (is2BP) ? (CUR_2BP_IDX*font_size + (menu_string_start_index-CUR_2BP_IDX)*font_size*2) : fon
+             -t_size*menu_string_start_index;  
+1356   2                  if(is_hsa) {
+1357   3                              w_count = osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, real_oaddr, uc, TOF_FONT_SPLIT_H[size_id]*fon
+             -t_size*2*bp, is_hsa);  
+1358   3                              menu_string_start_index += w_count* TOF_FONT_SPLIT_H[size_id]; 
+1359   3                              w_sum += w_count;       
+1360   3                      }
+1361   2                      else {                                                                                                                                                             
+1362   3                              osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, real_oaddr, uc, font_size*TOF_FONT_SPLIT_W[size_id]*TOF
+             -_FONT_SPLIT_H[size_id]*2*bp, is_hsa); 
+1363   3                              menu_string_start_index += TOF_FONT_SPLIT_W[size_id]*TOF_FONT_SPLIT_H[size_id]; 
+1364   3                              w_sum += TOF_FONT_SPLIT_W[size_id];
+1365   3                      }
+1366   2              }
+1367   1              
+1368   1              if(w_sum > max_w) {
+1369   2                      w_sum = max_w;
+1370   2              }       
+1371   1                                      
+1372   1              _tw_burst_draw_line(x, y, w_sum, TOF_FONT_SPLIT_H[size_id], temp_idx, color, menu_addr, menu_width);
+1373   1              
+1374   1              return i;       
+1375   1      }
+1376          
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 24  
+
+1377          void tw_menu_row_moveV(unsigned char row, unsigned short y)
+1378          {
+1379   1              unsigned short dat = 0x4000 + y;
+1380   1              unsigned short address = CUR_MENU_P->addr + ((CUR_MENU_P->width + 4) * row); 
+1381   1                                                                                                      
+1382   1              IC_WRITBYTE(0x00, 0xAA, (unsigned char)(address & 0xff));
+1383   1              IC_WRITBYTE(0x00, 0xAA, (unsigned char)(address>>8));
+1384   1                                        
+1385   1              //osd_set_location_addr(x, y, MENU_BASE_ADDRESS_TBL[CUR_PAGE_ID-1][1], CUR_MENU_P->width);
+1386   1              osd_set_ram_data(dat);
+1387   1      }
+1388          
+1389          void tw_menu_reset_index()
+1390          {
+1391   1              menu_string_start_index = 0;
+1392   1      }
+1393          
+1394          void tw_menu_reset_index_n(unsigned short idx)
+1395          {
+1396   1              menu_string_start_index = idx;  
+1397   1      }
+1398          
+1399          void tw_menu_reset_index_rev_nums()
+1400          {
+1401   1              menu_string_start_index = 20;   
+1402   1      }
+1403          
+1404          void tw_menu_nums_init()
+1405          {
+1406   1              unsigned char i;
+1407   1              unsigned short font_size;
+1408   1      
+1409   1              font_size = CUR_TOF_RES.font_width*CUR_TOF_RES.font_height/16;
+1410   1                                                              
+1411   1              for(i=0; i<10; i++) {    
+1412   2                      osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, font_size*i, i+48, font_size*2, 0); 
+1413   2              }
+1414   1              menu_string_start_index = 20;    
+1415   1              
+1416   1      }
+1417           
+1418          /*
+1419           * Synopsis     void tw_text_draw(struct tw_txt* ptxt, unsigned short *ucs);
+1420           * Description  show ICON(OSD2)                                                         ÀLÑutxtÖÁmenu
+1421           * Parameters   *ptxt   - point of txt struct                           txtÎï¼þÖ¸˜Ë
+1422           *              *ucs    - start point of string (utf-8)         ×Ö´®Ö¸˜Ë(utf-8) 
+1423           * Return       none
+1424           * NOTE         OSD2 need init and load data (tw_menu_draw) before the show text
+1425           *              text types include twfont and ROMFont
+1426           */
+1427          void tw_text_draw(struct tw_txt* ptxt, unsigned short *ucs)
+1428          {
+1429   1      //#ifndef ENABLE_EX_MCU
+1430   1      //      IC_WritByte(TWIC_P1,0xFE,0xAD);
+1431   1      //#endif
+1432   1                      
+1433   1              if(ptxt->icon_id==0) {
+1434   2                      /* ROM FONT */
+1435   2                      tw_romfont_draw(ptxt, (unsigned char*)ucs);
+1436   2              } else {
+1437   2                      /* TWFONT */
+1438   2                      tw_twfont_draw(ptxt, ucs);      
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 25  
+
+1439   2              }
+1440   1      //#ifndef ENABLE_EX_MCU
+1441   1      //      IC_WritByte(TWIC_P1,0xFE,0xA5);
+1442   1      //#endif        
+1443   1      }
+1444          
+1445          /*
+1446           * Synopsis     void tw_text_color_change(struct tw_txt* ptxt,
+1447           *                                      unsigned short *ucs,
+1448           *                                                                              unsigned char color);
+1449           * Description  change color index of ICONS                                     ÇÐ“Q×ÖÐÍÖ®É«±P??
+1450           * Parameters   *ptxt   - point of txt struct                           txtÎï¼þÖ¸˜Ë
+1451           *              *ucs    - start point of string (utf-8)         ×Ö´®Ö¸˜Ë(utf-8)
+1452           *                              color   - want to change of color index         ÓûÇÐ“QÖ®É«±P??
+1453           * Return       none
+1454           * NOTE         for text (1BP/ROM Font)
+1455           */
+1456          void tw_text_color_change(struct tw_txt* ptxt, unsigned short *ucs, unsigned char color)
+1457          {
+1458   1              if(ptxt->icon_id==0) {
+1459   2                      /* ROM FONT */
+1460   2                      _romfont_draw(ptxt, ptxt->x, ptxt->y, (unsigned char*)ucs, color, 0);    
+1461   2              } else {
+1462   2                      /* TWFONT */
+1463   2                      _twfont_draw(ptxt, ptxt->x, ptxt->y, ucs, color, 0);      
+1464   2              }
+1465   1      }
+1466          
+1467          /*
+1468           * Synopsis     void tw_osd_menu_write(unsigned char x,
+1469           *                                                                      unsigned char y,
+1470           *                                                                      unsigned short index,
+1471           *                                                                      unsigned char color);
+1472           * Description  writting are font index and color index at OSD2-MENU(OSD RAM) (advanced application)    ?Èë×Ö
+             -ÐÍ/É«±P??ÖÁmrenuÌØ¶¨Î»ÖÃ(ßMëAº¯”µ)
+1473           * Parameters   x               - x of coordinate of OSD2-MENU (unit is font)           xÝSÎ»ÖÃ (tile)
+1474           *              y               - y of coordinate of OSD2-MENU (unit is font)           yÝSÎ»ÖÃ (tile)
+1475           *              index   - font of index                                                                         tile ?? 
+1476           *              color   - color of index                                                                        É«±P ??
+1477           * Return       none
+1478           */
+1479          void tw_osd_menu_write(unsigned char x, unsigned char y, unsigned short index, unsigned char color)
+1480          {
+1481   1              osd_menu_write(x, y, index, color, CUR_MENU_P->addr, CUR_MENU_P->width);        
+1482   1      }
+1483          
+1484          /*
+1485           * Synopsis     void tw_osd_menu_write_line(unsigned char y,
+1486           *                                                                      unsigned short index,
+1487           *                                                                      unsigned char color);
+1488           * Description  writting are font index and color index at OSD2-MENU(OSD RAM)   ?Èë×ÖÐÍ/É«±P??ÖÁmenuÌØ¶¨ÐÐ(ß
+             -MëAº¯”µ) 
+1489           *              and a line (menu_width)
+1490           * Parameters   y               - y of coordinate of OSD2-MENU (unit is font)   yÝSÎ»ÖÃ(tile)
+1491           *              index   - font of index                                                                 tile ??
+1492           *              color   - color of index                                                                É«±P ??
+1493           * Return       none
+1494           */
+1495          void tw_osd_menu_write_line(unsigned char y, unsigned short index, unsigned char color)
+1496          {
+1497   1              osd_menu_write_line(y, index, color, CUR_MENU_P->addr, CUR_MENU_P->width);
+1498   1      }
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 26  
+
+1499          
+1500          /*
+1501           * Synopsis     void tw_osd_clear_line(unsigned char y);
+1502           * Description  clear(writting a 0) a line (menu_width) at OSD2-MENU(OSD RAM)   Çå³ýmenuÌØ¶¨ÐÐ
+1503           * Parameters   y       - y of coordinate of OSD2-MENU (unit is font)                           yÝSÎ»ÖÃ(tile)
+1504           * Return       none
+1505           * NOTE         default(must) blank font of index is 0
+1506           */
+1507          void tw_osd_clear_line(unsigned char y)
+1508          {
+1509   1              osd_clear_line(y, CUR_MENU_P->addr, CUR_MENU_P->width);
+1510   1      }
+1511          
+1512          /*
+1513           * Synopsis     void tw_osd_clear_char(unsigned char x, unsigned char y);
+1514           * Description  clear(writting a 0) a char at OSD2-MENU(OSD RAM)                Çå³ýmenuÌØ¶¨tile
+1515           * Parameters   x       - x of coordinate of OSD2-MENU (unit is font)           xÝSÎ»ÖÃ(tile)
+1516           *              y       - y of coordinate of OSD2-MENU (unit is font)           yÝSÎ»ÖÃ(tile)
+1517           * Return       none
+1518           * NOTE         default(must) blank font of index is 0
+1519           *              just clear to blank font (LSB), no clear color index (MSB)
+1520           */
+1521          void tw_osd_clear_char(unsigned char x, unsigned char y)
+1522          {
+1523   1              //osd_clear_char(x, y, CUR_MENU_P->addr, CUR_MENU_P->width);
+1524   1              osd_clear_block(x, y, 1, 1, CUR_MENU_P->addr, CUR_MENU_P->width);
+1525   1      }
+1526          
+1527          /*
+1528           * Synopsis     void tw_clear_icon(struct tw_icon* picon);
+1529           * Description  clear(writting a 0) a ICON at OSD2-MENU(OSD RAM)        Çå³ýmenuÉÏÄ³icon
+1530           * Parameters   *tw_icon    - point of icon struct                                      iconÎï¼þÖ¸˜Ë
+1531           * Return       none
+1532           * NOTE         default(must) blank font of index is 0
+1533           */
+1534          void tw_clear_icon(struct tw_icon* picon) {
+1535   1              osd_clear_block(picon->x, picon->y, picon->width, picon->height, CUR_MENU_P->addr, CUR_MENU_P->width);
+1536   1      }
+1537          
+1538          /*
+1539           * Synopsis     void tw_clear_icons(struct tw_icons* picon);
+1540           * Description  clear(writting a 0) a ICONS at OSD2-MENU(OSD RAM)       Çå³ýmenuÉÏÄ³icons
+1541           * Parameters   *tw_icons    - point of icons struct                            iconsÎï¼þÖ¸˜Ë
+1542           * Return       none
+1543           * NOTE         default(must) blank font of index is 0
+1544           */
+1545          void tw_clear_icons(struct tw_icons* picon) {
+1546   1              osd_clear_block(picon->x, picon->y, picon->width, picon->height, CUR_MENU_P->addr, CUR_MENU_P->width);
+1547   1      }
+1548          /*
+1549           * Synopsis     void tw_clear_gicon(struct tw_icon* picon);
+1550           * Description  clear(writting a 0) a ICON at OSD2-MENU(OSD RAM)    ïž’å£ºmenuå¥»è­°icon
+1551           * Parameters   *tw_icon    - point of icon struct                  iconæ˜œç’ƒç¡Œî¦œ
+1552           * Return       none
+1553           * NOTE         default(must) blank font of index is 0
+1554           */
+1555          void tw_clear_gicon(struct tw_gicon* picon) {
+1556   1              osd_clear_block(picon->x, picon->y, picon->width, picon->height, CUR_MENU_P->addr, CUR_MENU_P->width);
+1557   1      }
+1558          
+1559          /*
+1560           * Synopsis     void tw_clear_txt(struct tw_txt* ptxt);
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 27  
+
+1561           * Description  clear(writting a 0) a txt at OSD2-MENU(OSD RAM) Çå³ýmenuÉÏÄ³txt
+1562           * Parameters   *ptxt   - point of txt struct                                   txtÎï¼þÖ¸˜Ë
+1563           * Return       none
+1564           * NOTE         default(must) blank font of index is 0
+1565           */
+1566          void tw_clear_txt(struct tw_txt* ptxt) {
+1567   1              osd_clear_block(ptxt->x, ptxt->y, ptxt->width, ptxt->height, CUR_MENU_P->addr, CUR_MENU_P->width);
+1568   1      }
+1569          
+1570          /*
+1571           * Synopsis     void _tw_clear_icon_at(struct tw_icon* picon,
+1572           *                                  unsigned short menu_addr,
+1573           *                                  unsigned char menu_width);
+1574           * Description  clear(writting a 0) a ICON at OSD2-MENU(OSD RAM) (advanced application)         Çå³ýmenuÉÏÄ³icon(
+             -ßMëAº¯Ê½)
+1575           * Parameters   *picon    - point of icon struct                                        iconÎï¼þÖ¸˜Ë
+1576           *              menu_addr       - base address of OSD2-MENU                             menu oram µØÖ·
+1577           *              menu_width      - width of OSD2-MENU (unit is font)             menu ?¶È(tile)
+1578           * Return       none
+1579           * NOTE         default(must) blank font of index is 0
+1580           *              can assigned base address and width of OSD2-MENU
+1581           */
+1582          void _tw_clear_icon_at(struct tw_icon* picon, unsigned short menu_addr, unsigned char menu_width) {
+1583   1              osd_clear_block(picon->x, picon->y, picon->width, picon->height, menu_addr, menu_width);
+1584   1      }
+1585          
+1586          /*
+1587           * Synopsis     void _tw_clear_icons_at(struct tw_icons* picons,
+1588           *                                  unsigned short menu_addr,
+1589           *                                  unsigned char menu_width);
+1590           * Description  clear(writting a 0) a ICONS at OSD2-MENU(OSD RAM) (advanced application)        Çå³ýmenuÉÏÄ³icons
+             -(ßMëAº¯Ê½)
+1591           * Parameters   *picons    - point of icons struct                                      iconsÎï¼þÖ¸˜Ë
+1592           *              menu_addr       - base address of OSD2-MENU                             menu oram µØÖ·
+1593           *              menu_width      - width of OSD2-MENU (unit is font)             menu ?¶È(tile)
+1594           * Return       none
+1595           * NOTE         default(must) blank font of index is 0
+1596           *              can assigned base address and width of OSD2-MENU
+1597           */
+1598          void _tw_clear_icons_at(struct tw_icons* picon, unsigned short menu_addr, unsigned char menu_width) {
+1599   1              osd_clear_block(picon->x, picon->y, picon->width, picon->height, menu_addr, menu_width);
+1600   1      }
+1601          
+1602          /*
+1603           * Synopsis     void _tw_clear_txt_at(struct tw_txt* ptxt,
+1604           *                                  unsigned short menu_addr,
+1605           *                                  unsigned char menu_width);
+1606           * Description  clear(writting a 0) a txt at OSD2-MENU(OSD RAM) (advanced application)  Çå³ýmenuÉÏÄ³txt(ßMë
+             -Aº¯Ê½)
+1607           * Parameters   *ptxt       - point of txt struct                                       txtÎï¼þÖ¸˜Ë
+1608           *              menu_addr       - base address of OSD2-MENU                             menu oram µØÖ·
+1609           *              menu_width      - width of OSD2-MENU (unit is font)             menu ?¶È(tile)
+1610           * Return       none
+1611           * NOTE         default(must) blank font of index is 0
+1612           *              can assigned base address and width of OSD2-MENU
+1613           */
+1614          void _tw_clear_txt_at(struct tw_txt* ptxt, unsigned short menu_addr, unsigned char menu_width) {
+1615   1              osd_clear_block(ptxt->x, ptxt->y, ptxt->width, ptxt->height, menu_addr, menu_width);
+1616   1      }
+1617          
+1618          /*
+1619           * Synopsis     void tw_osd_clear_menu(void);
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 28  
+
+1620           * Description  clear all char(0) at OSD2-MENU(OSD RAM)         Çå³ýmenu
+1621           * Parameters   none
+1622           * Return       none
+1623           * NOTE         default(must) blank font of index is 0
+1624           */
+1625          void tw_osd_clear_menu(void)
+1626          {
+1627   1              osd_clear_menu(CUR_MENU_P->addr, CUR_MENU_P->width, CUR_MENU_P->height);
+1628   1      }
+1629          
+1630          /*
+1631           * Synopsis     void tw_menu_fill(unsigned char x,
+1632           *                                unsigned char y,
+1633           *                                unsigned char dat,
+1634           *                                unsigned char color,
+1635           *                                unsigned char length);
+1636           * Description  fill a block include dat(LSB)&color(MSB) at OSD2-MENU(OSD RAM)
+1637           * Parameters   x               - x of coordinate of OSD2-MENU (unit is font)
+1638           *              y               - y of coordinate of OSD2-MENU (unit is font)
+1639           *              dat             - font of index
+1640           *              color   - color of index
+1641           *              length  - fill data of length
+1642           * Return       none
+1643           * NOTE         default(must) blank font of index is 0
+1644           */
+1645          void tw_menu_fill(unsigned char x, unsigned char y, unsigned char dat, unsigned char color, unsigned char 
+             -length)
+1646          {
+1647   1              unsigned char i;
+1648   1      
+1649   1              for(i=0; i< length; i++) {
+1650   2                      osd_menu_write(x+i, y, dat, color, CUR_MENU_P->addr, CUR_MENU_P->width);                
+1651   2              }                
+1652   1      }
+1653          
+1654          /*
+1655           * Synopsis     void tw_emu_trig(void);
+1656           * Description  emulation trig
+1657           * Parameters   none
+1658           * Return       none
+1659           * NOTE         need load emulation (tw_load_emu) before
+1660           */
+1661          void tw_emu_trig(void)
+1662          {
+1663   1              IC_WritByte (TWIC_P0, SHADOW_CTRL_CONF_REG, SHADOW_CTRL_ENABLE);        // for SPIOSD shadow issue
+1664   1              sosd_emu_trig();
+1665   1      }
+1666          
+1667          /*
+1668           * Synopsis     void tw_load_emu(unsigned short id);
+1669           * Description  setting registers for emulation
+1670           * Parameters   id      - emulation script of resource ID
+1671           * Return       none
+1672           */
+1673          void tw_load_emu(unsigned short id)
+1674          {
+1675   1              char rc= 0;
+1676   1              struct res_emu_t emu_s;
+1677   1              
+1678   1      #ifdef TW_WG_DEBUG_MODE
+                      show_resource_header(id);
+              #endif  
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 29  
+
+1681   1              
+1682   1              get_res_emu(id, &emu_s);
+1683   1              
+1684   1              tw_emu_exit();
+1685   1      
+1686   1              sosd_set_emu_base_addrss(emu_s.base_addr);
+1687   1              tw_emu_trig();
+1688   1      }
+1689          
+1690          /*
+1691           * Synopsis     void tw_emu_trig(void);
+1692           * Description  waitting emulation script done
+1693           * Parameters   none
+1694           * Return       none
+1695           * NOTE         some emulation scripts was always run, ex. animation,
+1696           *              these emulation should force exit (tw_emu_exit) by fw.
+1697           */
+1698          void tw_wait_emu_done(void)
+1699          {
+1700   1              sosd_wait_emu_done();
+1701   1              IC_WritByte (TWIC_P0, SHADOW_CTRL_CONF_REG, SHADOW_CTRL_DISABLE);       // for SPIOSD shadow issue
+1702   1      }
+1703          
+1704          /*
+1705           * Synopsis     void tw_emu_exit(void);
+1706           * Description  force exit from emulation script
+1707           * Parameters   none
+1708           * Return       none
+1709           */
+1710          void tw_emu_exit(void)
+1711          {
+1712   1              sosd_emu_exit();
+1713   1              IC_WritByte (TWIC_P0, SHADOW_CTRL_CONF_REG, SHADOW_CTRL_DISABLE);       // for SPIOSD shadow issue
+1714   1      }
+1715          
+1716          /*
+1717           * Synopsis     void tw_img_force_alpha(unsigned char en);
+1718           * Description  force image/twbc (SPIOSD) of alpha
+1719           * Parameters   en      - 0/1: disable/enable force alpha
+1720           * Return       none
+1721           */
+1722          void tw_img_force_alpha(unsigned char en)
+1723          {
+1724   1              if(en) {
+1725   2                      sosd_img_force_ctrl(64);
+1726   2                      sosd_img_force_enable();
+1727   2              } else
+1728   1                      sosd_img_force_disable();
+1729   1      }
+1730          
+1731          /*
+1732           * Synopsis     void put_enter_page_event(unsigned char id);
+1733           * Description  put a enter page ID of event to event queue
+1734           * Parameters   id      - page of resource ID
+1735           * Return       none
+1736           */
+1737          void put_enter_page_event(unsigned char id)
+1738          {                                       
+1739   1              TW_EVENT events;                                          
+1740   1              events.type = TW_EVENT_TYPE_ENTER_SYSTEM;
+1741   1              events.page.id = id;
+1742   1              events.page.mode = PAGE_EVENT_NORMAL;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 30  
+
+1743   1              put_event(&events);
+1744   1      }
+1745          
+1746          /*
+1747           * Synopsis     void put_quit_page_event(unsigned char id);
+1748           * Description  put a quit page ID of event to event queue              ²åÈë"ëxé_?ÃæÊÂ¼þ"ßMÈëÊÂ¼þ¶Ñ¯B
+1749           * Parameters   id      - page of resource ID                                           ?ÃæID
+1750           * Return       none
+1751           */
+1752          void put_quit_page_event(unsigned char id)
+1753          {
+1754   1              TW_EVENT events;
+1755   1              events.type = TW_EVENT_TYPE_QUIT_SYSTEM;
+1756   1              events.page.id = id;
+1757   1              events.page.mode = PAGE_EVENT_NORMAL;
+1758   1              put_event(&events);
+1759   1      }
+1760          
+1761          /*
+1762           * Synopsis     void put_enter_slide_page_event(unsigned char id);
+1763           * Description  put a enter page ID of event to event queue             ²åÈë"»¬„ÓßMÈë?ÃæÊÂ¼þ"ßMÈëÊÂ¼þ¶Ñ¯B               
+1764           * Parameters   id      - page of resource ID                                           ?ÃæID
+1765           * Return       none
+1766           * NOTE         enter page of type is slide for touch slide
+1767           */
+1768          void put_enter_slide_page_event(unsigned char id)
+1769          {                                       
+1770   1              TW_EVENT events;                                          
+1771   1              events.type = TW_EVENT_TYPE_ENTER_SYSTEM;
+1772   1              events.page.id = id;
+1773   1              events.page.mode = PAGE_EVENT_SLIDE;
+1774   1              put_event(&events);
+1775   1      }
+1776          
+1777          /*
+1778           * Synopsis     void put_enter_slide_page_event(unsigned char id);
+1779           * Description  put a quit page ID of event to event queue              ²åÈë"»¬„Óëxé_?ÃæÊÂ¼þ"ßMÈëÊÂ¼þ¶Ñ¯B
+1780           * Parameters   id      - page of resource ID                                           ?ÃæID
+1781           * Return       none
+1782           * NOTE         quit page of type is slide for touch slide
+1783           */
+1784          void put_quit_slide_page_event(unsigned char id)
+1785          {
+1786   1              TW_EVENT events;
+1787   1              events.type = TW_EVENT_TYPE_QUIT_SYSTEM;
+1788   1              events.page.id = id;
+1789   1              events.page.mode = PAGE_EVENT_SLIDE;
+1790   1              put_event(&events);
+1791   1      }
+1792          
+1793          /*
+1794           * Synopsis     unsigned char tw_page_process(TW_EVENT* event);
+1795           * Description  call a process function (current of page ID) to processing events       ºô½ÐÄ¿Ç°?ÃæÖ®?Àíº¯Ê½ 
+1796           * Parameters   event   - events (all events) of tw widget system                                       ?ÃæÏµ½yËÍ³öÖ®ÊÂ¼þ
+1797           * Return       0: none                                         ›]ÊÂ
+1798           *              1: not page                                     ´ËID·Ç?Ãæ
+1799           *              2: no active page                       Ä¿Ç°Ÿoß\×÷ÖÐ?Ãæ
+1800           *              3: no process any event         ?ÃæéfÖÃ
+1801           *              4: no page                                      Ä¿Ç°IDŸoŒ¦‘ª?Ãæ
+1802           */
+1803          unsigned char tw_page_process(TW_EVENT* event)
+1804          {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 31  
+
+1805   1              if(event->type==TW_EVENT_TYPE_ENTER_SYSTEM) {
+1806   2                      CUR_PAGE_ID = event->page.id;
+1807   2              }       
+1808   1              if(CUR_PAGE_ID==0xFF) {
+1809   2                      dbg(3, ("no active page!\n"));
+1810   2                      return TW_RETURN_NO_ACTIVE;     
+1811   2              }
+1812   1              
+1813   1              return tw_page_handler(CUR_PAGE_ID, event);
+1814   1      }
+1815          
+1816          /*
+1817           * Synopsis     void tw_widget_init(void);
+1818           * Description  init for tw widget system       ³õÊ¼»¯?ÃæÏµ½y
+1819           * Parameters   none
+1820           * Return       none
+1821           * NOTE         enter first page (first page of ID default is 1)
+1822           */
+1823          void tw_widget_init(void)
+1824          {
+1825   1              TW_EVENT page_event;
+1826   1              page_event.type = TW_EVENT_TYPE_ENTER_SYSTEM;
+1827   1              page_event.page.id = 1;         // allways first page
+1828   1              put_event(&page_event);
+1829   1      }
+1830          
+1831          /* Status variable 
+1832           *              SLIDE_LOCK                  slide of direction
+1833           *              LAYOUT_GROUP_NUM        remember layout of group for performance
+1834           *              SECOND_IMG_ID       remember second imag/twbc of ID for performance
+1835           *              FIRST_IMG_ADDR          remember 1st imag/twbc of base address for performance
+1836           *              SECOND_IMG_ADDR         remember 2nd imag/twbc of base address for performance
+1837           */
+1838          static unsigned char data SLIDE_LOCK= SLIDE_NONE;
+1839          static unsigned char    LAYOUT_GROUP_NUM= 0xFF;
+1840          static unsigned short   SECOND_IMG_ID   = 0x0000;
+1841          static unsigned long    FIRST_IMG_ADDR  = 0x0000;
+1842          static unsigned long    SECOND_IMG_ADDR = 0x0000;
+1843          
+1844          /*
+1845           * Synopsis     unsigned char tw_img_slide(struct tw_layout* playout,   
+1846           *                                         unsigned char dir,
+1847           *                                         unsigned long offset,
+1848           *                                         unsigned char i,
+1849           *                                         unsigned char j);
+1850           * Description  image of slide effect                                                   img?Ãæ»¬„ÓÐ§¹û
+1851           * Parameters   *playout        - point of tw_layout of struct          ?Ãæ²¼¾Ö½Y?Ö¸˜Ë
+1852           *                              dir                 - slide of direction                                »¬„Ó·½Ïò
+1853           *              offset          - slide of offset                                       »¬„ÓÁ¿
+1854           *              i                   - number of row in layout                   ?ÃæÐÐ”µ
+1855           *              j                   - number of column in layout                ?ÃæÁÐ”µ
+1856           * Return       0xFE: slide successful                                                  »¬„Ó³É¹¦
+1857           *              0xFF: slide error                                                               »¬„ÓÊ§”¡
+1858           *              other value: current stay of number in layout   Ä¿Ç°ï@Ê¾²¼¾ÖÎï¼þ??
+1859           */
+1860          unsigned char tw_img_slide(struct tw_layout* playout, unsigned char dir, unsigned long offset, unsigned ch
+             -ar i, unsigned char j)
+1861          {
+1862   1              unsigned char c_w= 0, c_h= 0;
+1863   1              unsigned long addr= 0, shift= 0;
+1864   1              struct res_img_t                        img_s;
+1865   1              struct tw_img                   *pimg;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 32  
+
+1866   1              struct tw_layout_item   *playout_item;
+1867   1      
+1868   1              unsigned long temp= 0;
+1869   1      
+1870   1              //offset = (offset/TD_LINE_ALING)*TD_LINE_ALING;        // ALIGN 4
+1871   1              if(offset<=0)
+1872   1                      return SLIDE_HV_ERROR;
+1873   1      
+1874   1              if(i!=LAYOUT_GROUP_NUM) {
+1875   2                      LAYOUT_GROUP_NUM = i;
+1876   2                      FIRST_IMG_ADDR = 0;
+1877   2                      /* disable sprite & td */
+1878   2                      sosd_td_disable();
+1879   2                      sosd_sp_disable();
+1880   2              }
+1881   1                      
+1882   1              /* get current image base address */
+1883   1              _get_img_idx_addr(&addr);
+1884   1      
+1885   1              /* get first image base address */
+1886   1              pimg = playout->group[i].item[0].tw_object;
+1887   1              get_res_img_by_addr(pimg->imgID, &img_s, &FIRST_IMG_ADDR);
+1888   1      
+1889   1              /* calc current of cnt at group */
+1890   1              shift = addr-img_s.index_addr;
+1891   1              c_w = ((shift%(img_s.line_jump))/img_s.width);
+1892   1              c_h = ((shift/(img_s.line_jump))/(img_s.height));       
+1893   1              c_w = c_w+c_h*playout->group[i].width;
+1894   1          
+1895   1          /* get current of ID & Object */
+1896   1              pimg = playout->group[i].item[c_w].tw_object;
+1897   1              if(pimg->imgID!=SECOND_IMG_ID) {
+1898   2                      SECOND_IMG_ID = pimg->imgID;
+1899   2                      SECOND_IMG_ADDR = 0;
+1900   2              }
+1901   1              get_res_img_by_addr(pimg->imgID, &img_s, &SECOND_IMG_ADDR);
+1902   1      
+1903   1          shift = addr-img_s.index_addr;
+1904   1              
+1905   1              switch(dir) {
+1906   2                      case DIR_LEFT:  // left dir of slide
+1907   2                              /* check next image if current address == n image start address */
+1908   2                              if((addr==img_s.index_addr)) {
+1909   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+1910   3                                      if(playout->group[i].item[j].right==NULL) {
+1911   4                                              if((playout->group[i].item[j].jump==NULL)) {
+1912   5                                                      dbg(0, ("Can't left slide!\n"));
+1913   5                                                      return SLIDE_HV_ERROR;
+1914   5                                              } else {
+1915   5                                                      playout_item = playout->group[i].item[j].jump;
+1916   5                                                      if(playout_item->right==NULL) {
+1917   6                                                              dbg(0, ("Can't left slide!\n"));
+1918   6                                                              return SLIDE_HV_ERROR;
+1919   6                                                      } else {
+1920   6                                                              /* Load sLUT */
+1921   6                                                              playout_item = 
+1922   6                                                                      (struct tw_layout_item*)playout->group[i].item[j].jump;
+1923   6                                                              pimg = playout_item->tw_object;
+1924   6                                                              tw_img_draw(pimg);
+1925   6                                                              
+1926   6                                                              playout_item = 
+1927   6                                                                      (struct tw_layout_item*)playout_item->right;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 33  
+
+1928   6                                                              pimg = playout_item->tw_object;                                                 
+1929   6                                                              get_res_img(pimg->imgID, &img_s);
+1930   6                                                              _sosd_sLUT_addr(img_s.lut_addr);
+1931   6                                                              _sosd_load_slut();
+1932   6                                                              _sosd_swtc_offset(img_s.width);
+1933   6                                                              _sosd_swtc_h_mode();
+1934   6                                                              _sosd_swtc_enable();
+1935   6                                                              sosd_update();
+1936   6                                                              _sosd_swtc_offset(img_s.width);
+1937   6                                                      }
+1938   5                                              }               
+1939   4                                      } else {
+1940   4                                              /* Load sLUT */
+1941   4                                              playout_item = 
+1942   4                                                      (struct tw_layout_item*)playout->group[i].item[j].right;
+1943   4                                              pimg = playout_item->tw_object;
+1944   4                                              get_res_img(pimg->imgID, &img_s);
+1945   4                                              _sosd_sLUT_addr(img_s.lut_addr);
+1946   4                                              _sosd_load_slut();                                      
+1947   4                                              _sosd_swtc_h_mode();
+1948   4                                              _sosd_swtc_enable();
+1949   4                                              sosd_update();
+1950   4                                              _sosd_swtc_offset(img_s.width);
+1951   4                                      }
+1952   3                              } 
+1953   2                              /* next page */
+1954   2                              if((((shift)%(img_s.line_jump))+offset)
+1955   2                                      >=img_s.width) {
+1956   3                                      _sosd_swtc_disable();
+1957   3                                      playout_item = 
+1958   3                                              (struct tw_layout_item*)playout->group[i].item[c_w].right;
+1959   3                                      pimg = playout_item->tw_object;
+1960   3                                      tw_img_draw(pimg);
+1961   3                                      sosd_enable(LOAD_LUT);
+1962   3                                      CUR_BK_ID= pimg->imgID;
+1963   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+1964   3                                      return c_w;
+1965   3                              }
+1966   2                              /* left slide */
+1967   2                              else {
+1968   3                                      _sosd_img_addr(addr+offset);
+1969   3                                      addr = offset;
+1970   3                                      _get_swtc_offset((unsigned short*)&offset);
+1971   3                                      offset >>= 16;                          
+1972   3                                      sosd_update();
+1973   3                                      _sosd_swtc_offset(offset-addr);
+1974   3                                      SLIDE_LOCK = SLIDE_H_DIR;
+1975   3                                      return SLIDE_MOTION;
+1976   3                              }
+1977   2                              break;
+1978   2                      case DIR_RIGHT: // right dir of slide
+1979   2                              /* check next image if current address == n image start address */
+1980   2                              if((addr==img_s.index_addr)) {
+1981   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+1982   3                                      if(playout->group[i].item[j].left==NULL) {
+1983   4                                              if((playout->group[i].item[j].jump==NULL)) {
+1984   5                                                      dbg(0, ("Can't left slide!\n"));
+1985   5                                                      return SLIDE_HV_ERROR;
+1986   5                                              } else {
+1987   5                                                      playout_item = 
+1988   5                                                              (struct tw_layout_item*)playout->group[i].item[j].jump;
+1989   5                                                      if(playout_item->left==NULL) {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 34  
+
+1990   6                                                              dbg(0, ("Can't left slide!\n"));
+1991   6                                                              return SLIDE_HV_ERROR;
+1992   6                                                      } else {
+1993   6                                                              /* Load sLUT */
+1994   6                                                              playout_item = 
+1995   6                                                                      (struct tw_layout_item*)playout->group[i].item[j].jump;
+1996   6                                                              pimg = playout_item->tw_object;
+1997   6                                                              get_res_img(pimg->imgID, &img_s);
+1998   6                                                              _sosd_sLUT_addr(img_s.lut_addr);
+1999   6                                                              tw_img_draw(pimg);
+2000   6                                                              playout_item = 
+2001   6                                                                      (struct tw_layout_item*)playout_item->left;
+2002   6                                                              pimg = playout_item->tw_object;
+2003   6                                                              _sosd_pLUT_addr(img_s.lut_addr);
+2004   6                                                              _sosd_load_plut();                                                      
+2005   6                                                              _sosd_swtc_h_mode();
+2006   6                                                              _sosd_swtc_offset(0);
+2007   6                                                              
+2008   6                                                              _sosd_swtc_enable();
+2009   6                                                              sosd_pLUTsLUT_load();
+2010   6                                                              
+2011   6                                                              pimg = playout->group[i].item[c_w].tw_object;
+2012   6                                                              get_res_img(pimg->imgID, &img_s);
+2013   6                                                      }
+2014   5                                              }               
+2015   4                                      } else {
+2016   4                                              /* Load sLUT */
+2017   4                                              _sosd_sLUT_addr(img_s.lut_addr);
+2018   4                                              playout_item = 
+2019   4                                                      (struct tw_layout_item*)playout->group[i].item[j].left;
+2020   4                                              pimg = playout_item->tw_object;
+2021   4                                              get_res_img(pimg->imgID, &img_s);
+2022   4                                              _sosd_pLUT_addr(img_s.lut_addr);                                        
+2023   4                                              _sosd_swtc_h_mode();
+2024   4                                              _sosd_swtc_offset(0);
+2025   4                                              
+2026   4                                              _sosd_swtc_enable();
+2027   4                                              sosd_pLUTsLUT_load();
+2028   4      
+2029   4                                              pimg = playout->group[i].item[c_w].tw_object;
+2030   4                                              get_res_img(pimg->imgID, &img_s);
+2031   4                                      }
+2032   3                              } 
+2033   2                              /* next page */
+2034   2                              if((((shift)%(img_s.line_jump))<=offset)
+2035   2                                      &&(addr!=img_s.index_addr)) {
+2036   3                                      _sosd_swtc_disable();
+2037   3                                      pimg = playout->group[i].item[c_w].tw_object;
+2038   3                                      tw_img_draw(pimg);
+2039   3                                      sosd_update();
+2040   3                                      CUR_BK_ID= pimg->imgID;
+2041   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2042   3                                      return c_w;
+2043   3                              }
+2044   2                              /* right slide */
+2045   2                              else {
+2046   3                                      _sosd_img_addr(addr-offset);
+2047   3                                      addr = offset;
+2048   3                                      _get_swtc_offset((unsigned short*)&offset);
+2049   3                                      offset >>= 16;
+2050   3                                      sosd_update();
+2051   3                                      _sosd_swtc_offset(addr+offset);
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 35  
+
+2052   3                                      SLIDE_LOCK = SLIDE_H_DIR;
+2053   3                                      return SLIDE_MOTION;
+2054   3                              }
+2055   2                              break;
+2056   2                      case DIR_UP:    // up dir of slide
+2057   2                              if(c_w!=j) {
+2058   3                                      CUR_BK_ID= pimg->imgID;
+2059   3                                      j= c_w;
+2060   3                              }
+2061   2                              /* check next image if current address == n image start address */
+2062   2                              if(addr==img_s.index_addr) {
+2063   3                                      if(playout->group[i].item[j].down==NULL) {
+2064   4                                              dbg(0, ("Can't UP slide!\n"));
+2065   4                                              SLIDE_LOCK = SLIDE_NONE;
+2066   4                                              return SLIDE_HV_ERROR;          
+2067   4                                      } else {
+2068   4                                              /* Load sLUT */
+2069   4                                              playout_item = 
+2070   4                                                      (struct tw_layout_item*)playout->group[i].item[j].down;
+2071   4                                              pimg = playout_item->tw_object;
+2072   4                                              get_res_img(pimg->imgID, &img_s);
+2073   4                                              _sosd_sLUT_addr(img_s.lut_addr);
+2074   4                                              _sosd_load_slut();
+2075   4                                              _sosd_swtc_v_mode();
+2076   4                                              _sosd_swtc_enable();
+2077   4                                              sosd_update();
+2078   4                                              _sosd_swtc_offset(img_s.height+2);
+2079   4                                      }
+2080   3                              }
+2081   2                              /* next page */
+2082   2                              if((((shift)/(img_s.line_jump))+offset)
+2083   2                                      >=((img_s.height))) {
+2084   3                                      _sosd_swtc_disable();
+2085   3                                      playout_item = 
+2086   3                                              (struct tw_layout_item*)playout->group[i].item[c_w].down;
+2087   3                                      pimg = playout_item->tw_object;
+2088   3                                      tw_img_draw(pimg);
+2089   3                                      sosd_enable(LOAD_LUT);
+2090   3                                      CUR_BK_ID= pimg->imgID;
+2091   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2092   3                                      return c_w;
+2093   3                              }
+2094   2                              /* up slide */
+2095   2                              else {
+2096   3                                      _sosd_img_addr(addr+(offset*(img_s.line_jump)));
+2097   3                                      addr = offset;
+2098   3                                      _get_swtc_offset((unsigned short*)&offset);                             
+2099   3                                      offset >>= 16;
+2100   3                                      sosd_update();
+2101   3                                      _sosd_swtc_offset(offset-addr);
+2102   3                                      SLIDE_LOCK = SLIDE_V_DIR;
+2103   3                                      return SLIDE_MOTION;
+2104   3                              }
+2105   2                              break;
+2106   2                      case DIR_DOWN:  // down dir of slide
+2107   2                              if(c_w!=j) {
+2108   3                                      CUR_BK_ID= pimg->imgID;
+2109   3                                      j= c_w;
+2110   3                              }
+2111   2                              /* check next image if current address == n image start address */
+2112   2                              if(addr==img_s.index_addr) {
+2113   3                                      if(playout->group[i].item[j].up==NULL) {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 36  
+
+2114   4                                              dbg(0, ("Can't down slide!\n"));
+2115   4                                              SLIDE_LOCK = SLIDE_NONE;        // slide init
+2116   4                                              return SLIDE_HV_ERROR;
+2117   4                                      } else {
+2118   4                                              /* Load sLUT */
+2119   4                                              _sosd_sLUT_addr(img_s.lut_addr);
+2120   4                                              playout_item = 
+2121   4                                                      (struct tw_layout_item*)playout->group[i].item[j].up;
+2122   4                                              pimg = playout_item->tw_object;
+2123   4                                              get_res_img(pimg->imgID, &img_s);
+2124   4                                              _sosd_pLUT_addr(img_s.lut_addr);
+2125   4                                              _sosd_swtc_v_mode();
+2126   4                                              _sosd_swtc_offset(2);
+2127   4                                              
+2128   4                                              _sosd_swtc_enable();
+2129   4                                              sosd_pLUTsLUT_load();
+2130   4      
+2131   4                                              pimg = playout->group[i].item[c_w].tw_object;
+2132   4                                              get_res_img(pimg->imgID, &img_s);
+2133   4                                      }
+2134   3                              }
+2135   2                              /* next page */
+2136   2                              if(((((shift)/(img_s.line_jump))
+2137   2                                      %(img_s.height))<=offset)&&(addr!=img_s.index_addr)) {
+2138   3                                      _sosd_swtc_disable();
+2139   3      
+2140   3                                      tw_img_draw(pimg);
+2141   3                                      sosd_update();
+2142   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2143   3                                      return c_w;
+2144   3                              } 
+2145   2                              /* down slide */
+2146   2                              else {
+2147   3                                      _sosd_img_addr(addr-(offset*(img_s.line_jump)));
+2148   3                                      addr = offset;
+2149   3                                      _get_swtc_offset((unsigned short*)&offset);
+2150   3                                      offset >>= 16;
+2151   3                                      sosd_update();
+2152   3                                      _sosd_swtc_offset(addr+offset);
+2153   3                                      SLIDE_LOCK = SLIDE_V_DIR;
+2154   3                                      return SLIDE_MOTION;
+2155   3                              }
+2156   2                              break;
+2157   2              }
+2158   1              return SLIDE_HV_ERROR;
+2159   1      }
+2160          
+2161          /*
+2162           * Synopsis     unsigned char tw_td_slide(struct tw_layout* playout,
+2163           *                                        unsigned char dir,
+2164           *                                        unsigned long offset,
+2165           *                                        unsigned char i,
+2166           *                                        unsigned char j);
+2167           * Description  twbc of slide effect                                                    TDÒÆ„ÓÐ§¹ûº¯”µ
+2168           * Parameters   *playout        - point of tw_layout of struct          ?Ãæ²¼¾Ö½Y?Ö¸˜Ë
+2169           *                              dir                 - slide of direction                                »¬„Ó·½Ïò
+2170           *              offset          - slide of offset                                       »¬„ÓÁ¿
+2171           *              i                   - number of row in layout                   ?ÃæÐÐ”µ
+2172           *              j                   - number of column in layout                ?ÃæÁÐ”µ
+2173           * Return       0xFE: slide successful                                                  »¬„Ó³É¹¦
+2174           *              0xFF: slide error                                                               »¬„ÓÊ§”¡
+2175           *              other value: current stay of number in layout   Ä¿Ç°ï@Ê¾²¼¾ÖÎï¼þ??
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 37  
+
+2176           */
+2177          #define TD_LINE_DUMMY   8
+2178          #define TD_LINE_ALING   4
+2179          unsigned char tw_td_slide(struct tw_layout* playout, unsigned char dir, unsigned long offset, unsigned cha
+             -r i, unsigned char j)
+2180          {
+2181   1              unsigned char c_w= 0, c_h= 0;
+2182   1              unsigned long addr= 0, shift= 0;
+2183   1              struct res_td_t                 img_s;
+2184   1              struct tw_td                    *pimg;
+2185   1              struct tw_layout_item   *playout_item;
+2186   1      
+2187   1              offset = (offset/TD_LINE_ALING)*TD_LINE_ALING;  // ALIGN 4
+2188   1              if(offset<=0)
+2189   1                      return SLIDE_HV_ERROR;
+2190   1      
+2191   1              if(i!=LAYOUT_GROUP_NUM) {
+2192   2                      LAYOUT_GROUP_NUM = i;
+2193   2                      FIRST_IMG_ADDR = 0;
+2194   2              }
+2195   1      
+2196   1              /* get current image base address */
+2197   1              _get_tdc_addr(&addr);
+2198   1      
+2199   1              /* get first image base address */
+2200   1              pimg = playout->group[i].item[0].tw_object;
+2201   1              get_res_td_by_addr(pimg->tdID, &img_s, &FIRST_IMG_ADDR);
+2202   1      
+2203   1              /* calc current of cnt at group */
+2204   1              shift = addr-img_s.color_addr;
+2205   1              c_w = ((shift%(img_s.line_jump+TD_LINE_DUMMY))/img_s.width);
+2206   1              c_h = ((shift/(img_s.line_jump+TD_LINE_DUMMY))/(img_s.height/TD_LINE_ALING));   
+2207   1              c_w = c_w+c_h*playout->group[i].width;
+2208   1      
+2209   1              /* get current of ID & Object */
+2210   1              pimg = playout->group[i].item[c_w].tw_object;
+2211   1              if(pimg->tdID!=SECOND_IMG_ID) {
+2212   2                      SECOND_IMG_ID = pimg->tdID;
+2213   2                      SECOND_IMG_ADDR = 0;
+2214   2              }
+2215   1              get_res_td_by_addr(pimg->tdID, &img_s, &SECOND_IMG_ADDR);
+2216   1      
+2217   1              switch(dir) {
+2218   2                      case DIR_LEFT:  // left dir of slide
+2219   2                              /* check next image if current address == n image start address */
+2220   2                              if((addr==img_s.color_addr)) {
+2221   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2222   3                                      if(playout->group[i].item[j].right==NULL) {
+2223   4                                              if((playout->group[i].item[j].jump==NULL)) {
+2224   5                                                      dbg(0, ("Can't left slide!\n"));
+2225   5                                                      return SLIDE_HV_ERROR;
+2226   5                                              } else {
+2227   5                                                      playout_item = playout->group[i].item[j].jump;
+2228   5                                                      if(playout_item->right==NULL) {
+2229   6                                                              dbg(0, ("Can't left slide!\n"));
+2230   6                                                              return SLIDE_HV_ERROR;
+2231   6                                                      }
+2232   5                                              }               
+2233   4                                      }
+2234   3                              }
+2235   2                              /* jump 2 next group if shift > linejump */
+2236   2                              if((shift%(img_s.line_jump+TD_LINE_DUMMY))
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 38  
+
+2237   2                                      >=(img_s.line_jump-img_s.width)) {
+2238   3                                      if((playout->group[i].item[j].jump!=NULL)) {
+2239   4                                              playout_item = 
+2240   4                                                      (struct tw_layout_item*)playout->group[i].item[j].jump;
+2241   4                                              pimg = playout_item->tw_object;
+2242   4                                              tw_td_draw(pimg);
+2243   4                                              get_res_td(pimg->tdID, &img_s);
+2244   4                                              _sosd_tdc_addr(img_s.color_addr+offset);
+2245   4                                              _sosd_img_addr(img_s.index_addr+(offset/TD_LINE_ALING));
+2246   4                                              sosd_update();
+2247   4                                              dbg(3, ("tw_td_draw imgID= %u!\n", pimg->tdID));
+2248   4                                              return SLIDE_MOTION;
+2249   4                                      } else {
+2250   4                                              dbg(0, ("Can't jump!\n"));
+2251   4                                              return SLIDE_HV_ERROR;
+2252   4                                      }
+2253   3                              } 
+2254   2                              /* next page */
+2255   2                              else if((((addr-img_s.color_addr)%(img_s.line_jump+TD_LINE_DUMMY))+offset)
+2256   2                                      >=img_s.width) {
+2257   3                                      playout_item = 
+2258   3                                              (struct tw_layout_item*)playout->group[i].item[c_w].right;
+2259   3                                      pimg = playout_item->tw_object;
+2260   3                                      tw_td_draw(pimg);
+2261   3                                      sosd_update();
+2262   3                                      CUR_BK_ID= pimg->tdID;
+2263   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2264   3                                      return c_w;
+2265   3                              }
+2266   2                              /* left slide */
+2267   2                              else {
+2268   3                                      _sosd_tdc_addr(addr+offset);
+2269   3                                      _get_img_idx_addr(&addr);
+2270   3                                      _sosd_img_addr(addr+(offset/TD_LINE_ALING));
+2271   3                                      sosd_update();
+2272   3                                      SLIDE_LOCK = SLIDE_H_DIR;
+2273   3                                      return SLIDE_MOTION;
+2274   3                              }
+2275   2                              break;
+2276   2                      case DIR_RIGHT: // right dir of slide
+2277   2                              /* check next image if current address == n image start address */
+2278   2                              if((addr==img_s.color_addr)) {
+2279   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2280   3                                      if(playout->group[i].item[j].left==NULL) {
+2281   4                                              if((playout->group[i].item[j].jump==NULL)) {
+2282   5                                                      dbg(0, ("Can't left slide!\n"));
+2283   5                                                      return SLIDE_HV_ERROR;
+2284   5                                              } else {
+2285   5                                                      playout_item = 
+2286   5                                                              (struct tw_layout_item*)playout->group[i].item[j].jump;
+2287   5                                                      if(playout_item->left==NULL) {
+2288   6                                                              dbg(0, ("Can't left slide!\n"));
+2289   6                                                              return SLIDE_HV_ERROR;
+2290   6                                                      }
+2291   5                                              }               
+2292   4                                      }
+2293   3                              }
+2294   2                              /* jump 2 next group if shift <= 0 */
+2295   2                              if((shift%(img_s.line_jump+TD_LINE_DUMMY))==0) {
+2296   3                                      if((playout->group[i].item[j].jump!=NULL)) {
+2297   4                                              playout_item = 
+2298   4                                                      (struct tw_layout_item*)playout->group[i].item[j].jump;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 39  
+
+2299   4                                              pimg = playout_item->tw_object;
+2300   4                                              tw_td_draw(pimg);
+2301   4                                              get_res_td(pimg->tdID, &img_s);
+2302   4                                              _sosd_tdc_addr(img_s.color_addr-offset);
+2303   4                                              _sosd_img_addr(img_s.index_addr-(offset/TD_LINE_ALING));
+2304   4                                              sosd_update();
+2305   4                                              dbg(3, ("tw_td_draw imgID= %u!\n", pimg->tdID));
+2306   4                                              return SLIDE_MOTION;
+2307   4                                      } else {
+2308   4                                              dbg(0, ("Can't jump!\n"));
+2309   4                                              return SLIDE_HV_ERROR;
+2310   4                                      }
+2311   3                              } 
+2312   2                              /* next page */
+2313   2                              else if((((addr-img_s.color_addr)%(img_s.line_jump+TD_LINE_DUMMY))<=offset)
+2314   2                                      &&(addr!=img_s.color_addr)) {
+2315   3                                      pimg = playout->group[i].item[c_w].tw_object;
+2316   3                                      tw_td_draw(pimg);
+2317   3                                      sosd_update();
+2318   3                                      CUR_BK_ID= pimg->tdID;
+2319   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2320   3                                      return c_w;
+2321   3                              }
+2322   2                              /* right slide */
+2323   2                              else {                          
+2324   3                                      _sosd_tdc_addr(addr-offset);
+2325   3                                      _get_img_idx_addr(&addr);
+2326   3                                      _sosd_img_addr(addr-(offset/TD_LINE_ALING));
+2327   3                                  sosd_update();
+2328   3                                      CUR_BK_ID= pimg->tdID;
+2329   3                                      SLIDE_LOCK = SLIDE_H_DIR;
+2330   3                                      return SLIDE_MOTION;
+2331   3                              }
+2332   2                              break;
+2333   2                      case DIR_UP:    // up dir of slide
+2334   2                              if(c_w!=j) {
+2335   3                                      CUR_BK_ID= pimg->tdID;
+2336   3                                      j= c_w;
+2337   3                              }
+2338   2                              /* check next image if current address == n image start address */
+2339   2                              if(addr==img_s.color_addr) {
+2340   3                                      if(playout->group[i].item[j].down==NULL) {
+2341   4                                              dbg(0, ("Can't UP slide!\n"));
+2342   4                                              SLIDE_LOCK = SLIDE_NONE;
+2343   4                                              return SLIDE_HV_ERROR;          
+2344   4                                      }
+2345   3                              }
+2346   2                              offset = offset/TD_LINE_ALING;
+2347   2                              /* next page */
+2348   2                              if((((addr-img_s.color_addr)/(img_s.line_jump+TD_LINE_DUMMY))+offset)
+2349   2                                      >=((img_s.height/TD_LINE_ALING))) {
+2350   3                                      playout_item = 
+2351   3                                              (struct tw_layout_item*)playout->group[i].item[c_w].down;
+2352   3                                      pimg = playout_item->tw_object;
+2353   3                                      tw_td_draw(pimg);
+2354   3                                      sosd_update();
+2355   3                                      CUR_BK_ID= pimg->tdID;
+2356   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2357   3                                      return c_w;
+2358   3                              }
+2359   2                              /* up slide */
+2360   2                              else {
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 40  
+
+2361   3                                      _sosd_tdc_addr(addr+(offset*(img_s.line_jump+TD_LINE_DUMMY)));
+2362   3                                      _get_img_idx_addr(&addr);
+2363   3                                      _sosd_img_addr(addr+(offset*img_s.line_jump));
+2364   3                                      sosd_update();
+2365   3                                      SLIDE_LOCK = SLIDE_V_DIR;
+2366   3                                      return SLIDE_MOTION;
+2367   3                              }
+2368   2                              break;
+2369   2                      case DIR_DOWN:  // down dir of slide
+2370   2                              if(c_w!=j) {
+2371   3                                      CUR_BK_ID= pimg->tdID;
+2372   3                                      j= c_w;
+2373   3                              }
+2374   2                              /* check next image if current address == n image start address */
+2375   2                              if(addr==img_s.color_addr) {
+2376   3                                      if(playout->group[i].item[j].up==NULL) {
+2377   4                                              dbg(0, ("Can't down slide!\n"));
+2378   4                                              SLIDE_LOCK = SLIDE_NONE;        // slide init
+2379   4                                              return SLIDE_HV_ERROR;
+2380   4                                      }
+2381   3                              }
+2382   2                              offset = offset/TD_LINE_ALING;
+2383   2                              /* next page */
+2384   2                              if(((((addr-img_s.color_addr)/(img_s.line_jump+TD_LINE_DUMMY))
+2385   2                                      %(img_s.height/TD_LINE_ALING))<=offset)&&(addr!=img_s.color_addr)) {
+2386   3                                      _sosd_tdc_addr(img_s.color_addr);
+2387   3                                      _sosd_img_addr(img_s.index_addr);
+2388   3                                  sosd_update();
+2389   3                                      SLIDE_LOCK = SLIDE_NONE;        // slide init
+2390   3                                      return c_w;
+2391   3                              } 
+2392   2                              /* down slide */
+2393   2                              else {
+2394   3                                      _sosd_tdc_addr(addr-(offset*(img_s.line_jump+TD_LINE_DUMMY)));
+2395   3                                      _get_img_idx_addr(&addr);
+2396   3                                      _sosd_img_addr(addr-(offset*img_s.line_jump));
+2397   3                                  sosd_update();
+2398   3                                      SLIDE_LOCK = SLIDE_V_DIR;
+2399   3                                      return SLIDE_MOTION;
+2400   3                              }
+2401   2                              break;
+2402   2              }
+2403   1              return SLIDE_HV_ERROR;
+2404   1      }
+2405          
+2406          /*
+2407           * Synopsis     void tw_slide_init(void);
+2408           * Description  slide init      »¬„ÓÐ§¹û³õÊ¼»¯
+2409           * Parameters   none
+2410           * Return       none
+2411           */
+2412          void tw_slide_init(void)
+2413          {
+2414   1              LAYOUT_GROUP_NUM= 0xFF;
+2415   1              SECOND_IMG_ID   = 0x0000;
+2416   1              FIRST_IMG_ADDR  = 0x0000;
+2417   1              SECOND_IMG_ADDR = 0x0000;
+2418   1              SLIDE_LOCK = SLIDE_NONE;
+2419   1              sosd_sw_tc_disable();
+2420   1      }
+2421          
+2422          /*
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 41  
+
+2423           * Synopsis     unsigned char tw_search_ele(struct tw_layout* playout,
+2424           *                                        unsigned char *g,
+2425           *                                        unsigned char *w);
+2426           * Description  search current of ele in layout                                 ËÑŒ¤Ä¿Ç°ï@Ê¾?Ãæ??                       
+2427           * Parameters   *playout        - point of tw_layout of struct          ?Ãæ²¼¾Ö½Y?Ö¸˜Ë                  
+2428           *              *g                  - point of row                                              ?ÃæÐÐ”µ
+2429           *              *w                  - point of column                                   ?ÃæÁÐ”µ 
+2430           * Return       0xFE: slide successful                                                  »¬„Ó³É¹¦
+2431           *              0xFF: slide error                                                               »¬„ÓÊ§”¡
+2432           *              other value: current stay of number in layout   Ä¿Ç°ï@Ê¾²¼¾ÖÎï¼þ??
+2433           */
+2434          unsigned char tw_search_ele(struct tw_layout* playout, unsigned char *g, unsigned char *w)
+2435          {
+2436   1              unsigned char i= 0, j= 0, c_w= 0;
+2437   1              struct tw_img   *pimg;
+2438   1      
+2439   1              for(i=0; i<playout->cnt; i++) {
+2440   2                      for(j=0; j<(playout->group[i].width*playout->group[i].height); j++) {
+2441   3                              pimg = (struct tw_img*)playout->group[i].item[j].tw_object;
+2442   3                              if(pimg->imgID==CUR_BK_ID) {
+2443   4                                      c_w = 1;
+2444   4                                      break;
+2445   4                              }
+2446   3                      }
+2447   2                      if(c_w)
+2448   2                              break;
+2449   2              }
+2450   1      
+2451   1              if(i>=playout->cnt) {
+2452   2                      dbg(0, ("i= %bu, j= %bu!\n", i, j));
+2453   2                      ERROR(("Group Out Range!\n"));
+2454   2                      return SLIDE_HV_ERROR;
+2455   2              }
+2456   1              if(j>=(playout->group[i].width*playout->group[i].height)) {
+2457   2                      ERROR(("Group[%bu]: Item Out Range!\n", i));
+2458   2                      return SLIDE_HV_ERROR;
+2459   2              }
+2460   1      
+2461   1              *g = i;
+2462   1              *w = j;
+2463   1      
+2464   1              return 0;
+2465   1      }
+2466          
+2467          /*
+2468           * Synopsis     unsigned char tw_page_slide(struct tw_layout* playout,
+2469           *                                        unsigned char dir,
+2470           *                                        unsigned long offset);
+2471           * Description  background of slide effect                                              ±³¾°»¬„ÓÐ§¹û
+2472           * Parameters   *playout        - point of tw_layout of struct          ?Ãæ²¼¾Ö½Y?Ö¸˜Ë
+2473           *                              dir                 - slide of direction                                »¬„Ó·½Ïò
+2474           *              offset          - slide of offset                                       ÒÆ„ÓÁ¿
+2475           * Return       0xFE: slide successful                                                  ÒÆ„ÓÍê³É        
+2476           *              0xFF: slide error                                                               ÒÆ„ÓÊ§”¡
+2477           *              other value: current stay of number in layout   Ä¿Ç°ï@Ê¾²¼¾ÖÎï¼þ??
+2478           */
+2479          unsigned char tw_page_slide(struct tw_layout* playout, unsigned char dir, unsigned short offset)
+2480          {
+2481   1              unsigned char i= 0, j= 0, c_w= 0;
+2482   1      
+2483   1              if(offset<=0)
+2484   1                      return SLIDE_HV_ERROR;
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 42  
+
+2485   1      
+2486   1              switch(dir) {
+2487   2                      case DIR_LEFT:
+2488   2                      case DIR_RIGHT:
+2489   2                              if(SLIDE_LOCK==SLIDE_V_DIR) {
+2490   3                                      INFO(("can't H slide, current is V slide!\n"));
+2491   3                                      return SLIDE_HV_ERROR;
+2492   3                              }
+2493   2                              break;
+2494   2                      case DIR_UP:
+2495   2                      case DIR_DOWN:
+2496   2                              if(SLIDE_LOCK==SLIDE_H_DIR) {
+2497   3                                      INFO(("can't V slide, current is H slide!\n"));
+2498   3                                      return SLIDE_HV_ERROR;
+2499   3                              }
+2500   2                              break;
+2501   2              }
+2502   1      
+2503   1              c_w = tw_search_ele(playout, &i, &j);
+2504   1              if(c_w!=0)
+2505   1                      return c_w;
+2506   1      
+2507   1              switch(playout->type) {
+2508   2                      case IMG_SLIDE:
+2509   2                              c_w = tw_img_slide(playout, dir, offset, i, j);
+2510   2                              break;
+2511   2                      case TD_SLIDE:
+2512   2                              c_w = tw_td_slide(playout, dir, offset, i, j);
+2513   2                              break;
+2514   2              }
+2515   1      
+2516   1              if((c_w!=SLIDE_MOTION)&&(c_w!=SLIDE_HV_ERROR)) {
+2517   2                      c_w = tw_search_ele(playout, &i, &j);
+2518   2                      if(c_w!=0)
+2519   2                              return c_w;
+2520   2                      else {
+2521   3                              c_w = (playout->group[0].width*playout->cnt)-(playout->cnt-1);
+2522   3                              return (j%playout->group[0].width)+(j/playout->group[0].width*c_w)+(i*(playout->group[0].width-1))+1;           
+             -        
+2523   3                      }       
+2524   2              } else
+2525   1                      return c_w;
+2526   1      }
+2527          
+2528          
+2529          struct tw_scl_txt _init_scrol(struct tw_txt* ptxt, unsigned short *ucs, unsigned char direct, unsigned cha
+             -r tail_blank, unsigned char is2bp) {
+2530   1              struct tw_scl_txt ret;
+2531   1              unsigned char is_half_alphabet = (_tw_half_alphabet_num() > 0);         
+2532   1              unsigned short font_size = CUR_MENU_P->font_w*CUR_MENU_P->font_h/16;  
+2533   1              unsigned char i;
+2534   1              unsigned char size_id = _tw_get_font_size_id();
+2535   1              unsigned char w_count;
+2536   1              unsigned char bp = (is2bp) ? 2 : 1;
+2537   1          unsigned short real_oaddr;
+2538   1                                               
+2539   1              tw_menu_reset_index_n(ptxt->index);
+2540   1              for(i=0; ucs[i]!=0 && i < 0xff; i++) {
+2541   2              real_oaddr = (is2bp) ? (CUR_2BP_IDX*font_size + (menu_string_start_index-CUR_2BP_IDX)*font_size*2)
+             - : font_size*menu_string_start_index;  
+2542   2                  if(is_half_alphabet && ucs[i] < 256) {
+2543   3                              w_count = osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, real_oaddr, ucs[i],
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 43  
+
+2544   3                                                                                   font_size*TOF_FONT_SPLIT_H[size_id]*2*bp, is_half_alphabet);   
+2545   3                              menu_string_start_index += w_count*TOF_FONT_SPLIT_H[size_id];
+2546   3                      }
+2547   2                      else {                                                                                                                                                             
+2548   3                              osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, real_oaddr, ucs[i], 
+2549   3                                                                                   font_size*TOF_FONT_SPLIT_W[size_id]*TOF_FONT_SPLIT_H[size_id]*2*bp, is_half_alphabet); 
+2550   3                              menu_string_start_index += TOF_FONT_SPLIT_W[size_id]*TOF_FONT_SPLIT_H[size_id];
+2551   3                      }
+2552   2              }
+2553   1          real_oaddr = (is2bp) ? (CUR_2BP_IDX*font_size + (menu_string_start_index-CUR_2BP_IDX)*font_size*2) : f
+             -ont_size*menu_string_start_index;      
+2554   1              osd_put_twf_char_to_oram(CUR_TOF_RES.base_addr, real_oaddr, 0x20, font_size*2*bp, is_half_alphabet); 
+2555   1              
+2556   1              ret.total_len = (menu_string_start_index - ptxt->index) / TOF_FONT_SPLIT_H[size_id];    
+2557   1              ret.direct = direct;  
+2558   1              ret.tail_blank = tail_blank; 
+2559   1              ret.cur_index = ptxt->index; 
+2560   1              ret.size_id = size_id; 
+2561   1              ret.ptxt = ptxt;        
+2562   1       
+2563   1              tw_scrolling(&ret);
+2564   1              
+2565   1              return ret;     
+2566   1      
+2567   1      }
+2568          
+2569           /*
+2570           * Synopsis     struct tw_scl_txt tw_init_scrol(struct tw_txt* ptxt,
+2571           *                                              unsigned short *ucs,
+2572           *                                              unsigned char direct,
+2573           *                                                      unsigned char tail_blank);
+2574           * Get a marquee struct from a txt.
+2575           * Parameters   *ptxt       - the txt going to make this marquee ˜Ë
+2576           *                              *ucs            - the words going to draw on marquee
+2577           *              direct          - the direction of this marquee (0:left  1:right)
+2578           *              tail_blank  - the sum of blanks between the head and tail of each sequence
+2579           * Return       tw_scl_txt      - the marquee struct used to drawing the input string                                           
+2580           */
+2581          struct tw_scl_txt tw_init_scrol(struct tw_txt* ptxt, unsigned short *ucs, unsigned char direct, unsigned c
+             -har tail_blank)
+2582          {
+2583   1              return _init_scrol(ptxt, ucs, direct, tail_blank, 0);                                                                           
+2584   1      }
+2585          
+2586           /*
+2587           * Synopsis     struct tw_scl_txt tw_init_scrol_2bp(struct tw_txt* ptxt,
+2588           *                                                  unsigned short *ucs,
+2589           *                                                  unsigned char direct,
+2590           *                                                          unsigned char tail_blank);
+2591           * Get a 2bp marquee struct from a txt.
+2592           * Parameters   *ptxt       - the txt going to make this marquee ˜Ë
+2593           *                              *ucs            - the words going to draw on marquee
+2594           *              direct          - the direction of this marquee (0:left  1:right)
+2595           *              tail_blank  - the sum of blanks between the head and tail of each sequence
+2596           * Return       tw_scl_txt      - the marquee struct used to drawing the input string                                           
+2597           */
+2598          struct tw_scl_txt tw_init_scrol_2bp(struct tw_txt* ptxt, unsigned short *ucs, unsigned char direct, unsign
+             -ed char tail_blank)
+2599          {
+2600   1              return _init_scrol(ptxt, ucs, direct, tail_blank, 1);                                                                           
+2601   1      }
+2602          
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 44  
+
+2603          void tw_scrolling(struct tw_scl_txt* scl_txt)
+2604          {                                                 
+2605   1              unsigned char color = (scl_txt->ptxt->fg_color<<1L) + (scl_txt->ptxt->bg_color<<6L);
+2606   1              unsigned short i, j, dW;  
+2607   1              unsigned short dat;
+2608   1              unsigned char split_h = TOF_FONT_SPLIT_H[scl_txt->size_id];
+2609   1       
+2610   1              unsigned short max_index = scl_txt->ptxt->index + scl_txt->total_len * split_h;         
+2611   1              unsigned short color_h = (color<<8L);
+2612   1              unsigned char blank_index_count = scl_txt->tail_blank*split_h;
+2613   1              unsigned short disp_index_count = scl_txt->ptxt->width*split_h;  
+2614   1      
+2615   1              for(i=0; i<scl_txt->ptxt->width; i++) {
+2616   2                      for(j=0; j<split_h; j++) {                      
+2617   3                              if(scl_txt->cur_index+i*split_h > max_index) {
+2618   4                                      dW = (scl_txt->cur_index+i*split_h) - max_index;
+2619   4                                      if(dW < blank_index_count) {
+2620   5                                              dat = color_h + 0;      
+2621   5                                              osd_set_location_addr(scl_txt->ptxt->x+i, scl_txt->ptxt->y+j, CUR_MENU_P->addr, CUR_MENU_P->width);             
+             -                 
+2622   5                                              OSD_SET_RAM_DATA(dat);
+2623   5                                      }
+2624   4                                      else {
+2625   5                                              dW = dW - blank_index_count;      
+2626   5                                              dat = color_h + scl_txt->ptxt->index+dW+j;
+2627   5                                              osd_set_location_addr(scl_txt->ptxt->x+i, scl_txt->ptxt->y+j, CUR_MENU_P->addr, CUR_MENU_P->width);             
+             -                                 
+2628   5                                              OSD_SET_RAM_DATA(dat);                                   
+2629   5                                      }
+2630   4                              }
+2631   3                              else {   
+2632   4                                      dat = color_h + scl_txt->cur_index + i*split_h+j;       
+2633   4                                      osd_set_location_addr(scl_txt->ptxt->x+i, scl_txt->ptxt->y+j, CUR_MENU_P->addr, CUR_MENU_P->width);                     
+             -                 
+2634   4                                      OSD_SET_RAM_DATA(dat);
+2635   4                              }
+2636   3                      }
+2637   2              }
+2638   1      
+2639   1              if(scl_txt->direct) {
+2640   2                      scl_txt->cur_index += split_h;  
+2641   2                      scl_txt->cur_index = scl_txt->ptxt->index + (scl_txt->cur_index - scl_txt->ptxt->index)%((scl_txt->total
+             -_len + scl_txt->tail_blank)*split_h);
+2642   2              }
+2643   1              else {
+2644   2                      scl_txt->cur_index = (scl_txt->cur_index < split_h) ? 0 : scl_txt->cur_index - split_h;
+2645   2                      if(scl_txt->cur_index < scl_txt->ptxt->index) {
+2646   3                              scl_txt->cur_index = scl_txt->ptxt->index + (scl_txt->total_len + scl_txt->tail_blank - 1)*split_h;     
+2647   3                      }       
+2648   2              }       
+2649   1      }
+2650          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =  22632    ----
+   CONSTANT SIZE    =    706    ----
+   XDATA SIZE       =     45     749
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1      14
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.00   TW_WIDGET_SYS                                                         12/13/2022 09:00:39 PAGE 45  
+
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

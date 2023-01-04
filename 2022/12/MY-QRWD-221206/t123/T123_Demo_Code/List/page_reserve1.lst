@@ -1,0 +1,73 @@
+C51 COMPILER V9.52.0.0   PAGE_RESERVE1                                                     12/24/2015 09:26:12 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE PAGE_RESERVE1
+OBJECT MODULE PLACED IN .\Object\page_reserve1.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE Source\page_reserve1.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile
+                    -;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_reserve1.lst) TABS(2) OBJECT(.
+                    -\Object\page_reserve1.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_reserve1.h"
+   9          #include "display.h"
+  10          unsigned char once;
+  11          
+  12          unsigned char page_reserve1_process (TW_EVENT* event)
+  13          {
+  14   1        switch(event->type)
+  15   1        {
+  16   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  17   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  18   2            clear_alarm_area();
+  19   2            IC_WritByte(TWIC_P1,0x63,0x00);
+  20   2            once = 1;
+  21   2            tw_td_draw(&main_reserve1);
+  22   2            sosd_td_enable();
+  23   2            sosd_enable(DONT_LOAD);
+  24   2      
+  25   2            /* todo: Write Your Code Here */
+  26   2      
+  27   2          break;
+  28   2      
+  29   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  30   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  31   2      
+  32   2            /* todo: Write Your Code Here */
+  33   2      
+  34   2          break;
+  35   2      
+  36   2          default:  /* put to nodify if no process this event */
+  37   2            return TW_RETURN_NO_PROCESS;
+  38   2      
+  39   2      
+  40   2        }
+  41   1        return TW_RETURN_NONE;
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     56    ----
+   CONSTANT SIZE    =     77    ----
+   XDATA SIZE       =      1    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+C51 COMPILER V9.52.0.0   PAGE_RESERVE1                                                     12/24/2015 09:26:12 PAGE 2   
+
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

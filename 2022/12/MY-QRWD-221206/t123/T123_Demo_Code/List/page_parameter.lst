@@ -1,0 +1,263 @@
+C51 COMPILER V9.00   PAGE_PARAMETER                                                        12/13/2022 09:00:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_PARAMETER
+OBJECT MODULE PLACED IN .\Object\page_parameter.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE Source\page_parameter.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\
+                    -tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_parameter.lst) OBJECT(.\Object\pag
+                    -e_parameter.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_parameter.h"
+   9          #include "display.h"
+  10          #include "mydrivers.h"
+  11          #include "uart.h"
+  12          
+  13          
+  14          
+  15          unsigned char jishu = 0;
+  16          
+  17          
+  18          unsigned char page_parameter_process (TW_EVENT* event)
+  19          {
+  20   1              unsigned char i,BCD[4];
+  21   1              switch(event->type)
+  22   1              {
+  23   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  24   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  25   2                              if(page_xuanze == PAGE_PASSWORD)
+  26   2                              {
+  27   3                                      jishu++;
+  28   3                                      if(jishu < 2)
+  29   3                                              clear_unalarm_area();
+  30   3                                      clear_time_area();
+  31   3                                      clear_set_area();
+  32   3                              }
+  33   2                              else if(page_xuanze == PAGE_PARA)
+  34   2                              {
+  35   3                                      clear_unalarm_area();
+  36   3                                      clear_mima_area();
+  37   3                                      clear_set_area();
+  38   3                              
+  39   3                              }
+  40   2                              else if(page_xuanze == PAGE_SET)
+  41   2                              {
+  42   3                                      clear_area_block(8,9,32,9);
+  43   3                                      clear_time_area();
+  44   3                                      clear_mima_area();
+  45   3                              }
+  46   2                              tw_td_draw(&main_parameter);
+  47   2                              sosd_td_enable();
+  48   2                              sosd_enable(DONT_LOAD);
+  49   2                              if(LIGHT_EN)
+  50   2                              {
+  51   3                                      LIGHT_EN = 0;
+  52   3                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  53   3                              }
+C51 COMPILER V9.00   PAGE_PARAMETER                                                        12/13/2022 09:00:41 PAGE 2   
+
+  54   2                              CLEAR_PAGE = 1;
+  55   2                              switch(page_xuanze)
+  56   2                              {
+  57   3                                      case PAGE_PASSWORD:
+  58   3                                              system_page.last_page = 0xff;
+  59   3                                              system_b_password.blink = 0xff;
+  60   3                                              for(i=0;i<4;i++)
+  61   3                                              system_b_password.para[i] = 0;
+  62   3                                              display_icon_uncolor_blink(*number_map[0],12,7,1);
+  63   3                                              display_icon_uncolor_blink(*number_map[0],13,7,0);
+  64   3                                              display_icon_uncolor_blink(*number_map[0],14,7,0);
+  65   3                                              display_icon_uncolor_blink(*number_map[0],15,7,0);
+  66   3                                              break;
+  67   3                                      case PAGE_PARA:
+  68   3                                              system_b_set.para[0] = system_time.hour;
+  69   3                                              system_b_set.para[1] = system_time.minute;
+  70   3                                              system_b_set.para[2] = system_time.year;
+  71   3                                              system_b_set.para[3] = system_time.month;
+  72   3                                              system_b_set.para[4] = system_time.day;
+  73   3                                              system_b_set.para[5] = system_bright;
+  74   3                                              system_b_set.para[6] = buzzer;
+  75   3                                              
+  76   3                                              BCD[0] = (system_time.hour >> 4) & 0x0f;
+  77   3                                              BCD[1] = system_time.hour & 0x0f;
+  78   3                                              if(BCD[0] > 9)
+  79   3                                                      BCD[0] = 0;
+  80   3                                              if(BCD[1] > 9)
+  81   3                                                      BCD[1] = 0;
+  82   3                                              display_set_time();
+  83   3                                              display_icon_uncolor_blink(*number_map[BCD[0]],19,2,1);
+  84   3                                              display_icon_uncolor_blink(*number_map[BCD[1]],20,2,1);
+  85   3                                              display_icon_uncolor_blink(*number_map[system_bright],19,6,0);
+  86   3                                              display_icon_uncolor_blink(*buzzer_map[buzzer],19,8,0);
+  87   3                                              system_b_set.para[7] = vedio_enable[4];
+  88   3                                              system_b_set.para[8] = vedio_enable[5];
+  89   3                                              system_b_set.para[9] = vedio_enable[6];
+  90   3                                              system_b_set.para[10] = vedio_enable[7];
+  91   3                                      //      for(i=4;i<8;i++)
+  92   3                                      //              display_icon_uncolor_blink(*buzzer_map[vedio_enable[i]],39,i-2,0);
+  93   3                                      
+  94   3                                              break;
+  95   3                                      case PAGE_SET:
+  96   3                                              jishu = 0;
+  97   3                                              display_icon_uncolor_blink(*number_map[system_meilage.odo[6]],19,9,1);
+  98   3                                              system_b_odo_char.para[0] = system_meilage.odo[6];
+  99   3                                              for(i=0;i<6;i++)
+ 100   3                                              {
+ 101   4                                                      system_b_odo_char.para[i + 1] = system_meilage.odo[5 - i];
+ 102   4                                                      display_uncolor_icon(*number_map[system_meilage.odo[i]],25 - i,9);
+ 103   4                                              }
+ 104   3                                              BCD[3] = speed_scale / 1000;
+ 105   3                                              BCD[2] = (speed_scale % 1000) / 100;
+ 106   3                                              BCD[1] = (speed_scale % 100) / 10;
+ 107   3                                              BCD[0] = speed_scale % 10;
+ 108   3                                              for(i=0;i<4;i++)
+ 109   3                                              {
+ 110   4                                                      system_b_odo_char.para[7 + i] = BCD[3 - i];
+ 111   4                                                      display_uncolor_icon(*number_map[BCD[i]],22 - i,10);
+ 112   4                                              }
+ 113   3                                              BCD[3] = baimi_pulse / 1000;
+ 114   3                                              BCD[2] = (baimi_pulse % 1000) / 100;
+ 115   3                                              BCD[1] = (baimi_pulse % 100) / 10;
+C51 COMPILER V9.00   PAGE_PARAMETER                                                        12/13/2022 09:00:41 PAGE 3   
+
+ 116   3                                              BCD[0] = baimi_pulse % 10;
+ 117   3                                              for(i=0;i<4;i++)
+ 118   3                                              {
+ 119   4                                                      system_b_odo_char.para[11 + i] = BCD[3 - i];
+ 120   4                                                      display_uncolor_icon(*number_map[BCD[i]],22 - i,11);
+ 121   4                                              }
+ 122   3                                              BCD[2] = scale_factor / 100;
+ 123   3                                              BCD[1] = (scale_factor % 100) / 10;
+ 124   3                                              BCD[0] = scale_factor % 10;
+ 125   3                                              for(i=0;i<3;i++)
+ 126   3                                              {
+ 127   4                                                      system_b_odo_char.para[15 + i] = BCD[2 - i];
+ 128   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,12);
+ 129   4                                              }
+ 130   3      
+ 131   3                                              //气压1系数
+ 132   3                                              BCD[2] = air1_factor/ 100;
+ 133   3                                              BCD[1] = (air1_factor % 100) / 10;
+ 134   3                                              BCD[0] = air1_factor % 10;
+ 135   3                                              for(i=0;i<3;i++)
+ 136   3                                              {
+ 137   4                                                      system_b_odo_char.para[18 + i] = BCD[2 - i];
+ 138   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,13);
+ 139   4                                              }
+ 140   3                                              //气压2系数
+ 141   3                                              BCD[2] = air2_factor/ 100;
+ 142   3                                              BCD[1] = (air2_factor % 100) / 10;
+ 143   3                                              BCD[0] = air2_factor % 10;
+ 144   3                                              for(i=0;i<3;i++)
+ 145   3                                              {
+ 146   4                                                      system_b_odo_char.para[21 + i] = BCD[2 - i];
+ 147   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,14);
+ 148   4                                              }
+ 149   3                                              //超速
+ 150   3                                              BCD[2] = speed_alarm/ 100;
+ 151   3                                              BCD[1] = (speed_alarm % 100) / 10;
+ 152   3                                              BCD[0] = speed_alarm % 10;
+ 153   3                                              for(i=0;i<3;i++)
+ 154   3                                              {
+ 155   4                                                      system_b_odo_char.para[24 + i] = BCD[2 - i];
+ 156   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,15);
+ 157   4                                              }
+ 158   3                                              //气压报警
+ 159   3                                              BCD[2] = air_alarm/ 100;
+ 160   3                                              BCD[1] = (air_alarm % 100) / 10;
+ 161   3                                              BCD[0] = air_alarm % 10;
+ 162   3                                              for(i=0;i<3;i++)
+ 163   3                                              {
+ 164   4                                                      system_b_odo_char.para[27 + i] = BCD[2 - i];
+ 165   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,16);
+ 166   4                                              }
+ 167   3                                              //油压报警
+ 168   3                                              BCD[2] = oil_alarm/ 100;
+ 169   3                                              BCD[1] = (oil_alarm % 100) / 10;
+ 170   3                                              BCD[0] = oil_alarm % 10;
+ 171   3                                              for(i=0;i<3;i++)
+ 172   3                                              {
+ 173   4                                                      system_b_odo_char.para[30 + i] = BCD[2 - i];
+ 174   4                                                      display_uncolor_icon(*number_map[BCD[i]],21 - i,17);
+ 175   4                                              }
+ 176   3                                              //油量报警
+ 177   3                                              BCD[2] = fuel_alarm/ 100;
+C51 COMPILER V9.00   PAGE_PARAMETER                                                        12/13/2022 09:00:41 PAGE 4   
+
+ 178   3                                              BCD[1] = (fuel_alarm % 100) / 10;
+ 179   3                                              BCD[0] = fuel_alarm % 10;
+ 180   3                                              for(i=0;i<3;i++)
+ 181   3                                              {
+ 182   4                                                      system_b_odo_char.para[33 + i] = BCD[2 - i];
+ 183   4                                                      display_uncolor_icon(*number_map[BCD[i]],42 - i,9);
+ 184   4                                              }
+ 185   3                                              
+ 186   3                                              //视屏开关
+ 187   3                                              system_b_odo_char.para[36] = vedio_enable[0];
+ 188   3                                              system_b_odo_char.para[37] = vedio_enable[1];
+ 189   3                                              system_b_odo_char.para[38] = vedio_enable[2];
+ 190   3                                              system_b_odo_char.para[39] = vedio_enable[3];
+ 191   3                                              for(i=0;i<4;i++)
+ 192   3                                                      display_icon_uncolor_blink(*buzzer_map[vedio_enable[i]],40,10+i,0);
+ 193   3                                              //雨刮20ms延迟
+ 194   3                                              system_b_odo_char.para[40] = vedio_enable[4];
+ 195   3                                              display_icon_uncolor_blink(*buzzer_map[vedio_enable[i]],40,14,0);
+ 196   3                                              //雨刮延迟时间
+ 197   3                                              BCD[2] = yugua_time/ 100;
+ 198   3                                              BCD[1] = (yugua_time % 100) / 10;
+ 199   3                                              BCD[0] = yugua_time % 10;
+ 200   3                                              for(i=0;i<3;i++)
+ 201   3                                              {
+ 202   4                                                      system_b_odo_char.para[41 + i] = BCD[2 - i];
+ 203   4                                                      display_uncolor_icon(*number_map[BCD[i]],42 - i,15);
+ 204   4                                              }
+ 205   3                                              break;
+ 206   3                                      default:
+ 207   3                                              break;
+ 208   3                              }
+ 209   2                              /* todo: Write Your Code Here */
+ 210   2      
+ 211   2                      break;
+ 212   2      
+ 213   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+ 214   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+ 215   2      
+ 216   2                              /* todo: Write Your Code Here */
+ 217   2      
+ 218   2                      break;
+ 219   2      
+ 220   2                      default:        /* put to nodify if no process this event */
+ 221   2                              return TW_RETURN_NO_PROCESS;
+ 222   2      
+ 223   2      
+ 224   2              }
+ 225   1              return TW_RETURN_NONE;
+ 226   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2950    ----
+   CONSTANT SIZE    =     78    ----
+   XDATA SIZE       =      1       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+C51 COMPILER V9.00   PAGE_PARAMETER                                                        12/13/2022 09:00:41 PAGE 5   
+
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,289 @@
+C51 COMPILER V9.00   MODEDATA                                                              09/18/2015 14:54:42 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MODEDATA
+OBJECT MODULE PLACED IN .\Object\MODEDATA.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\tw_lib\drivers\MODEDATA.C LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_l
+                    -ib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\MODEDATA.lst) TABS(2) OBJECT(.\Object\MODED
+                    -ATA.obj)
+
+line level    source
+
+   1          //#include "ModeTbl.h"
+   2          //#include "vga_system.h"
+   3          #include "ModeData.h"
+   4          #include "VGADetect.h"
+   5          
+   6          //#define bDSPPLL_100   0x12
+   7          //#define bDSPPLL_108   0x00
+   8          //#define bDSPPLL_120   0x04  
+   9          //#define bDSPPLL_136   0x08
+  10          //#define bDSPPLL_140   0x0C
+  11          
+  12          //-----------------------------------------------------------
+  13          // Mode Table: Pixel Clock=(H_Total*32/H_Period)*14.318Mhz
+  14          //Refresh Rate=Pixel Clock/(H_Total*V_Total)
+  15          //-----------------------------------------------------------
+  16          //wHTotal      -> (HTotal = HsyncWidth + Hsst + HRes + HFrontPorch)
+  17          //wVTotal      -> 
+  18          //cVBackPorch  -> (BackPorch + TopBorder + SyncWidth)  
+  19          //wHBackPorch  -> (BackPorch + LeftBorder + SyncWidth)
+  20          //cResID       -> (Index into Resolution table)
+  21          //cModeFlags0  -> HSync[7] VSync[6]
+  22          //cModeFlags1  -> PLL
+  23          //cModeFlags2  -> bVCORange[7,6] bChargePump[5,4,3] bAPLL_Sel_HighFreq[0]
+  24          //wHPeriodCount-> Horizontal Period in 32 HSync lines XCLK count
+  25          //dwVPeriodCount-> Vertical Sync count with XCLK 
+  26          
+  27          MODE_DESCRIPTOR code ModeTable[] = {
+  28          // wHTotal, wVTotal, wHBackPorchc,VBackPorch , cResID, cModeFlags0, cModeFlags1,  cModeFlags2, wHPeriodCoun
+             -t,          dwVPeriodCount        
+  29          // 0 640x480@75Hz  
+  30            {840,     500,     120,         16,          2,      0x00,        bDSPPLL_3,  0x50,        HSYNC_PERIOD(
+             -37.500),  VSYNC_PERIOD(75.000)}, 
+  31          // 1 848x480@60Hz                                                               
+  32            {1088,    517,     112,         23,          16,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -31.020),  VSYNC_PERIOD(60.000)}, 
+  33          // 2 640x480@72Hz                                                               
+  34            {832,     520,     120,         20,          2,      0x00,        bDSPPLL_3,  0x50,        HSYNC_PERIOD(
+             -37.861),  VSYNC_PERIOD(72.809)}, 
+  35          // 3 640x480@60Hz                                                               
+  36            {800,     525,     40,          25,          2,      0x00,        bDSPPLL_3,  0x50,        HSYNC_PERIOD(
+             -31.469),  VSYNC_PERIOD(59.940)}, 
+  37          // 4 800x600@56Hz  
+  38            {1024,    625,     128,         22,          15,     0xC0,        bDSPPLL_2,  0x50,        HSYNC_PERIOD(
+             -35.156),  VSYNC_PERIOD(56.250)}, 
+  39          // 5 800x600@75Hz  
+  40            {1056,    625,     160,         21,          15,     0xC0,        bDSPPLL_1,  0x51,        HSYNC_PERIOD(
+             -46.875),  VSYNC_PERIOD(75.000)}, 
+  41          // 6 800x600@60Hz  
+  42            {1056,    628,     88,          23,          15,     0xC0,        bDSPPLL_2,  0x16,        HSYNC_PERIOD(
+             -37.879),  VSYNC_PERIOD(60.317)}, 
+  43          // 7 800x600@72Hz  
+  44            {1040,    666,     64,          23,          15,     0xC0,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -48.077),  VSYNC_PERIOD(72.188)}, 
+C51 COMPILER V9.00   MODEDATA                                                              09/18/2015 14:54:42 PAGE 2   
+
+  45          // 8 1280x720@60Hz   
+  46            {1650,    750,     220,         20,          29,     0xC0,        bDSPPLL_3,  0x31,        HSYNC_PERIOD(
+             -45.000),  VSYNC_PERIOD(60.000)}, 
+  47          // 9 1280x768@60Hz   
+  48            {1440,    790,     80,          12,          30,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -47.396),  VSYNC_PERIOD(59.995)}, 
+  49          // 10 1360x768@60Hz  
+  50            {1792,    795,     256,         18,          34,     0xC0,        bDSPPLL_3,  0x71,        HSYNC_PERIOD(
+             -47.712),  VSYNC_PERIOD(60.015)}, 
+  51          // 11 1366x768@60Hz  
+  52            {1792,    798,     213,         24,          35,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -47.712),  VSYNC_PERIOD(59.790)}, 
+  53          // 12 1280x768@60Hz  
+  54            {1664,    798,     192,         20,          30,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -47.776),  VSYNC_PERIOD(59.870)}, 
+  55          // 13 1366x768@60Hz  
+  56            {1500,    800,     64,          28,          35,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -48.000),  VSYNC_PERIOD(60.000)}, 
+  57          // 14 1366x768@70Hz  
+  58            {1500,    800,     179,         28,          35,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -48.000),  VSYNC_PERIOD(70.000)},    
+  59          // 15 1024x768@75Hz  
+  60            {1312,    800,     176,         28,          19,     0xC0,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -60.023),  VSYNC_PERIOD(75.029)}, 
+  61          // 16 1280x768@75Hz  
+  62            {1696,    805,     208,         27,          30,     0x40,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -60.289),  VSYNC_PERIOD(74.893)}, 
+  63          // 17 1024x768@60Hz  
+  64            {1344,    806,     160,         29,          19,     0x00,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -48.363),  VSYNC_PERIOD(60.004)}, 
+  65          // 18 1024x768@70Hz  
+  66            {1328,    806,     144,         29,          19,     0x00,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -56.476),  VSYNC_PERIOD(70.069)},    
+  67          // 19 1024x768@59Hz  
+  68            {1328,    813,     144,         29,          19,     0x00,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -48.193),  VSYNC_PERIOD(59.278)},    
+  69          // 20 1280x800@60Hz  
+  70            {1440,    823,     80,          14,          31,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -49.306),  VSYNC_PERIOD(59.910)}, 
+  71          // 21 1280x800@60Hz  
+  72            {1680,    831,     200,         22,          31,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -49.702),  VSYNC_PERIOD(59.810)}, 
+  73          // 22 1280x800@75Hz  
+  74            {1696,    838,     208,         29,          31,     0x40,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -62.795),  VSYNC_PERIOD(74.934)}, 
+  75          // 23 1152x864@75Hz  
+  76            {1600,    900,     256,         32,          24,     0x00,        bDSPPLL_4,  0x19,        HSYNC_PERIOD(
+             -67.500),  VSYNC_PERIOD(75.000)}, 
+  77          // 24 1440x900@60Hz  
+  78            {1600,    926,     80,          17,          38,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -55.469),  VSYNC_PERIOD(59.901)}, 
+  79          // 25 1440x900@60Hz  
+  80            {1904,    934,     232,         25,          38,     0x40,        bDSPPLL_3,  0x71,        HSYNC_PERIOD(
+             -55.935),  VSYNC_PERIOD(59.887)}, 
+  81          // 26 1440x900@75Hz  
+  82            {1936,    942,     248,         33,          38,     0x40,        bDSPPLL_4,  0x71,        HSYNC_PERIOD(
+             -70.635),  VSYNC_PERIOD(74.984)}, 
+  83          // 27 1600x900@60Hz  
+  84            {1800,    1000,    96,          96,          39,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -60.000),  VSYNC_PERIOD(60.000)}, 
+  85          // 28 1280x960@60Hz  
+  86            {1800,    1000,    312,         36,          32,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+C51 COMPILER V9.00   MODEDATA                                                              09/18/2015 14:54:42 PAGE 3   
+
+             -60.000),  VSYNC_PERIOD(60.000)}, 
+  87          // 29 1680x1050@75Hz   
+  88            {2272,    1053,    296,         40,          41,     0x40,        bDSPPLL_5,  0x51,        HSYNC_PERIOD(
+             -82.306),  VSYNC_PERIOD(74.892)}, 
+  89          // 30 1280x1024@60Hz   
+  90            {1688,    1066,    248,         38,          33,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -63.981),  VSYNC_PERIOD(60.020)}, //
+  91          // 31 1280x1024@75Hz                                                             
+  92            {1688,    1066,    248,         38,          33,     0xC0,        bDSPPLL_4,  0x71,        HSYNC_PERIOD(
+             -79.976),  VSYNC_PERIOD(75.025)}, //
+  93          // 32 1400x1050@60Hz   
+  94            {1560,    1080,    80,          23,          37,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -64.744),  VSYNC_PERIOD(59.948)}, 
+  95          // 33 1680x1050@60Hz   
+  96            {1840,    1080,    80,          21,          41,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -64.674),  VSYNC_PERIOD(59.883)}, 
+  97          // 34 1680x1050@60Hz   
+  98            {2240,    1089,    280,         30,          41,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -65.290),  VSYNC_PERIOD(59.954)}, 
+  99          // 35 1400x1050@60Hz   
+ 100            {1864,    1089,    232,         32,          37,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -65.317),  VSYNC_PERIOD(59.978)}, 
+ 101          // 36 1400x1050@75Hz   
+ 102            {1896,    1099,    248,         42,          37,     0x40,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -82.278),  VSYNC_PERIOD(74.867)}, 
+ 103          // 37 1920x1080@60Hz   
+ 104            {2200,    1125,    148,         36,          42,     0xC0,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -67.500),  VSYNC_PERIOD(60.000)}, 
+ 105          // 38 1600x1200@60Hz   
+ 106            {2160,    1250,    304,         46,          40,     0xC0,        bDSPPLL_3,  0x71,        HSYNC_PERIOD(
+             -75.000),  VSYNC_PERIOD(60.000)}, 
+ 107          // 39 1600x1200@65Hz   
+ 108            {2160,    1250,    304,         46,          40,     0xC0,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -81.250),  VSYNC_PERIOD(65.000)}, 
+ 109          // 40 1600x1200@70Hz   
+ 110            {2160,    1250,    304,         46,          40,     0xC0,        bDSPPLL_4,  0x7D,        HSYNC_PERIOD(
+             -87.500),  VSYNC_PERIOD(70.000)}, 
+ 111          // 41 1600x1200@75Hz   
+ 112            {2160,    1250,    304,         46,          40,     0xC0,        bDSPPLL_4,  0x71,        HSYNC_PERIOD(
+             -93.750),  VSYNC_PERIOD(75.000)}, 
+ 113          // 42 1920x1200@60Hz   
+ 114            {2080,    1235,    80,          26,          43,     0x80,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -74.038),  VSYNC_PERIOD(59.950)}, 
+ 115          // 43 1920x1200@60Hz   
+ 116            {2592,    1245,    336,         36,          43,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -74.556),  VSYNC_PERIOD(59.885)}, 
+ 117          // 44 1920x1200@75Hz   
+ 118            {2608,    1255,    208,         46,          43,     0x40,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -94.038),  VSYNC_PERIOD(74.930)}, 
+ 119          // 45 1920x1440@60Hz   
+ 120            {2600,    1500,    344,         56,          44,     0x40,        bDSPPLL_3,  0x51,        HSYNC_PERIOD(
+             -90.000),  VSYNC_PERIOD(60.000)}, 
+ 121          // 46 1920x1440@75Hz   
+ 122            {2640,    1500,    352,         56,          44,     0x40,        bDSPPLL_4,  0x51,        HSYNC_PERIOD(
+             -112.500),  VSYNC_PERIOD(75.000)}, 
+ 123          };
+ 124          
+ 125          
+ 126          
+ 127          
+ 128          
+ 129          //#define TOTALMODES (sizeof(ModeTable)/sizeof(MODE_DESCRIPTOR)-1)
+C51 COMPILER V9.00   MODEDATA                                                              09/18/2015 14:54:42 PAGE 4   
+
+ 130          uCHAR code TOTALMODES=(sizeof(ModeTable)/sizeof(MODE_DESCRIPTOR)-1);
+ 131          
+ 132          
+ 133          
+ 134          //---------------------------------------------------
+ 135          // Resolution Table 
+ 136          //---------------------------------------------------
+ 137          RESOLUTION code ResolutionTable[] = {
+ 138              { 512, 384 },  // 0
+ 139              { 560, 384 },  // 1
+ 140              { 640, 480 },  // 2     
+ 141              { 640, 400 },  // 3
+ 142              { 640, 350 },  // 4
+ 143              { 640, 870 },  // 5
+ 144              { 640, 200 },  // 6
+ 145              { 720, 480 },  // 7
+ 146              { 720, 574 },  // 8
+ 147              { 720, 576 },  // 9
+ 148              { 720, 486 },  // 10                                                                                  
+             -        
+ 149              { 720, 400 },  // 11
+ 150              { 720, 350 },  // 12
+ 151              { 720, 483 },  // 13
+ 152              { 752, 484 },  // 14
+ 153              { 800, 600 },  // 15    
+ 154              { 848, 480 },  // 16
+ 155              { 852, 480 },  // 17
+ 156              { 960, 720 },  // 18
+ 157              { 1024, 768 }, // 19    
+ 158              { 1024, 1024 }, // 20
+ 159              { 1053, 754 },  // 21
+ 160              { 1056, 768 },  // 22
+ 161              { 1120, 750 },  // 23
+ 162              { 1152, 864 },  // 24
+ 163              { 1152, 870 },  // 25
+ 164              { 1152, 900 },  // 26
+ 165              { 1184, 884 },  // 27
+ 166              { 1280, 1024 }, // 28   
+ 167              { 1280, 720 },  // 29
+ 168            { 1280, 768 },  // 30
+ 169            { 1280, 800 },  // 31
+ 170            { 1280, 960 },  // 32
+ 171            { 1280, 1024 }, // 33
+ 172            { 1360, 768 },  // 34
+ 173            { 1366, 768 },  // 35
+ 174              { 1360, 1024 }, // 36
+ 175              { 1400, 1050 }, // 37
+ 176              { 1440, 900 },  // 38
+ 177            { 1600, 900 },  // 39
+ 178              { 1600, 1200 }, // 40
+ 179              { 1680, 1050 }, // 41
+ 180              { 1920, 1080 }, // 42
+ 181            { 1920, 1200 }, // 43
+ 182            { 1920, 1440 }, // 44
+ 183          };
+ 184          
+ 185          //MODE_DESCRIPTOR code *m_pModeDescriptorPtr;
+ 186          //RESOLUTION  code *m_pResolutionPtr;
+ 187          //ALT_HTOTAL  code *m_pAltHTotalPtr;
+ 188          
+ 189          uCHAR code SupportMode[]={
+ 190            40,   //640x480@60
+C51 COMPILER V9.00   MODEDATA                                                              09/18/2015 14:54:42 PAGE 5   
+
+ 191            57,   //800x600@60
+ 192            73,   //800x600@72
+ 193            90,   //1024x768@60
+ 194            94,   //1024x768@70
+ 195            136,  //1280x1024@60
+ 196          };
+ 197          
+ 198          uCHAR code SupportModeNum = sizeof(SupportMode)/sizeof(SupportMode[0]);
+ 199          
+ 200          uCHAR code pstrSupport[]={"Not Support !\r\n"};
+ 201          uCHAR code pstrOutrange[]={"Out Range !\r\n"};
+ 202          uCHAR code pstrNotLock[]={"Not Locked !\r\n"};
+ 203          uCHAR code pstrChange[]={"Sync Change !\r\n"};
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   1048    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

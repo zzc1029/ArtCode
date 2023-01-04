@@ -1,0 +1,95 @@
+C51 COMPILER V9.00   PAGE_SURFACE15                                                        12/13/2022 09:00:42 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_SURFACE15
+OBJECT MODULE PLACED IN .\Object\page_surface15.obj
+COMPILER INVOKED BY: F:\¹¤×÷Èí¼þ\Keil\C51\BIN\C51.EXE Source\page_surface15.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\
+                    -tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_surface15.lst) OBJECT(.\Object\pag
+                    -e_surface15.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "disp_config.h"
+   9          
+  10          #if (PAGE_ADD > 14)
+  11          
+  12          #include "page_surface15.h"
+  13          #include "display.h"
+  14          #include "mydrivers.h"
+  15          
+  16          #include "uart.h"
+  17          unsigned char page_surface15_process (TW_EVENT* event)
+  18          {
+  19   1              unsigned char i,j;
+  20   1              switch(event->type)
+  21   1              {
+  22   2                      case TW_EVENT_TYPE_ENTER_SYSTEM:
+  23   2                              dbg(2, (">>>>> Enter Menu Page\n\r"));
+  24   2                              tw_td_draw(&main_surface15);
+  25   2                              sosd_td_enable();
+  26   2                              sosd_enable(DONT_LOAD);
+  27   2                              clear_alarm_area();
+  28   2                              //clear_mark_area();//·ûºÅÆ¬ÇøÓò
+  29   2                              //clear_unmark_area();//·ûºÅÆ¬ÇøÓò
+  30   2                              //clear_unalarm_area();
+  31   2                              clear_area_block(0,0,31,2);
+  32   2                              clear_area_block(37,0,13,2);
+  33   2                              clear_area_block(0,2,50,16);  
+  34   2                   //   clear_area_block(31,0,6,2); //·ûºÅÆ¬ÇøÓò
+  35   2        
+  36   2                              for(i=0;i<6;i++)
+  37   2                                      for(j=0;j<8;j++)
+  38   2                                              surface_data[i][j] = 0;
+  39   2                              //if(LIGHT_EN)
+  40   2                              //{
+  41   2                              //      LIGHT_EN = 0;
+  42   2                                      IC_WritByte(TWIC_P1,0x63,0xf0);
+  43   2                              //}
+  44   2                              display_surface15();
+  45   2      
+  46   2                              /* todo: Write Your Code Here */
+  47   2      
+  48   2                      break;
+  49   2      
+  50   2                      case TW_EVENT_TYPE_QUIT_SYSTEM:
+  51   2                              dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  52   2      
+  53   2                              /* todo: Write Your Code Here */
+C51 COMPILER V9.00   PAGE_SURFACE15                                                        12/13/2022 09:00:42 PAGE 2   
+
+  54   2      
+  55   2                      break;
+  56   2      
+  57   2                      default:        /* put to nodify if no process this event */
+  58   2                              return TW_RETURN_NO_PROCESS;
+  59   2      
+  60   2      
+  61   2              }
+  62   1              return TW_RETURN_NONE;
+  63   1      }
+  64          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    138    ----
+   CONSTANT SIZE    =     78    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

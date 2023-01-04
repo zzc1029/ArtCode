@@ -1,0 +1,168 @@
+C51 COMPILER V9.00   IR                                                                    09/18/2015 14:54:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE IR
+OBJECT MODULE PLACED IN .\Object\ir.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\tw_lib\drivers\ir.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\sys
+                    -;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\ir.lst) TABS(2) OBJECT(.\Object\ir.obj)
+
+line level    source
+
+   1          /*
+   2           *  @file   ir.c
+   3           *  @brief  IR driver 
+   4           *  $Id: ir.c,v 1.3 2013/04/02 05:42:18 dos1236 Exp $
+   5           *  $Author: dos1236 $
+   6           *  $Revision: 1.3 $
+   7           *
+   8           *  Copyright (c) 2012 Terawins Inc. All rights reserved.
+   9           * 
+  10           *  @date   2012/06/11  yc New file.
+  11           *
+  12           */
+  13          
+  14          #include "sys.h"
+  15          #include "reg_tw.h"
+  16          #include "iccontrol.h"
+  17          #include "tw_irq.h"
+  18          #include "ir.h"
+  19          
+  20          static unsigned char queue[IR_BUFF_SIZE];
+  21          static unsigned char front=IR_BUFF_SIZE-1; 
+  22          static unsigned char rear=IR_BUFF_SIZE-1;
+  23          static unsigned char irRepeat=0 ;
+  24          /*
+  25           * 摘要 :void ir_clear(void)
+  26           *
+  27           * 描述 :清除IR QUEUE BUFFER
+  28           *
+  29           * 参数 :无
+  30           *
+  31           * 回传值 : 无
+  32           *
+  33           * 注意 : 无
+  34          */
+  35          void ir_clear(void)
+  36          {
+  37   1        front=IR_BUFF_SIZE-1;
+  38   1        rear=IR_BUFF_SIZE-1;
+  39   1      }
+  40          /*
+  41           * 摘要 :void CheckIR(void)
+  42           *
+  43           * 描述 :IR中断处理程序
+  44           *
+  45           * 参数 :无
+  46           *
+  47           * 回传值 : 无
+  48           *
+  49           * 注意 : 无
+  50          */
+  51          void CheckIR(void)
+  52          {
+  53   1          unsigned short tempIRSYS;
+  54   1          tempIRSYS = IC_ReadByte(TWIC_P1,0x43);
+C51 COMPILER V9.00   IR                                                                    09/18/2015 14:54:40 PAGE 2   
+
+  55   1          tempIRSYS <<= 8;
+  56   1          tempIRSYS |= IC_ReadByte(TWIC_P1,0x42);
+  57   1          if(tempIRSYS == IR_SYS_CODE) //0xff00
+  58   1          { 
+  59   2            unsigned char tempIRStd,tempIRCode;
+  60   2            tempIRCode = IC_ReadByte(TWIC_P1,0x44);
+  61   2            tempIRStd = IC_ReadByte(TWIC_P1,0x45);
+  62   2            if(IC_ReadByte(TWIC_P1, 0x47)&0x01) //repeat
+  63   2            {
+  64   3              if(irRepeat<4)
+  65   3              {
+  66   4                irRepeat++;//repeat 4 times as a interrupt
+  67   4                clear_tw_irq(IRQ_IR_PACKET);
+  68   4                return;
+  69   4              } 
+  70   3            }
+  71   2            if(tempIRCode == ~tempIRStd)
+  72   2            {
+  73   3              rear=(rear+1)%IR_BUFF_SIZE;
+  74   3              if(rear==front)
+  75   3              {
+  76   4                if(rear==0)
+  77   4                {
+  78   5                  rear=10-1;//max value
+  79   5                }
+  80   4                else
+  81   4                {
+  82   5                  rear=rear-1;
+  83   5                }
+  84   4              }
+  85   3              else
+  86   3              {
+  87   4                queue[rear]=tempIRCode;
+  88   4              } 
+  89   3            }
+  90   2            irRepeat=0;
+  91   2          } 
+  92   1        clear_tw_irq(IRQ_IR_PACKET);
+  93   1      
+  94   1      }
+  95          /*
+  96           * 摘要 :unsigned char IRscan(unsigned char *value)
+  97           *
+  98           * 描述 :从IR取值
+  99           *
+ 100           * 参数 :unsigned char *value =>会将IR值给到 *value
+ 101           *
+ 102           * 回传值 : 0=>无资料 1=>有资料
+ 103           *
+ 104           * 注意 : 无
+ 105          */
+ 106          unsigned char IRscan(unsigned char *value)
+ 107          {
+ 108   1        unsigned char temp;
+ 109   1        if(front==rear)
+ 110   1        {
+ 111   2          return 0;
+ 112   2        }
+ 113   1        else
+ 114   1        {
+ 115   2          front=(front+1)%IR_BUFF_SIZE;
+ 116   2          temp=queue[front];
+C51 COMPILER V9.00   IR                                                                    09/18/2015 14:54:40 PAGE 3   
+
+ 117   2          *value=temp;
+ 118   2          return 1;
+ 119   2        }
+ 120   1      }
+ 121          /*
+ 122           * 摘要 :void ir_init(void) 
+ 123           *
+ 124           * 描述 :IR初始化
+ 125           *
+ 126           * 参数 :无
+ 127           *
+ 128           * 回传值 : 无
+ 129           *
+ 130           * 注意 : 无
+ 131          */
+ 132          void ir_init(void)
+ 133          {
+ 134   1        IC_WritByte(TWIC_P1, 0x47,0x85);
+ 135   1        enable_tw_irq(IRQ_IR_PACKET); 
+ 136   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    300    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     13       7
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

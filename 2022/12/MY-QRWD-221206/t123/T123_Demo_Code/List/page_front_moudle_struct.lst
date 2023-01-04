@@ -1,0 +1,38 @@
+C51 COMPILER V9.00   PAGE_FRONT_MOUDLE_STRUCT                                              12/13/2022 09:00:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_FRONT_MOUDLE_STRUCT
+OBJECT MODULE PLACED IN .\Object\page_front_moudle_struct.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE i51\page_front_moudle_struct.c LARGE OMF2 BROWSE INCDIR(.\IncludeF
+                    -ile;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_front_moudle_struct.lst) OB
+                    -JECT(.\Object\page_front_moudle_struct.obj)
+
+line level    source
+
+   1          #include "sys.h"
+   2          #include "tw_widget_sys.h"
+   3          #include "res.h"
+   4          #include "page_front_moudle.h"
+   5          
+   6          struct tw_td code main_front_moudle = {
+   7              ID_MAIN_FRONT_MOUDLE, 0, 0, 800, 480
+   8          };
+   9          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,1468 @@
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Object\uart.obj
+COMPILER INVOKED BY: F:\工作软件\Keil\C51\BIN\C51.EXE SourceFile\uart.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib
+                    -\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\uart.lst) OBJECT(.\Object\uart.obj)
+
+line level    source
+
+   1          #include "uart.h"
+   2          #include "serial.h"
+   3          #include "display.h"
+   4          
+   5          unsigned char buzzer;
+   6          unsigned char uart_cmd,dandu_disp,para_cmd;
+   7          unsigned long mark_door;
+   8          unsigned char mark2,mark3;
+   9          unsigned char menu,page_xuanze;
+  10          unsigned int speed_scale,baimi_pulse;//subi
+  11          unsigned char system_bright,scale_factor;//liangdu
+  12          unsigned char system_video;//tv1-4
+  13          unsigned char i_temp[CMD_MAX],i_put = 0,i_get = 0,i_len = 0;
+  14          unsigned char status_para_change;
+  15          unsigned int meter_status[4];
+  16          unsigned int meter_para_A2,meter_para_A3,meter_para_A4,meter_para_A5,meter_para_A13,meter_para_A14,meter_p
+             -ara_A15,meter_para_K;
+  17          #if MODULE_FRONT_B40
+  18          unsigned int front_status[4];
+  19          unsigned int front_para_A25,front_para_A40,front_para_A26;
+  20          #endif
+  21          #if MODULE_REAR_B40
+  22          unsigned int rear_status[4];
+  23          unsigned int rear_para_A25,rear_para_A40,rear_para_A26;
+  24          #endif
+  25          #if MODULE_TOP_B40
+              unsigned int top_status[4];
+              unsigned int top_para_A25,top_para_A40,top_para_A26;
+              #endif
+  29          #if MODULE_FRONT_B50
+              unsigned int front_status[2],front_para[7];
+              unsigned int front_out_status[6];
+              #endif
+  33          #if MODULE_REAR_B50
+              unsigned int rear_status[2],rear_para[7];
+              unsigned int rear_out_status[6];
+              #endif
+  37          #if MODULE_TOP_B50
+              unsigned int top_status[2],top_para[7];
+              unsigned int top_out_status[6];
+              #endif
+  41          SYS_TIME system_time;
+  42          SYS_MEILAGE system_meilage;
+  43          SYS_ALARM system_alarm;
+  44          SYS_AIR system_air;
+  45          SYS_PAGE system_page;
+  46          SYS_BLINK1 system_b_password;
+  47          SYS_BLINK system_b_odo_char;
+  48          SYS_BLINK2 system_b_set;
+  49          
+  50          unsigned char air1_factor,air2_factor,speed_alarm,air_alarm,oil_alarm,fuel_alarm,vedio_enable[5],yugua_tim
+             -e;//设置增加
+  51          unsigned char wiper_sec;
+  52          //-----------------------------------------------------------------------------------
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 2   
+
+  53          unsigned char li_battery_level,system_status;
+  54          unsigned int xudianchi_voltage,system_code,xushi_trip,motor_zhuansu,tms_fault_code;
+  55          int total_voltage,total_current;
+  56          
+  57          unsigned int dongli_input_voltage;
+  58          int dongli_input_current;
+  59          unsigned char siji_status,onoff_status,bus_life,bus_mode,bus_yuliu[6],youmen_taban,zhidong_taban,bus_versi
+             -on[7],dianchi_soc;
+  60          
+  61          int motor_temp[2];
+  62          unsigned int motor_zhuanju;
+  63          int motor_zhju,motor_con_cur;
+  64          //unsigned char motor_version[7],dynamo_version[7];
+  65          
+  66          int dcdc_output_voltage,dcdc_output_current,dcdc_input_voltage,dcdc_temp;
+  67          int qiben1,qiben2,qiben3,qiben4;
+  68           
+  69          unsigned char qiben5,dcdc_fault,dcac_fault;
+  70          int dcac_w_current,dcac_v_current,dcac_u_current,dcac_temp;
+  71          
+  72          unsigned int riso_zheng,riso_fu;
+  73          unsigned char riso_life,riso_fault,riso_loudian;
+  74          
+  75          unsigned char tiaoshi_canshu[8];
+  76          
+  77          int chongdian_current,fangdian_current,mono_max_temp,mono_min_temp;
+  78          unsigned int battery_riso_zheng,battery_riso_fu,mono_max_voltage,mono_min_voltage,mono_pingjun_voltage;
+  79          unsigned char battery_status[5];
+  80          
+  81          unsigned char vin_status,battery_fault_suliang,mono_binglian_shuliang,mono_tanzhen_shuliang;
+  82          int chongdian_temp[4];
+  83          unsigned int eding_rongliang,eding_voltage,mono_chuanlian_shuliang;
+  84          
+  85          int mono_min_temp;
+  86          unsigned char mono_max_t_xiang,mono_max_t_jie,mono_min_t_xiang,mono_min_t_jie,mono_max_v_xiang,mono_max_v_
+             -jie;
+  87          unsigned char mono_min_v_xiang,mono_min_v_jie,battery_leixing,battery_lengque,battery_yuliu[4];
+  88          
+  89          unsigned int dianchi_bianhao[10],dianchi_mono_voltage[10];
+  90          int dianchi_mono_temp[10];
+  91          unsigned char dianchi_xianghao[10];
+  92          
+  93          int air_set_temp,air_wai_temp,air_nei_temp,air_current;
+  94          unsigned char air_status,air_life,air_fuhe;
+  95          
+  96          unsigned char miehuoqi_xiang,miehuoqi_yujing,miehuoqi_fault,miehuoqi_qingqiu,yanwu_status[5],yanwu_life;
+  97          
+  98          unsigned char dianchi_fenxian,runhua1;
+  99          
+ 100          unsigned char yzt_status;//云智通状态
+ 101          
+ 102          
+ 103          //int peidianhe_cur,peidianhe_temp;
+ 104          //unsigned int peidianhe_vol;
+ 105          //unsigned char peidianhe_status;
+ 106          
+ 107          
+ 108          unsigned char youbeng_life[2],youbeng_status[2],youbeng[3],guzhangdaima,diduan_vol,yingjianbanben,ruanjian
+             -banben;
+ 109          unsigned int youbeng_zhuansu[2],youbeng_cur[2],gaoduan_vol;
+ 110          int youbeng_temp[2],dianji_temp;
+ 111          
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 3   
+
+ 112          unsigned char meter_input,meter_output;
+ 113          unsigned int dianhao;
+ 114          
+ 115          unsigned char surface_data[6][8];
+ 116          long shunshi_gonglv,shengyu_gonglv;
+ 117          unsigned char elec_control_code;
+ 118          void _main_data1(void);
+ 119          void _main_data2(void);
+ 120          void _main_data3(void);
+ 121          
+ 122          unsigned int ByteToWord(unsigned char lowbyte,unsigned char highbyte)
+ 123          {
+ 124   1              unsigned int temp;
+ 125   1              temp = highbyte;
+ 126   1              temp = (temp << 8) & 0xff00;
+ 127   1              temp |= lowbyte;
+ 128   1              return temp;
+ 129   1      }
+ 130          unsigned long ByteToDword(unsigned char lowbyte,unsigned char byte1,unsigned char byte2,unsigned char high
+             -byte)
+ 131          {
+ 132   1              unsigned long temp,tep;
+ 133   1              tep = byte1;
+ 134   1              tep = (tep << 8) & 0x0000ff00;
+ 135   1              tep |= lowbyte;
+ 136   1      
+ 137   1              temp = highbyte;
+ 138   1              temp = (temp << 8) & 0x0000ff00;
+ 139   1              temp |= byte2;
+ 140   1              temp = (temp << 16) & 0xffff0000;
+ 141   1              return (temp | tep);
+ 142   1      }
+ 143          void Rec_para_page(void)
+ 144          {
+ 145   1              switch(rev_buf[2])
+ 146   1              {
+ 147   2                      case PAGE_PASSWORD:
+ 148   2                              system_b_password.blink = rev_buf[3];
+ 149   2                              system_b_password.para[rev_buf[3]] = rev_buf[4];
+ 150   2                              para_cmd = PAGE_PASSWORD;
+ 151   2                              break;
+ 152   2                      case PAGE_PARA:
+ 153   2                              system_b_set.blink = rev_buf[3];
+ 154   2                              system_b_set.para[rev_buf[3]] = rev_buf[4];
+ 155   2                              if(rev_buf[3] == 6)
+ 156   2                                      buzzer = rev_buf[4];
+ 157   2                              para_cmd = PAGE_PARA;
+ 158   2                              break;
+ 159   2                      case PAGE_SET:
+ 160   2                              system_b_odo_char.blink = rev_buf[3];
+ 161   2                              system_b_odo_char.para[rev_buf[3]] = rev_buf[4];
+ 162   2                              para_cmd = PAGE_SET;
+ 163   2                              break;
+ 164   2                      default:
+ 165   2                              para_cmd = 0;
+ 166   2                              break;
+ 167   2              }
+ 168   1              uart_cmd = UART1_PARA_PAGE;
+ 169   1      }
+ 170          void Rec_meter_page(void)
+ 171          {
+ 172   1              #if METER_C50
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 4   
+
+                      unsigned char temp;
+                      if(rev_buf[2] == 1)
+                      {
+                              meter_status[0] = rev_buf[4];
+                              meter_status[0] <<= 7;
+                              meter_status[0] &= 0x7f80;
+                              meter_status[0] |= rev_buf[3];
+                              if(rev_buf[5] & 0x01)
+                                      meter_status[0] |= 0x8000;
+                              
+                              meter_status[1] = rev_buf[7];
+                              meter_status[1] <<= 8;
+                              temp = (rev_buf[6] << 3) & 0xf8;
+                              temp |= ((rev_buf[5] >> 1) & 0x07);
+                              meter_status[1] |= temp;
+                              
+                              meter_status[2] = rev_buf[8];
+                              meter_status[3] = rev_buf[9];
+                      }
+                      else if(rev_buf[2] == 2)
+                      {
+                              meter_para_A2 = ByteToWord(rev_buf[3],rev_buf[4]);
+                              meter_para_A3 = ByteToWord(rev_buf[5],rev_buf[6]);
+                              meter_para_A4 = ByteToWord(rev_buf[7],rev_buf[8]);
+                      }
+                      else if(rev_buf[2] == 3)
+                      {
+                              meter_para_A5 = ByteToWord(rev_buf[3],rev_buf[4]);
+                              meter_para_A13 = ByteToWord(rev_buf[5],rev_buf[6]);
+                              meter_para_A14 = ByteToWord(rev_buf[7],rev_buf[8]);
+                              meter_para_A15 = ByteToWord(rev_buf[9],rev_buf[10]);
+                      }
+                      #elif METER_C61
+                      if(rev_buf[2] == 1)
+                      {
+                              meter_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+                              meter_status[1] = rev_buf[6];
+                              meter_status[1] <<= 8;
+                              meter_status[1] &= 0x0700;
+                              meter_status[1] |= rev_buf[5];
+                              
+                              //meter_status[2] = rev_buf[8];
+                              meter_status[3] = rev_buf[7];
+                      }
+                      else if(rev_buf[2] == 2)
+                      {
+                              meter_para_A2 = ByteToWord(rev_buf[3],rev_buf[4]);
+                              meter_para_A3 = ByteToWord(rev_buf[5],rev_buf[6]);
+                              meter_para_A4 = ByteToWord(rev_buf[7],rev_buf[8]);
+                              meter_para_A5 = ByteToWord(rev_buf[9],rev_buf[10]);
+                      }
+                      else if(rev_buf[2] == 3)
+                      {
+                              meter_para_A13 = ByteToWord(rev_buf[3],rev_buf[4]);
+                              meter_para_A14 = ByteToWord(rev_buf[5],rev_buf[6]);
+                      }
+                      #elif METER_C52
+ 230   1              if(rev_buf[2] == 1)
+ 231   1              {
+ 232   2                      meter_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+ 233   2                      meter_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+ 234   2                      meter_status[2] = ByteToWord(rev_buf[7],rev_buf[8]);
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 5   
+
+ 235   2              }
+ 236   1              else if(rev_buf[2] == 2)
+ 237   1              {
+ 238   2                      meter_para_A2 = ByteToWord(rev_buf[3],rev_buf[4]);
+ 239   2                      meter_para_A3 = ByteToWord(rev_buf[5],rev_buf[6]);
+ 240   2                      meter_para_A4 = ByteToWord(rev_buf[7],rev_buf[8]);
+ 241   2                      meter_para_K = rev_buf[9];//逻辑版本
+ 242   2              }
+ 243   1              else if(rev_buf[2] == 3)
+ 244   1              {
+ 245   2                      meter_para_A5 = ByteToWord(rev_buf[3],rev_buf[4]);
+ 246   2                      meter_para_A13 = ByteToWord(rev_buf[5],rev_buf[6]);
+ 247   2                      meter_para_A14 = ByteToWord(rev_buf[7],rev_buf[8]);
+ 248   2                      meter_para_A15 = ByteToWord(rev_buf[9],rev_buf[10]);
+ 249   2              }
+ 250   1              #endif
+ 251   1              status_para_change = rev_buf[2];
+ 252   1              uart_cmd = UART1_METER_PAGE;
+ 253   1      }
+ 254          void Rec_front_page(void)
+ 255          {
+ 256   1              #if MODULE_FRONT_B50
+                      unsigned char i;
+                      #endif
+ 259   1              status_para_change = rev_buf[2];
+ 260   1              #if MODULE_FRONT_B40
+ 261   1              if(rev_buf[2] == 1)
+ 262   1              {
+ 263   2                      front_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+ 264   2                      
+ 265   2                      front_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+ 266   2                      
+ 267   2                      front_status[2] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 268   2                      
+ 269   2                      front_status[3] = rev_buf[9];//a17=0,a41=1
+ 270   2              }
+ 271   1              else if(rev_buf[2] == 2)
+ 272   1              {
+ 273   2                      front_para_A25 = ByteToWord(rev_buf[3],rev_buf[4]);
+ 274   2      
+ 275   2                      front_para_A40 = ByteToWord(rev_buf[5],rev_buf[6]);
+ 276   2      
+ 277   2                      front_para_A26 = ByteToWord(rev_buf[7],rev_buf[8]);
+ 278   2              }
+ 279   1              #endif
+ 280   1              #if MODULE_FRONT_B50
+                      switch(rev_buf[2])
+                      {
+                              case 1:
+                                      front_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+                                      front_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<4;i++)
+                                              front_para[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 3:
+                                      for(i=0;i<3;i++)
+                                              front_para[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              default:
+                                      break;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 6   
+
+                      }
+                      #endif
+ 299   1              uart_cmd = UART1_FRONT_PAGE;
+ 300   1      }
+ 301          void Rec_rear_page(void)
+ 302          {
+ 303   1              #if MODULE_REAR_B50
+                      unsigned char i;
+                      #endif
+ 306   1              status_para_change = rev_buf[2];
+ 307   1              #if MODULE_REAR_B40
+ 308   1              if(rev_buf[2] == 1)
+ 309   1              {
+ 310   2                      rear_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+ 311   2                      
+ 312   2                      rear_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+ 313   2                      
+ 314   2                      rear_status[2] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 315   2                      
+ 316   2                      rear_status[3] = rev_buf[9];//a17=0,a41=1
+ 317   2              }
+ 318   1              else if(rev_buf[2] == 2)
+ 319   1              {
+ 320   2                      rear_para_A25 = ByteToWord(rev_buf[3],rev_buf[4]);
+ 321   2      
+ 322   2                      rear_para_A40 = ByteToWord(rev_buf[5],rev_buf[6]);
+ 323   2      
+ 324   2                      rear_para_A26 = ByteToWord(rev_buf[7],rev_buf[8]);
+ 325   2              }
+ 326   1              #endif
+ 327   1              #if MODULE_REAR_B50
+                      switch(rev_buf[2])
+                      {
+                              case 1:
+                                      rear_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+                                      rear_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<4;i++)
+                                              rear_para[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 3:
+                                      for(i=0;i<3;i++)
+                                              rear_para[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              default:
+                                      break;
+                      }
+                      #endif
+ 346   1              uart_cmd = UART1_REAR_PAGE;
+ 347   1      }
+ 348          void Rec_top_page(void)
+ 349          {
+ 350   1              #if MODULE_TOP_B50
+                      unsigned char i;
+                      #endif
+ 353   1              status_para_change = rev_buf[2];
+ 354   1              #if MODULE_TOP_B40
+                      if(rev_buf[2] == 1)
+                      {
+                              top_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+                              
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 7   
+
+                              top_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+                              
+                              top_status[2] = ByteToWord(rev_buf[7],rev_buf[8]);
+                              
+                              top_status[3] = rev_buf[9];//a17=0,a41=1
+                      }
+                      else if(rev_buf[2] == 2)
+                      {
+                              top_para_A25 = ByteToWord(rev_buf[3],rev_buf[4]);
+              
+                              top_para_A40 = ByteToWord(rev_buf[5],rev_buf[6]);
+              
+                              top_para_A26 = ByteToWord(rev_buf[7],rev_buf[8]);
+                      }
+                      #endif
+ 374   1              #if MODULE_TOP_B50
+                      switch(rev_buf[2])
+                      {
+                              case 1:
+                                      top_status[0] = ByteToWord(rev_buf[3],rev_buf[4]);
+                                      top_status[1] = ByteToWord(rev_buf[5],rev_buf[6]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<4;i++)
+                                              top_para[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 3:
+                                      for(i=0;i<3;i++)
+                                              top_para[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              default:
+                                      break;
+                      }
+                      #endif
+ 393   1              uart_cmd = UART1_TOP_PAGE;
+ 394   1      }
+ 395          void Rec_front_out_page(void)
+ 396          {
+ 397   1              #if MODULE_FRONT_B50
+                      unsigned char i;
+                      switch(rev_buf[2])
+                      {
+                              case 1:
+                                      for(i=0;i<4;i++)
+                                              front_out_status[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<2;i++)
+                                              front_out_status[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      front_out_status[5] &= 0x0fff;
+                                      break;
+                              default:
+                                      break;
+                      }
+                      #endif
+ 414   1              uart_cmd = UART1_FRONT_OUT_PAGE;
+ 415   1      }
+ 416          void Rec_rear_out_page(void)
+ 417          {
+ 418   1              #if MODULE_REAR_B50
+                      unsigned char i;
+                      switch(rev_buf[2])
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 8   
+
+                      {
+                              case 1:
+                                      for(i=0;i<4;i++)
+                                              rear_out_status[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<2;i++)
+                                              rear_out_status[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      rear_out_status[5] &= 0x0fff;
+                                      break;
+                              default:
+                                      break;
+                      }
+                      #endif
+ 435   1              uart_cmd = UART1_REAR_OUT_PAGE;
+ 436   1      }
+ 437          void Rec_top_out_page(void)
+ 438          {
+ 439   1              #if MODULE_TOP_B50
+                      unsigned char i;
+                      switch(rev_buf[2])
+                      {
+                              case 1:
+                                      for(i=0;i<4;i++)
+                                              top_out_status[i] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      break;
+                              case 2:
+                                      for(i=0;i<2;i++)
+                                              top_out_status[i + 4] = ByteToWord(rev_buf[3 + 2*i],rev_buf[4 + 2*i]);
+                                      top_out_status[5] &= 0x0fff;
+                                      break;
+                              default:
+                                      break;
+                      }
+                      #endif
+ 456   1              uart_cmd = UART1_TOP_OUT_PAGE;
+ 457   1      }
+ 458          void Rec_main_page(void)
+ 459          {
+ 460   1              unsigned char i;
+ 461   1              static unsigned char last_soc = 0,last_air1 = 0,last_air2 = 0,last_odo[7] = {0},last_mark2 = 0,last_mark3
+             - = 0;
+ 462   1              static unsigned char last_year = 0,last_month = 0,last_day = 0,last_hour = 0,last_minute = 0;
+ 463   1              static unsigned long last_mark_door = 0xfffffff8;
+ 464   1              switch(rev_buf[2])
+ 465   1              {
+ 466   2                      case 1:
+ 467   2                              mark_door = ByteToDword(rev_buf[6],rev_buf[5],rev_buf[4],rev_buf[3]);
+ 468   2                              mark2 = rev_buf[7];
+ 469   2                              mark3 = rev_buf[8];
+ 470   2                              if((last_mark_door != mark_door)||(last_mark2 != mark2)||(last_mark3 != mark3))
+ 471   2                              {
+ 472   3                                      dandu_disp = MAIN_MARK;
+ 473   3                                      last_mark_door = mark_door;
+ 474   3                                      last_mark2 = mark2;
+ 475   3                                      last_mark3 = mark3;
+ 476   3                              }
+ 477   2                              
+ 478   2                              break;
+ 479   2                      case 2:
+ 480   2                              for(i=0;i<7;i++)
+ 481   2                                      system_meilage.odo[6 - i] = rev_buf[3 + i];
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 9   
+
+ 482   2                              if((last_odo[0]!= system_meilage.odo[0]) || (last_odo[1]!= system_meilage.odo[1]) || (last_odo[2]!= sys
+             -tem_meilage.odo[2]) ||\
+ 483   2                                      (last_odo[3]!= system_meilage.odo[3]) || (last_odo[4]!= system_meilage.odo[4]) || (last_odo[5]!= syste
+             -m_meilage.odo[5]) ||\
+ 484   2                                      (last_odo[6]!= system_meilage.odo[6]))
+ 485   2                              {
+ 486   3                                      dandu_disp = MAIN_MILE;
+ 487   3                                      if((system_meilage.odo[0] == 0) && (system_meilage.odo[1] == 0) && (system_meilage.odo[2] == 0) && (sy
+             -stem_meilage.odo[3] == 0) &&\
+ 488   3                                      (system_meilage.odo[4] == 0) && (system_meilage.odo[5] == 0) && (system_meilage.odo[6] == 0))
+ 489   3                                      {
+ 490   4                                              for(i=0;i<7;i++)
+ 491   4                                                      system_meilage.odo[i] = last_odo[i];
+ 492   4                                      }
+ 493   3                                      else
+ 494   3                                      {
+ 495   4                                              for(i=0;i<7;i++)
+ 496   4                                                      last_odo[i] = system_meilage.odo[i];
+ 497   4                                      }
+ 498   3                              }
+ 499   2                              break;
+ 500   2                      case 3:
+ 501   2                              system_time.year = rev_buf[3];
+ 502   2                              system_time.month = rev_buf[4];
+ 503   2                              system_time.day = rev_buf[5];
+ 504   2                              system_time.hour = rev_buf[6];
+ 505   2                              system_time.minute = rev_buf[7];
+ 506   2                              system_air.air1 = rev_buf[8];
+ 507   2                              if(system_air.air1 > 100)
+ 508   2                                      system_air.air1 = 100;
+ 509   2                              system_air.air2 = rev_buf[9];
+ 510   2                              if(system_air.air2 > 100)
+ 511   2                                      system_air.air2 = 100;
+ 512   2                              system_air.soc = rev_buf[10];
+ 513   2                              if(system_air.soc > 100)
+ 514   2                                      system_air.soc = 100;
+ 515   2                              if((last_year != system_time.year) || (last_month != system_time.month) || (last_day != system_time.day
+             -) ||\
+ 516   2                                      (last_hour != system_time.hour) || (last_minute != system_time.minute))
+ 517   2                              {
+ 518   3                                      DISP_TIME = 1;
+ 519   3                                      last_year = system_time.year;
+ 520   3                                      last_month = system_time.month;
+ 521   3                                      last_day = system_time.day;
+ 522   3                                      last_hour = system_time.hour;
+ 523   3                                      last_minute = system_time.minute;
+ 524   3                              }
+ 525   2                              if((system_air.air1!= last_air1) || (last_air2 != system_air.air2))
+ 526   2                              {
+ 527   3                                      DISP_AIR = 1;
+ 528   3                                      last_air1 = system_air.air1;
+ 529   3                                      last_air2 = system_air.air2;
+ 530   3                              }
+ 531   2                              if(last_soc != system_air.soc)
+ 532   2                              {
+ 533   3                                      DISP_SOC = 1;
+ 534   3                                      last_soc = system_air.soc;
+ 535   3                              }
+ 536   2                              dandu_disp = MAIN_TIME;
+ 537   2                              break;
+ 538   2                      case 4:
+ 539   2                              _main_data1();
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 10  
+
+ 540   2                              dandu_disp = MAIN_DATA;
+ 541   2                              break;
+ 542   2                      case 5:
+ 543   2                              _main_data2();
+ 544   2                              dandu_disp = MAIN_DATA;
+ 545   2                              break;
+ 546   2                      case 6:
+ 547   2                              _main_data3();
+ 548   2                              dandu_disp = MAIN_DATA;
+ 549   2                              break;
+ 550   2      /*              case 8:
+ 551   2                              vedio_enable[0] = (rev_buf[3]>>0)&0x01;
+ 552   2                              vedio_enable[1] = (rev_buf[3]>>1)&0x01;
+ 553   2                              vedio_enable[2] = (rev_buf[3]>>2)&0x01;
+ 554   2                              vedio_enable[3] = (rev_buf[3]>>3)&0x01;
+ 555   2                              air_factor = rev_buf[4];
+ 556   2                              speed_alarm = rev_buf[5];
+ 557   2                              air_alarm = rev_buf[6];
+ 558   2                              oil_alarm = rev_buf[7];
+ 559   2                              fuel_alarm  = rev_buf[8];
+ 560   2                              break;*/
+ 561   2                      default:
+ 562   2                              break;
+ 563   2              }
+ 564   1              uart_cmd = UART1_MAIN_PAGE;
+ 565   1      }
+ 566          void _main_data1(void)
+ 567          {
+ 568   1              unsigned char i;
+ 569   1              total_voltage = ByteToWord(rev_buf[3],rev_buf[4]) - 1000;//电池总电压
+ 570   1              total_current = ByteToWord(rev_buf[5],rev_buf[6]) - 1000;//电池总电流
+ 571   1              for(i=0;i<2;i++)
+ 572   1                      motor_temp[i] = rev_buf[7 + i] - 40;//驱动电机和驱动电机控制器温度
+ 573   1              mono_max_voltage = ByteToWord(rev_buf[9],rev_buf[10]);//单体最高电压
+ 574   1              if(mono_max_voltage < 10000)
+ 575   1                      mono_max_voltage = 0;
+ 576   1              else
+ 577   1                      mono_max_voltage -= 10000;
+ 578   1      }
+ 579          void _main_data2(void)
+ 580          {
+ 581   1      
+ 582   1              mono_min_voltage = ByteToWord(rev_buf[3],rev_buf[4]);//单体最低电压
+ 583   1              if(mono_min_voltage < 10000)
+ 584   1                      mono_min_voltage = 0;
+ 585   1              else
+ 586   1                      mono_min_voltage -= 10000;
+ 587   1              
+ 588   1              mono_max_temp = rev_buf[5] - 40;//单体最高温度
+ 589   1      
+ 590   1              system_code = ByteToWord(rev_buf[6],rev_buf[7]);//系统代码
+ 591   1              mono_min_temp = rev_buf[8] - 40;
+ 592   1              dianhao = ByteToWord(rev_buf[9],rev_buf[10]);
+ 593   1      }
+ 594          void _main_data3(void)
+ 595          {
+ 596   1              shunshi_gonglv = ByteToWord(rev_buf[3],rev_buf[4]) - 3000;
+ 597   1              xushi_trip = rev_buf[5]* 5;
+ 598   1              shengyu_gonglv = ByteToWord(rev_buf[6],rev_buf[7]) - 3000;
+ 599   1              //tms_fault_code = rev_buf[8];
+ 600   1      }
+ 601          void Rec_surface1_page(void)
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 11  
+
+ 602          {
+ 603   1              unsigned char i;
+ 604   1              switch(rev_buf[2])
+ 605   1              {
+ 606   2                      case 1:
+ 607   2                              dongli_input_voltage = ByteToWord(rev_buf[3],rev_buf[4]) - 1000;
+ 608   2                              dongli_input_current = ByteToWord(rev_buf[5],rev_buf[6]) - 1000;
+ 609   2                              siji_status = rev_buf[7];
+ 610   2                              onoff_status = rev_buf[8];
+ 611   2                              bus_life = rev_buf[9];
+ 612   2                              break;
+ 613   2                      case 2:
+ 614   2                              bus_mode = rev_buf[3];
+ 615   2                              system_status = rev_buf[4];
+ 616   2                              for(i=0;i<6;i++)
+ 617   2                                      bus_yuliu[i] = rev_buf[5 + i];
+ 618   2                              break;
+ 619   2                      case 3:
+ 620   2                              youmen_taban = rev_buf[3];
+ 621   2                              zhidong_taban = rev_buf[4];
+ 622   2                              break;
+ 623   2                      case 4:
+ 624   2                              for(i=0;i<7;i++)
+ 625   2                                      bus_version[i] = rev_buf[4 + i];
+ 626   2                              break;
+ 627   2                      default:
+ 628   2                              break;
+ 629   2              }
+ 630   1              uart_cmd = UART1_SURFACE1_PAGE;
+ 631   1      }
+ 632          void Rec_surface2_page(void)
+ 633          {
+ 634   1              unsigned char i;
+ 635   1              switch(rev_buf[2])
+ 636   1              {
+ 637   2                      case 1:
+ 638   2                              for(i=0;i<2;i++)
+ 639   2                                      motor_temp[i] = rev_buf[3 + i] - 40;
+ 640   2                              elec_control_code = rev_buf[5];
+ 641   2                              motor_zhuanju = ByteToWord(rev_buf[7],rev_buf[8]);
+ 642   2                              motor_zhju = motor_zhuanju - 32000;
+ 643   2                              motor_con_cur = ByteToWord(rev_buf[9],rev_buf[10])-1000;
+ 644   2                              break;
+ 645   2                      case 2:
+ 646   2                              for(i=0;i<7;i++)
+ 647   2                                      //motor_version[i] = rev_buf[4 + i];
+ 648   2                                      surface_data[0][i] = rev_buf[4 + i];
+ 649   2                              break;
+ 650   2                      /*case 3:
+ 651   2                              for(i=0;i<7;i++)
+ 652   2                                      //dynamo_version[i] = rev_buf[4 + i];
+ 653   2                                      surface_data[1][i] = rev_buf[4 + i];
+ 654   2                              break;*/
+ 655   2                      default:
+ 656   2                              break;
+ 657   2              }
+ 658   1              uart_cmd = UART1_SURFACE2_PAGE;
+ 659   1      }
+ 660          void Rec_surface3_page(void)
+ 661          {
+ 662   1              switch(rev_buf[2])
+ 663   1              {
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 12  
+
+ 664   2                      case 1:
+ 665   2                              dcdc_output_voltage = ByteToWord(rev_buf[3],rev_buf[4]) - 1000;
+ 666   2                              dcdc_output_current = ByteToWord(rev_buf[5],rev_buf[6]) - 1000;
+ 667   2                              dcdc_input_voltage = ByteToWord(rev_buf[7],rev_buf[8]) - 1000;
+ 668   2                              dcdc_temp = rev_buf[9] - 40;
+ 669   2                              dcdc_fault = rev_buf[10];
+ 670   2                              break;
+ 671   2                      case 2:
+ 672   2                              surface_data[0][0]= rev_buf[3];
+ 673   2                              surface_data[0][1] = rev_buf[4];
+ 674   2                              surface_data[0][2]= rev_buf[5];
+ 675   2                              surface_data[0][3] = rev_buf[6];
+ 676   2                              break;
+ 677   2                      case 3:
+ 678   2                              riso_zheng = ByteToWord(rev_buf[3],rev_buf[4]);
+ 679   2                              riso_fu = ByteToWord(rev_buf[5],rev_buf[6]);
+ 680   2                              riso_fault = rev_buf[7];
+ 681   2                              riso_life = rev_buf[8];
+ 682   2                              riso_loudian = rev_buf[9];
+ 683   2                              break;
+ 684   2                      default:
+ 685   2                              break;
+ 686   2              }
+ 687   1              uart_cmd = UART1_SURFACE3_PAGE;
+ 688   1      }
+ 689          void Rec_surface4_page(void)
+ 690          {
+ 691   1              unsigned char i;
+ 692   1              switch(rev_buf[2])
+ 693   1              {
+ 694   2                      case 1:
+ 695   2                              for(i=0;i<8;i++)
+ 696   2                                      tiaoshi_canshu[i] = rev_buf[3 + i];
+ 697   2                              break;
+ 698   2      
+ 699   2                      case 2:
+ 700   2                              yzt_status = rev_buf[3];
+ 701   2                              break;
+ 702   2                      default:
+ 703   2                              break;
+ 704   2              }
+ 705   1              uart_cmd = UART1_SURFACE4_PAGE;
+ 706   1      }
+ 707          void Rec_surface5_page(void)
+ 708          {     
+ 709   1                //static unsigned char last_soc = 0;
+ 710   1      
+ 711   1                switch(rev_buf[2])
+ 712   1              {
+ 713   2                      case 1:
+ 714   2                              total_voltage = ByteToWord(rev_buf[3],rev_buf[4]) - 1000;
+ 715   2                              chongdian_current = ByteToWord(rev_buf[5],rev_buf[6]) - 1000;
+ 716   2                              fangdian_current = ByteToWord(rev_buf[7],rev_buf[8]) - 1000;
+ 717   2                              total_current = ByteToWord(rev_buf[9],rev_buf[10]) - 1000;
+ 718   2                              break;
+ 719   2                      case 2:
+ 720   2                              battery_riso_zheng = ByteToWord(rev_buf[3],rev_buf[4]);
+ 721   2                              battery_riso_fu = ByteToWord(rev_buf[5],rev_buf[6]);
+ 722   2                              mono_max_voltage = ByteToWord(rev_buf[7],rev_buf[8]);
+ 723   2                              if(mono_max_voltage < 10000)
+ 724   2                                      mono_max_voltage = 0;
+ 725   2                              else
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 13  
+
+ 726   2                                      mono_max_voltage -= 10000;
+ 727   2                              mono_min_voltage = ByteToWord(rev_buf[9],rev_buf[10]);
+ 728   2                              if(mono_min_voltage < 10000)
+ 729   2                                      mono_min_voltage = 0;
+ 730   2                              else
+ 731   2                                      mono_min_voltage -= 10000;
+ 732   2                              break;
+ 733   2                      case 3:
+ 734   2                              mono_pingjun_voltage = ByteToWord(rev_buf[3],rev_buf[4]);
+ 735   2                              if(mono_pingjun_voltage < 10000)
+ 736   2                                      mono_pingjun_voltage = 0;
+ 737   2                              else
+ 738   2                                      mono_pingjun_voltage -= 10000; 
+ 739   2                              
+ 740   2                              dianchi_soc = rev_buf[5] * 0.4;
+ 741   2      
+ 742   2                              //mono_max_temp = rev_buf[5] - 40;
+ 743   2                              //mono_min_temp = rev_buf[6] - 40;
+ 744   2                              break;
+ 745   2                      default:
+ 746   2                              break;
+ 747   2              }
+ 748   1              uart_cmd = UART1_SURFACE5_PAGE;
+ 749   1      }
+ 750          void Rec_surface6_page(void)
+ 751          {
+ 752   1              unsigned char i;
+ 753   1              switch(rev_buf[2])
+ 754   1              {
+ 755   2                      case 1:
+ 756   2                              vin_status = rev_buf[3];
+ 757   2                              for(i=0;i<4;i++)
+ 758   2                                      chongdian_temp[i] = rev_buf[4 + i] - 40;
+ 759   2                              battery_fault_suliang = rev_buf[8];
+ 760   2                              break;
+ 761   2                      case 2:
+ 762   2                              eding_rongliang = ByteToWord(rev_buf[3],rev_buf[4]);
+ 763   2                              eding_voltage = ByteToWord(rev_buf[5],rev_buf[6]);
+ 764   2                              mono_chuanlian_shuliang = ByteToWord(rev_buf[7],rev_buf[8]);
+ 765   2                              mono_binglian_shuliang = rev_buf[9];
+ 766   2                              mono_tanzhen_shuliang = rev_buf[10];
+ 767   2                              break;
+ 768   2                      default:
+ 769   2                              break;
+ 770   2              }
+ 771   1              uart_cmd = UART1_SURFACE6_PAGE;
+ 772   1      }
+ 773          void Rec_surface7_page(void)
+ 774          {
+ 775   1              unsigned char i;
+ 776   1              switch(rev_buf[2])
+ 777   1              {
+ 778   2                      case 1:
+ 779   2                              mono_max_temp = rev_buf[3] - 40;
+ 780   2                              mono_max_t_xiang = rev_buf[4];
+ 781   2                              mono_max_t_jie = rev_buf[5];
+ 782   2                              mono_min_temp = rev_buf[6] - 40;
+ 783   2                              mono_min_t_xiang = rev_buf[7];
+ 784   2                              mono_min_t_jie = rev_buf[8];
+ 785   2                              battery_leixing = rev_buf[9];
+ 786   2                              battery_lengque = rev_buf[10];
+ 787   2                              break;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 14  
+
+ 788   2                      case 2:
+ 789   2                              mono_max_voltage = ByteToWord(rev_buf[3],rev_buf[4]);
+ 790   2                              if(mono_max_voltage < 10000)
+ 791   2                                      mono_max_voltage = 0;
+ 792   2                              else
+ 793   2                                      mono_max_voltage -= 10000;
+ 794   2                              mono_min_voltage = ByteToWord(rev_buf[5],rev_buf[6]);
+ 795   2                              if(mono_min_voltage < 10000)
+ 796   2                                      mono_min_voltage = 0;
+ 797   2                              else
+ 798   2                                      mono_min_voltage -= 10000;
+ 799   2                              break;
+ 800   2                      case 3:
+ 801   2                              mono_max_v_xiang = rev_buf[3];
+ 802   2                              mono_max_v_jie = rev_buf[4];
+ 803   2                              mono_min_v_xiang = rev_buf[5];
+ 804   2                              mono_min_v_jie = rev_buf[6];
+ 805   2                              for(i=0;i<4;i++)
+ 806   2                                      battery_yuliu[i] = rev_buf[7 + i];
+ 807   2                              break;
+ 808   2                      default:
+ 809   2                              break;
+ 810   2              }
+ 811   1              uart_cmd = UART1_SURFACE7_PAGE;
+ 812   1      }
+ 813          void Rec_surface8_page(void)
+ 814          {
+ 815   1              unsigned char i;
+ 816   1              dianchi_fenxian = rev_buf[2];
+ 817   1              switch(rev_buf[2])
+ 818   1              {
+ 819   2                      case 1:
+ 820   2                              dianchi_bianhao[0] = ByteToWord(rev_buf[3],rev_buf[9]);
+ 821   2                              dianchi_bianhao[1] = ByteToWord(rev_buf[6],rev_buf[10]);
+ 822   2                              dianchi_mono_voltage[0] = ByteToWord(rev_buf[4],rev_buf[5]);
+ 823   2                              if(dianchi_mono_voltage[0] < 10000)
+ 824   2                                      dianchi_mono_voltage[0] = 0;
+ 825   2                              else
+ 826   2                                      dianchi_mono_voltage[0] -= 10000;
+ 827   2                              dianchi_mono_voltage[1] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 828   2                              if(dianchi_mono_voltage[1] < 10000)
+ 829   2                                      dianchi_mono_voltage[1] = 0;
+ 830   2                              else
+ 831   2                                      dianchi_mono_voltage[1] -= 10000;
+ 832   2                              break;
+ 833   2                      case 2:
+ 834   2                              dianchi_bianhao[2] = ByteToWord(rev_buf[3],rev_buf[9]);
+ 835   2                              dianchi_bianhao[3] = ByteToWord(rev_buf[6],rev_buf[10]);
+ 836   2                              dianchi_mono_voltage[2] = ByteToWord(rev_buf[4],rev_buf[5]);
+ 837   2                              if(dianchi_mono_voltage[2] < 10000)
+ 838   2                                      dianchi_mono_voltage[2] = 0;
+ 839   2                              else
+ 840   2                                      dianchi_mono_voltage[2] -= 10000;
+ 841   2                              dianchi_mono_voltage[3] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 842   2                              if(dianchi_mono_voltage[3] < 10000)
+ 843   2                                      dianchi_mono_voltage[3] = 0;
+ 844   2                              else
+ 845   2                                      dianchi_mono_voltage[3] -= 10000;
+ 846   2                              break;
+ 847   2                      case 3:
+ 848   2                              dianchi_bianhao[4] = ByteToWord(rev_buf[3],rev_buf[9]);
+ 849   2                              dianchi_bianhao[5] = ByteToWord(rev_buf[6],rev_buf[10]);
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 15  
+
+ 850   2                              dianchi_mono_voltage[4] = ByteToWord(rev_buf[4],rev_buf[5]);
+ 851   2                              if(dianchi_mono_voltage[4] < 10000)
+ 852   2                                      dianchi_mono_voltage[4] = 0;
+ 853   2                              else
+ 854   2                                      dianchi_mono_voltage[4] -= 10000;
+ 855   2                              dianchi_mono_voltage[5] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 856   2                              if(dianchi_mono_voltage[5] < 10000)
+ 857   2                                      dianchi_mono_voltage[5] = 0;
+ 858   2                              else
+ 859   2                                      dianchi_mono_voltage[5] -= 10000;
+ 860   2                              break;
+ 861   2                      case 4:
+ 862   2                              dianchi_bianhao[6] = ByteToWord(rev_buf[3],rev_buf[9]);
+ 863   2                              dianchi_bianhao[7] = ByteToWord(rev_buf[6],rev_buf[10]);
+ 864   2                              dianchi_mono_voltage[6] = ByteToWord(rev_buf[4],rev_buf[5]);
+ 865   2                              if(dianchi_mono_voltage[6] < 10000)
+ 866   2                                      dianchi_mono_voltage[6] = 0;
+ 867   2                              else
+ 868   2                                      dianchi_mono_voltage[6] -= 10000;
+ 869   2                              dianchi_mono_voltage[7] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 870   2                              if(dianchi_mono_voltage[7] < 10000)
+ 871   2                                      dianchi_mono_voltage[7] = 0;
+ 872   2                              else
+ 873   2                                      dianchi_mono_voltage[7] -= 10000;
+ 874   2                              break;
+ 875   2                      case 5:
+ 876   2                              dianchi_bianhao[8] = ByteToWord(rev_buf[3],rev_buf[9]);
+ 877   2                              dianchi_bianhao[9] = ByteToWord(rev_buf[6],rev_buf[10]);
+ 878   2                              dianchi_mono_voltage[8] = ByteToWord(rev_buf[4],rev_buf[5]);
+ 879   2                              if(dianchi_mono_voltage[8] < 10000)
+ 880   2                                      dianchi_mono_voltage[8] = 0;
+ 881   2                              else
+ 882   2                                      dianchi_mono_voltage[8] -= 10000;
+ 883   2                              dianchi_mono_voltage[9] = ByteToWord(rev_buf[7],rev_buf[8]);
+ 884   2                              if(dianchi_mono_voltage[9] < 10000)
+ 885   2                                      dianchi_mono_voltage[9] = 0;
+ 886   2                              else
+ 887   2                                      dianchi_mono_voltage[9] -= 10000;
+ 888   2                              break;
+ 889   2                      case 6:
+ 890   2                              for(i=0;i<4;i++)
+ 891   2                              {
+ 892   3                                      dianchi_xianghao[i] = rev_buf[3 + 2*i];
+ 893   3                                      dianchi_mono_temp[i] = rev_buf[4 + 2*i] - 40;
+ 894   3                              }
+ 895   2                              break;
+ 896   2                      case 7:
+ 897   2                              for(i=0;i<4;i++)
+ 898   2                              {
+ 899   3                                      dianchi_xianghao[4 + i] = rev_buf[3 + 2*i];
+ 900   3                                      dianchi_mono_temp[4 + i] = rev_buf[4 + 2*i] - 40;
+ 901   3                              }
+ 902   2                              break;
+ 903   2                      case 8:
+ 904   2                              for(i=0;i<2;i++)
+ 905   2                              {
+ 906   3                                      dianchi_xianghao[8 + i] = rev_buf[3 + 2*i];
+ 907   3                                      dianchi_mono_temp[8 + i] = rev_buf[4 + 2*i] - 40;
+ 908   3                              }
+ 909   2                              break;
+ 910   2                      default:
+ 911   2                              break;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 16  
+
+ 912   2              }
+ 913   1              uart_cmd = UART1_SURFACE8_PAGE;
+ 914   1      }
+ 915          void Rec_surface9_page(void)
+ 916          {
+ 917   1              switch(rev_buf[2])
+ 918   1              {
+ 919   2                      case 1:
+ 920   2                              air_fuhe = rev_buf[3]*0.4;
+ 921   2                              air_life = rev_buf[10];
+ 922   2                              air_set_temp = rev_buf[4] - 40;
+ 923   2                              air_wai_temp = rev_buf[5] - 40;
+ 924   2                              air_nei_temp = rev_buf[6] - 40;
+ 925   2                              air_current = ByteToWord(rev_buf[7],rev_buf[8]) - 10000;
+ 926   2                              air_status = rev_buf[9];
+ 927   2                              break;
+ 928   2                      default:
+ 929   2                              break;
+ 930   2              }
+ 931   1              uart_cmd = UART1_SURFACE9_PAGE;
+ 932   1      }
+ 933          void Rec_surface10_page(void)
+ 934          {
+ 935   1              unsigned char i;
+ 936   1              switch(rev_buf[2])
+ 937   1              {
+ 938   2                      case 1:
+ 939   2                              for(i=0;i<5;i++)
+ 940   2                                      battery_status[i] = rev_buf[3 + i];
+ 941   2                              break;
+ 942   2                      default:
+ 943   2                              break;
+ 944   2              }
+ 945   1              uart_cmd = UART1_SURFACE10_PAGE;
+ 946   1      }
+ 947          void Rec_surface11_page(void)
+ 948          {
+ 949   1              unsigned char i;
+ 950   1              switch(rev_buf[2])
+ 951   1              {
+ 952   2                      case 1:
+ 953   2                              for(i=0;i<8;i++)
+ 954   2                                      surface_data[0][i]= rev_buf[3 + i];
+ 955   2                              break;
+ 956   2                      case 2:
+ 957   2                              for(i=0;i<4;i++)
+ 958   2                                      surface_data[1][i]= rev_buf[3 + i];
+ 959   2                              break;
+ 960   2                      case 3:
+ 961   2                              for(i=0;i<6;i++)
+ 962   2                                      surface_data[2][i]= rev_buf[3 + i];
+ 963   2                              break;
+ 964   2                      default:
+ 965   2                              break;
+ 966   2              }
+ 967   1              uart_cmd = UART1_SURFACE11_PAGE;
+ 968   1      }
+ 969          void Rec_surface12_page(void)
+ 970          {
+ 971   1              qiben1 = (ByteToWord(rev_buf[3],rev_buf[4])/10) - 1000;
+ 972   1              qiben2 = (ByteToWord(rev_buf[5],rev_buf[6])/10 )- 1000;
+ 973   1              qiben3 = (ByteToWord(rev_buf[7],rev_buf[8])/10) - 1000;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 17  
+
+ 974   1              qiben4 = rev_buf[9] - 40;
+ 975   1              qiben5 = rev_buf[10];
+ 976   1              
+ 977   1              uart_cmd = UART1_SURFACE12_PAGE;
+ 978   1      }
+ 979          void Rec_surface13_page(void)
+ 980          {
+ 981   1              unsigned char i;
+ 982   1              switch(rev_buf[2])
+ 983   1              {
+ 984   2                      case 1:
+ 985   2                              for(i=0;i<8;i++)
+ 986   2                                      surface_data[0][i]= rev_buf[3 + i];
+ 987   2                              break;
+ 988   2              //      case 2:
+ 989   2              //              for(i=0;i<8;i++)
+ 990   2              //                      surface_data[1][i]= rev_buf[3 + i];
+ 991   2              //              break;
+ 992   2                      default:
+ 993   2                              break;
+ 994   2              }
+ 995   1              uart_cmd = UART1_SURFACE13_PAGE;
+ 996   1      }
+ 997          void Rec_surface14_page(void)
+ 998          {
+ 999   1              /*unsigned char i;
+1000   1              switch(rev_buf[2])
+1001   1              {
+1002   1                      case 1:
+1003   1                              for(i=0;i<6;i++)
+1004   1                                      surface_data[0][i]= rev_buf[3 + i];
+1005   1                              break;
+1006   1                      default:
+1007   1                              break;
+1008   1              }*/
+1009   1              uart_cmd = UART1_SURFACE14_PAGE;
+1010   1      }
+1011          void Rec_surface15_page(void)
+1012          {   
+1013   1              unsigned char i;
+1014   1              switch(rev_buf[2])
+1015   1              {
+1016   2                      case 1:
+1017   2                              system_air.soc = rev_buf[3];
+1018   2                              if(system_air.soc > 100)
+1019   2                                      system_air.soc = 100;
+1020   2                              total_voltage = ByteToWord(rev_buf[4],rev_buf[5]) - 1000;
+1021   2                              total_current = ByteToWord(rev_buf[6],rev_buf[7]) - 1000;
+1022   2                              mono_max_temp = rev_buf[8] - 40;//单体最高温度
+1023   2                              mono_max_voltage = ByteToWord(rev_buf[9],rev_buf[10]);//单体最高电压
+1024   2                              if(mono_max_voltage < 10000)
+1025   2                                      mono_max_voltage = 0;
+1026   2                              else
+1027   2                                      mono_max_voltage -= 10000;
+1028   2                              break;
+1029   2                      case 2:
+1030   2                              mono_min_voltage = ByteToWord(rev_buf[3],rev_buf[4]);//单体最低电压
+1031   2                              if(mono_min_voltage < 10000)
+1032   2                                      mono_min_voltage = 0;
+1033   2                              else
+1034   2                                      mono_min_voltage -= 10000;
+1035   2                              mono_min_temp = rev_buf[5] - 40;//单体最低温度
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 18  
+
+1036   2                              riso_zheng = ByteToWord(rev_buf[6],rev_buf[7]);
+1037   2                              riso_fu = ByteToWord(rev_buf[8],rev_buf[9]);
+1038   2                              surface_data[0][0]= rev_buf[10];
+1039   2                              break;
+1040   2                      case 3:
+1041   2                              for(i=0;i<4;i++)
+1042   2                                      chongdian_temp[i] = rev_buf[3 + i] - 40;//充电座温度
+1043   2                              break;
+1044   2                      default:
+1045   2                              break;
+1046   2              }
+1047   1              uart_cmd = UART1_SURFACE15_PAGE;
+1048   1      }
+1049          void Rec_surface16_page(void)
+1050          {
+1051   1              switch(rev_buf[2])
+1052   1              {
+1053   2                      case 1:
+1054   2                              youbeng_life[0]= rev_buf[3];
+1055   2                              youbeng_zhuansu[0] = ByteToWord(rev_buf[5],rev_buf[4]);
+1056   2                              youbeng_cur[0] = ByteToWord(rev_buf[7],rev_buf[6])*0.1;
+1057   2                              youbeng_temp[0] = rev_buf[8] - 40;
+1058   2                              youbeng_status[0] = rev_buf[9];
+1059   2                              dianji_temp = rev_buf[10] - 40;
+1060   2                              break;
+1061   2                      case 2:
+1062   2                              youbeng[0] = rev_buf[3];
+1063   2                              diduan_vol = rev_buf[4]*0.2;
+1064   2                              gaoduan_vol = ByteToWord(rev_buf[6],rev_buf[5])*0.1;
+1065   2                              youbeng[1] = rev_buf[7];
+1066   2                              youbeng[2] = rev_buf[8];
+1067   2                              yingjianbanben = rev_buf[9];
+1068   2                              ruanjianbanben = rev_buf[10];
+1069   2                              break;
+1070   2                      default:
+1071   2                              break;
+1072   2              }
+1073   1              uart_cmd = UART1_SURFACE16_PAGE;
+1074   1      }
+1075          
+1076          void Rec_surface17_page(void)
+1077          {
+1078   1              switch(rev_buf[2])
+1079   1              {
+1080   2                      case 1:
+1081   2                              youbeng_life[1]= rev_buf[3];
+1082   2                              youbeng_zhuansu[1] = ByteToWord(rev_buf[5],rev_buf[4]);
+1083   2                              youbeng_cur[1] = ByteToWord(rev_buf[7],rev_buf[6])*0.1;
+1084   2                              youbeng_temp[1] = rev_buf[8] - 40;
+1085   2                              youbeng_status[1] = rev_buf[9];
+1086   2                              guzhangdaima = rev_buf[10];
+1087   2                              break;
+1088   2                      default:
+1089   2                              break;
+1090   2              }
+1091   1              uart_cmd = UART1_SURFACE17_PAGE;
+1092   1      }
+1093          void Rec_surface18_page(void)
+1094          {
+1095   1              unsigned char i;
+1096   1              if(rev_buf[2]< 11)
+1097   1              {
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 19  
+
+1098   2                      for(i=0;i<8;i++)
+1099   2                              surface_data[rev_buf[2]-1][i] = rev_buf[3+i];
+1100   2              }
+1101   1              uart_cmd = UART1_SURFACE18_PAGE;
+1102   1      }
+1103          void Rec_surface19_page(void)
+1104          {
+1105   1              //unsigned char i;
+1106   1              switch(rev_buf[2])
+1107   1              {
+1108   2                      case 1:
+1109   2                              meter_input = rev_buf[3];
+1110   2                              meter_output = rev_buf[4];
+1111   2                              break;
+1112   2                      default:
+1113   2                              break;
+1114   2              }
+1115   1              uart_cmd = UART1_SURFACE19_PAGE;
+1116   1      }
+1117          void Rec_surface20_page(void)
+1118          {
+1119   1      /*      unsigned char i;
+1120   1              switch(rev_buf[2])
+1121   1              {
+1122   1                      case 1:
+1123   1                              for(i=0;i<3;i++)
+1124   1                                      surface_data[0][i] = rev_buf[3+i];
+1125   1                              break;
+1126   1                      default:
+1127   1                              break;
+1128   1              }*/
+1129   1              uart_cmd = UART1_SURFACE20_PAGE;
+1130   1      
+1131   1      }
+1132          
+1133          void Rec_surface21_page(void)
+1134          {
+1135   1      
+1136   1          uart_cmd = UART1_SURFACE21_PAGE;
+1137   1              
+1138   1      }
+1139          
+1140          
+1141          void uart1_rev_data(void)
+1142          {
+1143   1              static unsigned int last_trip = 0;
+1144   1              static unsigned char last_menu = 0,reflash_page = 1;
+1145   1              switch(rev_buf[1])
+1146   1              {
+1147   2                      case UART1_MAIN_PAGE:
+1148   2                              Rec_main_page();
+1149   2                              reflash_page = 1;
+1150   2                              break;
+1151   2                      case UART1_MENU_PAGE:
+1152   2                              if((rev_buf[2]!=0xf1)&&(rev_buf[2]!=0xf2))
+1153   2                                      {
+1154   3                                              menu = rev_buf[2];
+1155   3                                              reflash_page = 0;
+1156   3                                              if(last_menu != menu)
+1157   3                                              {
+1158   4                                                      uart_cmd = UART1_MENU_PAGE;
+1159   4                                                      reflash_page = 1;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 20  
+
+1160   4                                                      last_menu = menu;
+1161   4                                              }
+1162   3                                      }
+1163   2                              else if(rev_buf[2]==0xf1)
+1164   2                              {
+1165   3                                      vedio_enable[0] = (rev_buf[3]>>0)&0x01;
+1166   3                                      vedio_enable[1] = (rev_buf[3]>>1)&0x01;
+1167   3                                      vedio_enable[2] = (rev_buf[3]>>2)&0x01;
+1168   3                                      vedio_enable[3] = (rev_buf[3]>>3)&0x01;
+1169   3                                      vedio_enable[4] = (rev_buf[3]>>4)&0x01;
+1170   3                                      //vedio_enable[5] = (rev_buf[3]>>5)&0x01;
+1171   3                                      //vedio_enable[6] = (rev_buf[3]>>6)&0x01;
+1172   3                                      //vedio_enable[7] = (rev_buf[3]>>7)&0x01;
+1173   3                                      air1_factor = rev_buf[4];
+1174   3                                      air2_factor = rev_buf[5];
+1175   3                                      speed_alarm = rev_buf[6];
+1176   3                                      air_alarm = rev_buf[7];
+1177   3                                      oil_alarm = rev_buf[8];
+1178   3                                      fuel_alarm  = rev_buf[9];
+1179   3                                      reflash_page = 0;
+1180   3                              }
+1181   2                              else if(rev_buf[2]==0xf2)
+1182   2                              {
+1183   3                                      yugua_time = rev_buf[3];
+1184   3                                      reflash_page = 0;
+1185   3                              }
+1186   2                              break;
+1187   2                      case UART1_PARA_PAGE:
+1188   2                              Rec_para_page();
+1189   2                              reflash_page = 1;
+1190   2                              break;
+1191   2                      case UART1_VIDEO_PAGE:
+1192   2                              system_video = rev_buf[2];
+1193   2                              reflash_page = 1;
+1194   2                              uart_cmd = UART1_VIDEO_PAGE;
+1195   2                              break;
+1196   2                      case UART1_METER_PAGE:
+1197   2                              Rec_meter_page();
+1198   2                              reflash_page = 1;
+1199   2                              break;
+1200   2                      case UART1_FRONT_PAGE:
+1201   2                              Rec_front_page();
+1202   2                              reflash_page = 1;
+1203   2                              break;
+1204   2                      case UART1_REAR_PAGE:
+1205   2                              Rec_rear_page();
+1206   2                              reflash_page = 1;
+1207   2                              break;
+1208   2                      case UART1_TOP_PAGE:
+1209   2                              Rec_top_page();
+1210   2                              reflash_page = 1;
+1211   2                              break;
+1212   2                      case UART1_FRONT_OUT_PAGE:
+1213   2                              Rec_front_out_page();
+1214   2                              reflash_page = 1;
+1215   2                              break;
+1216   2                      case UART1_REAR_OUT_PAGE:
+1217   2                              Rec_rear_out_page();
+1218   2                              reflash_page = 1;
+1219   2                              break;
+1220   2                      case UART1_TOP_OUT_PAGE:
+1221   2                              Rec_top_out_page();
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 21  
+
+1222   2                              reflash_page = 1;
+1223   2                              break;
+1224   2                      case UART1_SURFACE1_PAGE:
+1225   2                              Rec_surface1_page();
+1226   2                              reflash_page = 1;
+1227   2                              break;
+1228   2                      case UART1_SURFACE2_PAGE:
+1229   2                              Rec_surface2_page();
+1230   2                              reflash_page = 1;
+1231   2                              break;
+1232   2                      case UART1_SURFACE3_PAGE:
+1233   2                              Rec_surface3_page();
+1234   2                              reflash_page = 1;
+1235   2                              break;
+1236   2                      case UART1_SURFACE4_PAGE:
+1237   2                              Rec_surface4_page();
+1238   2                              reflash_page = 1;
+1239   2                              break;
+1240   2                      case UART1_SURFACE5_PAGE:
+1241   2                              Rec_surface5_page();
+1242   2                              reflash_page = 1;
+1243   2                              break;
+1244   2                      case UART1_SURFACE6_PAGE:
+1245   2                              Rec_surface6_page();
+1246   2                              reflash_page = 1;
+1247   2                              break;
+1248   2                      case UART1_SURFACE7_PAGE:
+1249   2                              Rec_surface7_page();
+1250   2                              reflash_page = 1;
+1251   2                              break;
+1252   2                      case UART1_SURFACE8_PAGE:
+1253   2                              Rec_surface8_page();
+1254   2                              reflash_page = 1;
+1255   2                              break;
+1256   2                      case UART1_SURFACE9_PAGE:
+1257   2                              Rec_surface9_page();
+1258   2                              reflash_page = 1;
+1259   2                              break;
+1260   2                      case UART1_SURFACE10_PAGE:
+1261   2                              Rec_surface10_page();
+1262   2                              reflash_page = 1;
+1263   2                              break;
+1264   2                      case UART1_SURFACE11_PAGE:
+1265   2                              Rec_surface11_page();
+1266   2                              reflash_page = 1;
+1267   2                              break;
+1268   2                      case UART1_SURFACE12_PAGE:
+1269   2                              Rec_surface12_page();
+1270   2                              reflash_page = 1;
+1271   2                              break;
+1272   2                      case UART1_SURFACE13_PAGE:
+1273   2                              Rec_surface13_page();
+1274   2                              reflash_page = 1;
+1275   2                              break;
+1276   2                      case UART1_SURFACE14_PAGE:
+1277   2                              Rec_surface14_page();
+1278   2                              reflash_page = 1;
+1279   2                              break;
+1280   2                      case UART1_SURFACE15_PAGE:
+1281   2                              Rec_surface15_page();
+1282   2                              reflash_page = 1;
+1283   2                              break;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 22  
+
+1284   2                      case UART1_SURFACE16_PAGE:
+1285   2                              Rec_surface16_page();
+1286   2                              reflash_page = 1;
+1287   2                              break;
+1288   2                      case UART1_SURFACE17_PAGE:
+1289   2                              Rec_surface17_page();
+1290   2                              reflash_page = 1;
+1291   2                              break;
+1292   2                      case UART1_SURFACE18_PAGE:
+1293   2                              Rec_surface18_page();
+1294   2                              reflash_page = 1;
+1295   2                              break;
+1296   2                      case UART1_SURFACE19_PAGE:
+1297   2                              Rec_surface19_page();
+1298   2                              reflash_page = 1;
+1299   2                              break;
+1300   2                      case UART1_SURFACE20_PAGE:
+1301   2                              Rec_surface20_page();
+1302   2                              reflash_page = 1;
+1303   2                              break;
+1304   2                      case UART1_SURFACE21_PAGE:
+1305   2                              Rec_surface21_page();
+1306   2                              reflash_page = 1;
+1307   2                              break;
+1308   2                      case UART1_GENERAL_DATA:
+1309   2                              if(rev_buf[2] == 1)
+1310   2                              {
+1311   3                                      system_alarm.index = rev_buf[3];
+1312   3                                      system_alarm.number = ByteToWord(rev_buf[5],rev_buf[6]);
+1313   3                                      system_meilage.trip = ByteToWord(rev_buf[7],rev_buf[8]);
+1314   3                                      if(last_trip != system_meilage.trip)
+1315   3                                      {
+1316   4                                              DISP_MILE = 1;
+1317   4                                              last_trip = system_meilage.trip;
+1318   4                                      }
+1319   3                                      reflash_page = 1;
+1320   3                                      uart_cmd = GD_ALARM;
+1321   3                              }
+1322   2                              else if(rev_buf[2] == 2)
+1323   2                              {
+1324   3                                      system_page.current_page = rev_buf[3];
+1325   3                                      page_xuanze = rev_buf[4];
+1326   3                                      if((system_page.current_page == UART1_PARA_PAGE) && (page_xuanze == PAGE_PARA))
+1327   3                                      {
+1328   4                                              system_bright = rev_buf[5];
+1329   4                                              buzzer = rev_buf[6];
+1330   4                                      }
+1331   3                                      else if((system_page.current_page == UART1_PARA_PAGE) && (page_xuanze == PAGE_SET))
+1332   3                                      {
+1333   4                                              speed_scale = ByteToWord(rev_buf[5],rev_buf[6]);
+1334   4                                              baimi_pulse = ByteToWord(rev_buf[7],rev_buf[8]);
+1335   4                                              scale_factor = rev_buf[9];
+1336   4                                      }
+1337   3                                      else if(system_page.current_page != UART1_PARA_PAGE)
+1338   3                                      {
+1339   4                                              page_xuanze = 0;
+1340   4                                              para_cmd = 0;
+1341   4                                      }
+1342   3                                      reflash_page = 1;
+1343   3                                      uart_cmd = GD_PAGE_CHANGE;
+1344   3                              }
+1345   2                              break;
+C51 COMPILER V9.00   UART                                                                  12/13/2022 09:00:39 PAGE 23  
+
+1346   2                      default:
+1347   2                              break;
+1348   2              }
+1349   1              if(reflash_page)
+1350   1                      putdata(uart_cmd);
+1351   1      }
+1352          unsigned char addring(unsigned char i)
+1353          {
+1354   1              return ((i + 1) == CMD_MAX) ? 0 : (i + 1);
+1355   1      }
+1356          unsigned char getdata(void)
+1357          {
+1358   1              unsigned char pos;
+1359   1              if(i_len)
+1360   1              {
+1361   2                      pos = i_get;
+1362   2                      i_get = addring(i_get);
+1363   2                      i_len--;
+1364   2                      return i_temp[pos];
+1365   2              }
+1366   1              else
+1367   1              {
+1368   2                      return 0;
+1369   2              }
+1370   1      }
+1371          void putdata(unsigned char typedata)
+1372          {
+1373   1              if(i_len < CMD_MAX)
+1374   1              {
+1375   2                      i_temp[i_put] = typedata;
+1376   2                      i_put = addring(i_put);
+1377   2                      i_len++;
+1378   2              }
+1379   1              else
+1380   1              {
+1381   2                      i_put = 0;
+1382   2                      i_get = 0;
+1383   2                      i_len = 0;
+1384   2              }
+1385   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   6036    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =    540      12
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

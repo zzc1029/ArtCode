@@ -1,0 +1,171 @@
+C51 COMPILER V9.00   CHECK_EVENT                                                           12/13/2022 09:00:38 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE CHECK_EVENT
+OBJECT MODULE PLACED IN .\Object\check_event.obj
+COMPILER INVOKED BY: F:\นคื๗ศํผþ\Keil\C51\BIN\C51.EXE SourceFile\check_event.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..
+                    -\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\check_event.lst) OBJECT(.\Object\check
+                    -_event.obj)
+
+line level    source
+
+   1          /**
+   2           *  @file   check_event.c
+   3           *  @brief  check event queue
+   4           *  $Id: check_event.c,v 1.2 2012/12/04 03:11:46 kevin Exp $
+   5           *  $Author: kevin $
+   6           *  $Revision: 1.2 $
+   7           *
+   8           *  Copyright (c) 2011 Terawins Inc. All rights reserved.
+   9           * 
+  10           *  @date   2011/08/12  ken     New file.
+  11           *
+  12           */
+  13          
+  14          #include "config.h"
+  15          #include "sys.h"
+  16          #include "tw_widget_sys.h"
+  17          //#include "touch.h"
+  18          //#include "ir.h"
+  19          #include "serial.h"
+  20          #include "timer.h"
+  21          #include "tw_timer.h"
+  22          #include "check_event.h"
+  23          #include "videodetect.h"
+  24          #include "panel.h"
+  25          //#include "mcu_if.h"
+  26          
+  27          void check_event(void)
+  28          {
+  29   1                      TW_EVENT s_event;
+  30   1                      unsigned char rc=0x00;
+  31   1                      unsigned char ir=0x00;
+  32   1                      unsigned char sar=0x00;
+  33   1                      unsigned char uart=0x00;
+  34   1                      static unsigned char signal_active=0;
+  35   1                      static unsigned char signal_std=0;
+  36   1                      unsigned char i;
+  37   1      
+  38   1      /*
+  39   1                      touchd t_value={0,0,0};
+  40   1                      t_value=touch_read();
+  41   1                      
+  42   1                      if((t_value.x!=0)||(t_value.y!=0))
+  43   1                      {
+  44   1                              //DBG_PRINT("x=%d y=%d status=%d\r\n",(int)t_value.x,(int)t_value.y,(int)t_value.status);
+  45   1                              if(t_value.status==0)
+  46   1                              {
+  47   1                                      s_event.type = TW_EVENT_TYPE_TOUCH_DOWN;
+  48   1                              }
+  49   1                              else if(t_value.status==1)
+  50   1                              {
+  51   1                                      s_event.type = TW_EVENT_TYPE_TOUCH_MOTION;
+  52   1                              }
+  53   1                              else if(t_value.status==2)
+C51 COMPILER V9.00   CHECK_EVENT                                                           12/13/2022 09:00:38 PAGE 2   
+
+  54   1                              {
+  55   1                                      s_event.type = TW_EVENT_TYPE_TOUCH_RELEASE ;
+  56   1                              }
+  57   1                              else
+  58   1                                      return;
+  59   1                              s_event.touch_panel.x= t_value.x;
+  60   1                              s_event.touch_panel.y= t_value.y;
+  61   1                              s_event.touch_panel.cpu_count = repeat_value;
+  62   1                              repeat_value=0x00;
+  63   1                              put_event(&s_event);
+  64   1                      }
+  65   1                      else
+  66   1                      {
+  67   1                              t_value=check_repeat(td_rep_thres);
+  68   1                              if((t_value.x!=0)||(t_value.y!=0))
+  69   1                              {
+  70   1                                      s_event.touch_panel.x= t_value.x;
+  71   1                                      s_event.touch_panel.y= t_value.y;
+  72   1                                      s_event.type=TW_EVENT_TYPE_TOUCH_REPEAT;
+  73   1                                      put_event(&s_event);
+  74   1                              }
+  75   1                      }
+  76   1      
+  77   1                      rc=IRscan(&ir);
+  78   1                      if(rc!=0)
+  79   1                      {
+  80   1                              s_event.type = TW_EVENT_TYPE_IR_DOWN;
+  81   1                              s_event.ircode.ch = ir;
+  82   1                              //DBG_PRINT("front=%d rear=%d\r\n",(int)front,(int)rear);
+  83   1                              put_event(&s_event);
+  84   1                      }
+  85   1      */
+  86   1                      for(i=0;i<12;i++)
+  87   1                      {
+  88   2                              rc=uartevent(&uart);
+  89   2                              if(rc!=0)
+  90   2                              {
+  91   3                                      check_uart1_data(uart);
+  92   3                                      //s_event.type=TW_EVENT_TYPE_UART;
+  93   3                                      //s_event.uart.ch=uart;
+  94   3                                      //put_event(&s_event);
+  95   3                                      //DBG_PRINT("uart=%d\r\n",(int)uart);           
+  96   3                              }
+  97   2                              else
+  98   2                                      break;
+  99   2                      }
+ 100   1      
+ 101   1                      if(TIMER0_OUT_FLAG)
+ 102   1                      {
+ 103   2                              TIMER0_OUT_FLAG=0;
+ 104   2                              s_event.type = TW_EVENT_TYPE_TIMEOUT;
+ 105   2                              s_event.timer.tid = 0;
+ 106   2                              put_event(&s_event);
+ 107   2                      }
+ 108   1                      
+ 109   1                      if(TIMER1_OUT_FLAG)
+ 110   1                      {
+ 111   2                              TIMER1_OUT_FLAG=0;
+ 112   2                              s_event.type = TW_EVENT_TYPE_TIMEOUT;
+ 113   2                              s_event.timer.tid = 1;
+ 114   2                              put_event(&s_event);
+ 115   2                      }
+C51 COMPILER V9.00   CHECK_EVENT                                                           12/13/2022 09:00:38 PAGE 3   
+
+ 116   1      
+ 117   1                      if(TW_TIMER_OUT_FLAG)
+ 118   1                      {
+ 119   2                              TW_TIMER_OUT_FLAG=0;
+ 120   2                              s_event.type = TW_EVENT_TYPE_TIMEOUT;
+ 121   2                              s_event.timer.tid = 2;
+ 122   2                              put_event(&s_event);
+ 123   2                      }
+ 124   1                      SingalDetect();
+ 125   1                      if((sigstate.SigActive!=signal_active)||((sigstate.SigActive==Signal_Set)&&(sigstate.SigStd!=signal_std)
+             -))
+ 126   1                      {
+ 127   2                              s_event.type=TW_EVENT_TYPE_SINGNAL;
+ 128   2                              signal_active=sigstate.SigActive;
+ 129   2                              signal_std=sigstate.SigStd;
+ 130   2                              s_event.signal.SigActive=sigstate.SigActive;
+ 131   2                              s_event.signal.SigSrc=sigstate.SigSrc;
+ 132   2                              s_event.signal.SigStd=sigstate.SigStd;
+ 133   2                              put_event(&s_event);
+ 134   2                              dbg(2, ("1.SIGNAL ACT=%bd       SRC=%bd STD=%bd\r\n",s_event.signal.SigActive,s_event.signal.SigSrc,s_event.s
+             -ignal.SigStd));
+ 135   2                      }
+ 136   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    200    ----
+   CONSTANT SIZE    =     67    ----
+   XDATA SIZE       =      2      12
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

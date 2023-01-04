@@ -1,0 +1,869 @@
+Dependencies for Project 'b40', Target 'b40': (DO NOT MODIFY !)
+CompilerVersion: 5060960::V5.06 update 7 (build 960)::ARMCC
+F (.\src\OrderConfig.h)(0x6392EEC2)()
+F (.\src\adc.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\adc.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\adc.crf --depend .\obj\adc.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+F (.\src\adc.h)(0x6392EEC2)()
+F (.\src\base.h)(0x6392EEC2)()
+F (.\src\BF7006AMxx_it.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_it.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_it.crf --depend .\obj\bf7006amxx_it.d)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+F (.\src\bootloader.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bootloader.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bootloader.crf --depend .\obj\bootloader.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+F (.\src\can_protol.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\can_protol.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\can_protol.crf --depend .\obj\can_protol.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\adc.h)(0x6392EEC2)
+I (src\power_out.h)(0x6392EEC2)
+I (src\pluse.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\canhl.h)(0x6392EEC2)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+I (src\rain.h)(0x6392EEC2)
+F (.\src\can_protol.h)(0x6392EEC2)()
+F (.\src\config.h)(0x6392EEC2)()
+F (.\src\eeprom.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\eeprom.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\eeprom.crf --depend .\obj\eeprom.d)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-switch.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+I (src\pluse.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+F (.\src\eeprom.h)(0x6392EEC2)()
+F (.\src\main.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\main.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\main.crf --depend .\obj\main.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\adc.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\pluse.h)(0x6392EEC2)
+I (src\rain.h)(0x6392EEC2)
+I (src\power.h)(0x6392EEC2)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+F (.\src\includes.h)(0x6392EEC2)()
+F (.\src\pluse.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\pluse.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\pluse.crf --depend .\obj\pluse.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+F (.\src\pluse.h)(0x6392EEC2)()
+F (.\src\power_out.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\power_out.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\power_out.crf --depend .\obj\power_out.d)
+I (src\power_out.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\switch.h)(0x6392EEC2)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+F (.\src\power_out.h)(0x6392EEC2)()
+F (.\src\rain.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\rain.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\rain.crf --depend .\obj\rain.d)
+I (src\rain.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+F (.\src\rain.h)(0x6392EEC2)()
+F (.\src\switch.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\switch.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\switch.crf --depend .\obj\switch.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\switch.h)(0x6392EEC2)
+F (.\src\switch.h)(0x6392EEC2)()
+F (.\src\tsi.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\tsi.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\tsi.crf --depend .\obj\tsi.d)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-switch.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+I (src\pluse.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+F (.\src\param.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\param.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\param.crf --depend .\obj\param.d)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-switch.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+I (src\pluse.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+F (.\src\power.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\power.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\power.crf --depend .\obj\power.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\eeprom.h)(0x6392EEC2)
+I (src\save.h)(0x6392EEC2)
+F (.\src\init_section.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\init_section.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\init_section.crf --depend .\obj\init_section.d)
+I (src\init_section.h)(0x6392EEC2)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+F (.\src\defs.h)(0x6392EEC2)()
+F (.\src\ringfifo.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\ringfifo.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\ringfifo.crf --depend .\obj\ringfifo.d)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+I (src\ringfifo.h)(0x6392EEC2)
+F (.\src\ringfifo.h)(0x6392EEC2)()
+F (.\src\canhl.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\canhl.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\canhl.crf --depend .\obj\canhl.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\ringfifo.h)(0x6392EEC2)
+I (src\canhl.h)(0x6392EEC2)
+F (.\src\canhl.h)(0x6392EEC2)()
+F (.\src\logic.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic.crf --depend .\obj\logic.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\logic1.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic1.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic1.crf --depend .\obj\logic1.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\logic2.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic2.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic2.crf --depend .\obj\logic2.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\logic3.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic3.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic3.crf --depend .\obj\logic3.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\logic4.c)(0x6392EEC2)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic4.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic4.crf --depend .\obj\logic4.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\save.h)(0x6392EEC2)()
+F (.\src\logic5.c)(0x6392F523)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\logic5.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\logic5.crf --depend .\obj\logic5.d)
+I (src\includes.h)(0x6392EEC2)
+I (.\RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (.\RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (src\init_section.h)(0x6392EEC2)
+I (.\src\pt\pt.h)(0x6392EEC2)
+I (.\src\pt\lc.h)(0x6392EEC2)
+I (.\src\pt\lc-addrlabels.h)(0x6392EEC2)
+I (src\config.h)(0x6392EEC2)
+I (src\OrderConfig.h)(0x6392EEC2)
+I (src\defs.h)(0x6392EEC2)
+I (.\config\220801.h)(0x63967B99)
+I (src\power_out.h)(0x6392EEC2)
+I (src\can_protol.h)(0x6392EEC2)
+I (src\switch.h)(0x6392EEC2)
+I (src\logic.h)(0x6392EEC2)
+F (.\src\logic.h)(0x6392EEC2)()
+F (.\src\link.sct)(0x6392EEC2)()
+F (.\PackScript\RunAfterBulid.bat)(0x6392EEC2)()
+F (RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\absacc.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\stdio.h)(0x6392EEC1)()
+F (RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_adc.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_adc.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_adc.crf --depend .\obj\bf7006amxx_adc.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx\BF7006AMxx_sci.h)(0x603F4A80)
+I (C:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx\BF7006AMxx.h)(0x604AD1DC)
+I (RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdio.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_can.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_can.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_can.crf --depend .\obj\bf7006amxx_can.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_eflash.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_eflash.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_eflash.crf --depend .\obj\bf7006amxx_eflash.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_gpio.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_gpio.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_gpio.crf --depend .\obj\bf7006amxx_gpio.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_pwm.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_pwm.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_pwm.crf --depend .\obj\bf7006amxx_pwm.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_rtc.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_rtc.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_rtc.crf --depend .\obj\bf7006amxx_rtc.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_sysctrl.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_sysctrl.crf --depend .\obj\bf7006amxx_sysctrl.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_timer.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_timer.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_timer.crf --depend .\obj\bf7006amxx_timer.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)()
+F (RTE\Device\BF7006AM64\BF7006AMxx_wdt.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_wdt.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_wdt.crf --depend .\obj\bf7006amxx_wdt.d)
+I (RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+F (RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)()
+F (RTE\SEGGER\SEGGER_RTT.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\segger_rtt.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\segger_rtt.crf --depend .\obj\segger_rtt.d)
+I (RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
+F (RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)()
+F (RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)()
+F (RTE\SEGGER\SEGGER_RTT_printf.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\segger_rtt_printf.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\segger_rtt_printf.crf --depend .\obj\segger_rtt_printf.d)
+I (RTE\SEGGER\SEGGER_RTT.h)(0x6392EEC1)
+I (RTE\SEGGER\SEGGER_RTT_Conf.h)(0x6392EEC1)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x60252374)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x60252376)
+F (RTE\Startup\BF7006AM64\BF7006AMxx_config.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\bf7006amxx_config.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\bf7006amxx_config.crf --depend .\obj\bf7006amxx_config.d)
+I (RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)
+I (.\RTE\_b40\RTE_Components.h)(0x6392EECE)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMxx.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_sysctrl.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_can.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_adc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_eflash.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_wdt.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_timer.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_rtc.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_pwm.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMxx_gpio.h)(0x6392EEC1)
+F (RTE\Startup\BF7006AM64\BF7006AMxx_config.h)(0x6392EEC1)()
+F (RTE\Startup\BF7006AM64\startup_BF7006AMxx.s)(0x6392EEC1)(--cpu Cortex-M0 -g --apcs=interwork -I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx--pd "__UVISION_VERSION SETA 536" --pd "_RTE_ SETA 1" --pd "_RTE_ SETA 1"--list .\listings\startup_bf7006amxx.lst --xref -o .\obj\startup_bf7006amxx.o --depend .\obj\startup_bf7006amxx.d)
+F (RTE\Startup\BF7006AM64\system_BF7006AMxx.c)(0x6392EEC1)(--gnu -c --cpu Cortex-M0 -g -O2 -Otime --apcs=interwork --asm --interleave --asm_dir ".\\Listings\\" -I .\src\pt -I .\src -I .\config-I.\RTE\CMSIS\BF7006AM64-I.\RTE\Device\BF7006AM64-I.\RTE\SEGGER-I.\RTE\Startup\BF7006AM64-I.\RTE\_b40-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\BYD\BYDMicro_DFP\1.1.0\Device\Include\BF7006AMxx-D__UVISION_VERSION="536" -D_RTE_ -D_RTE_-o .\obj\system_bf7006amxx.o --list_dir ".\\Listings\\" --list --omf_browse .\obj\system_bf7006amxx.crf --depend .\obj\system_bf7006amxx.d)
+I (.\RTE\CMSIS\BF7006AM64\BF7006AMXX.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\core_cm0.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\stdint.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_compiler.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\cmsis_armcc.h)(0x6392EEC1)
+I (.\RTE\CMSIS\BF7006AM64\system_ARMCM0.h)(0x6392EEC1)
+I (.\RTE\Device\BF7006AM64\BF7006AMXX_sysctrl.h)(0x6392EEC1)

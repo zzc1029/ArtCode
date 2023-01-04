@@ -1,0 +1,63 @@
+C51 COMPILER V9.00   PAGE_FRONT_MODULE                                                     08/14/2015 08:54:55 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_FRONT_MODULE
+OBJECT MODULE PLACED IN .\Object\page_front_module.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\page_front_module.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib
+                    -\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_front_module.lst) TABS(2) OBJECT(.\Objec
+                    -t\page_front_module.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_front_module.h"
+   9          
+  10          unsigned char page_front_module_process (TW_EVENT* event)
+  11          {
+  12   1        switch(event->type)
+  13   1        {
+  14   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  15   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  16   2      
+  17   2            /* todo: Write Your Code Here */
+  18   2      
+  19   2          break;
+  20   2      
+  21   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  22   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  23   2      
+  24   2            /* todo: Write Your Code Here */
+  25   2      
+  26   2          break;
+  27   2      
+  28   2          default:  /* put to nodify if no process this event */
+  29   2            return TW_RETURN_NO_PROCESS;
+  30   2      
+  31   2      
+  32   2        }
+  33   1        return TW_RETURN_NONE;
+  34   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     18    ----
+   CONSTANT SIZE    =     81    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

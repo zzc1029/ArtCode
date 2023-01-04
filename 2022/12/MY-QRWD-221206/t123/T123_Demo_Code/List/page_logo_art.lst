@@ -1,0 +1,78 @@
+C51 COMPILER V9.00   PAGE_LOGO_ART                                                         08/14/2015 08:54:55 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PAGE_LOGO_ART
+OBJECT MODULE PLACED IN .\Object\page_logo_art.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\page_logo_art.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\sys
+                    -;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\page_logo_art.lst) TABS(2) OBJECT(.\Object\page_l
+                    -ogo_art.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          #include "tw_widget_sys.h"
+   4          #include "res.h"
+   5          #include "spiosd.h"
+   6          #include "osd2api.h"
+   7          
+   8          #include "page_logo_art.h"
+   9          #include "tw_timer.h"
+  10          unsigned char page_logo_art_process (TW_EVENT* event)
+  11          {
+  12   1        switch(event->type)
+  13   1        {
+  14   2          case TW_EVENT_TYPE_ENTER_SYSTEM:
+  15   2            dbg(2, (">>>>> Enter Menu Page\n\r"));
+  16   2            tw_td_draw(&main_logo_art);
+  17   2            sosd_td_enable();
+  18   2            sosd_enable(DONT_LOAD);
+  19   2            tw_timer_open(300);
+  20   2            /* todo: Write Your Code Here */
+  21   2      
+  22   2          break;
+  23   2          case TW_EVENT_TYPE_TIMEOUT:
+  24   2            tw_timer_close();
+  25   2            put_quit_page_event(ID_PAGE_LOGO_ART);
+  26   2            put_enter_page_event(ID_PAGE_MAIN_INTERNAL);
+  27   2            
+  28   2            //event->type = TW_EVENT_TYPE_ENTER_SYSTEM;
+  29   2            //event->page.id = ID_MAIN_MAIN_INTERNAL;
+  30   2            //event->page.mode = PAGE_EVENT_NORMAL;
+  31   2            //put_event(event);
+  32   2          break;
+  33   2      
+  34   2          case TW_EVENT_TYPE_QUIT_SYSTEM:
+  35   2            dbg(2, (">>>>> QUIT Menu Page\n\r"));
+  36   2      
+  37   2            /* todo: Write Your Code Here */
+  38   2      
+  39   2          break;
+  40   2      
+  41   2          default:  /* put to nodify if no process this event */
+  42   2            return TW_RETURN_NO_PROCESS;
+  43   2      
+  44   2      
+  45   2        }
+  46   1        return TW_RETURN_NONE;
+  47   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     68    ----
+   CONSTANT SIZE    =     77    ----
+   XDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   PAGE_LOGO_ART                                                         08/14/2015 08:54:55 PAGE 2   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

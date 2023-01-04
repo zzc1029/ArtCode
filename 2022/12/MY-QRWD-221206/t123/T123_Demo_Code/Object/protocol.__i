@@ -1,0 +1,1 @@
+"SourceFile\protocol.c" LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE (T123AI) DEBUG PRINT(.\List\protocol.lst) TABS (2) OBJECT(.\Object\protocol.obj)

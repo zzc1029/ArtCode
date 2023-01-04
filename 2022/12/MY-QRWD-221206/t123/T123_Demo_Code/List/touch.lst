@@ -1,0 +1,1203 @@
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TOUCH
+OBJECT MODULE PLACED IN .\Object\touch.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\tw_lib\drivers\touch.c LARGE OMF2 BROWSE INCDIR(.\IncludeFile;..\tw_lib\
+                    -sys;..\tw_lib\drivers;.\resource;.\i51) DEFINE(T123AI) DEBUG PRINT(.\List\touch.lst) TABS(2) OBJECT(.\Object\touch.obj)
+
+line level    source
+
+   1          /**
+   2           *  @file   touch.c
+   3           *  @brief  touch panel drivers
+   4           *  $Id: touch.c,v 1.17 2013/09/04 06:07:32 dos1236 Exp $
+   5           *  $Author: dos1236 $
+   6           *  $Revision: 1.17 $
+   7           *
+   8           *  Copyright (c) 2011 Terawins Inc. All rights reserved.
+   9           * 
+  10           *  @date   2011/08/12  ken   New file.
+  11           *
+  12           */
+  13          
+  14          #include "sys.h"
+  15          #include "reg_tw.h"
+  16          #include "iccontrol.h"
+  17          #include "spirw.h"
+  18          #include "tw_irq.h"
+  19          #include "touch.h"
+  20          #include "spiosd.h"
+  21          #include "osd2api.h"
+  22          #include "tw_timer.h"
+  23          
+  24          #define pen_down  0x00;
+  25          #define pen_move  0x01;
+  26          #define pen_release 0x02;
+  27          #define pen_noack   0x03;
+  28          
+  29          #define _dfu_offset 16384L 
+  30          
+  31          //#define sub(x,y) ((x)>(y)?((x)-(y)):((y)-(x)))
+  32          #define diff  20   
+  33          #define c_x   100 // calibration x axis
+  34          #define c_y   60// calibration y axis
+  35          
+  36          static unsigned short txqueue[TOUCH_BUFF_SIZE]={0};
+  37          static unsigned short tyqueue[TOUCH_BUFF_SIZE]={0};
+  38          static unsigned char tfront=TOUCH_BUFF_SIZE-1;
+  39          static unsigned char trear=TOUCH_BUFF_SIZE-1;
+  40          static unsigned char tstatus[TOUCH_BUFF_SIZE]={0};
+  41          
+  42          static unsigned short c_w=0x00;//panel width
+  43          static unsigned short c_h=0x00;//panel high
+  44          static unsigned short tp_left=0x00;
+  45          static unsigned short tp_right=0x00;
+  46          static unsigned short tp_up=0x00;
+  47          static unsigned short tp_down=0x00;
+  48          static bit calibration_finish=0;
+  49          static bit calibration_timeout=0;
+  50          unsigned short tdata[5];
+  51          
+  52          unsigned short repeat_value=0x00;
+  53          unsigned short td_rep_thres= 200;
+  54          
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 2   
+
+  55          static unsigned short repeat_count=0x00;
+  56          
+  57          unsigned char old_time=0x00;  // if 0= pen down and 1 =pen release else if 0= pen down and 1 = pen motion
+  58          tfilter t_fset={0,0,0,0};  
+  59          tcoord  t_coord={0,0};    
+  60          
+  61          //add by yuke 
+  62          static unsigned char tp_mode = 0x00;
+  63          #define Calibration_MAX     512
+  64          
+  65          unsigned char code HANSTER_TOUCH_INIT_TBL[]={
+  66          0X20,0X6F,
+  67          0X21,0X0F,
+  68          0X22,0X01,
+  69          0X2D,0X03,
+  70          0X2F,0X64,
+  71          0X31,0XFF,
+  72          0X40,0XFF,
+  73          0X41,0X4E,
+  74          0X50,0X09,
+  75          0X51,0X09,
+  76          0X52,0X05,
+  77          0X55,0X44,
+  78          0XFF,0X00,
+  79          };
+  80          /*
+  81           * 摘要 :void WriteTouchTable(unsigned char code* RegsTable)
+  82           *
+  83           * 描述 :初始 touch panel 参数设定
+  84           *
+  85           * 参数 :unsigned char code* RegsTable  (touch panel 参数table)
+  86           *
+  87           * 回传值 :无
+  88           *
+  89           * 注意 : 无
+  90          */
+  91          void WriteTouchTable(unsigned char code* RegsTable)
+  92          {
+  93   1        unsigned short Index = 0x00;
+  94   1        while(1)
+  95   1        {
+  96   2          if(RegsTable[Index] == 0xFF)
+  97   2              break;
+  98   2          IC_WritByte(TWIC_P3,RegsTable[Index],RegsTable[Index+1]);
+  99   2          Index += 2;
+ 100   2        }
+ 101   1      }
+ 102          /*
+ 103           * 摘要 :unsigned short sub(unsigned short x,unsigned short y)
+ 104           *
+ 105           * 描述 :两数相减取绝对值
+ 106           *
+ 107           * 参数 :unsigned short x(第一个数字)
+ 108           *     unsigned short y(第二个数字)
+ 109           *
+ 110           * 回传值 :相减结果
+ 111           *
+ 112           * 注意 : 无
+ 113          */
+ 114          unsigned short sub(unsigned short x,unsigned short y)
+ 115          {
+ 116   1        if(x>y)
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 3   
+
+ 117   1          return x-y;
+ 118   1        else
+ 119   1          return y-x;
+ 120   1      }
+ 121          
+ 122          extern unsigned short code LAYOUT_TP_LEFT;
+ 123          extern unsigned short code LAYOUT_TP_RIGHT;
+ 124          extern unsigned short code LAYOUT_TP_UP;
+ 125          extern unsigned short code LAYOUT_TP_DOWN;
+ 126          extern unsigned char code LAYOUT_TP_FINISH;
+ 127          /*
+ 128           * 摘要 :drawtarget(unsigned char select)
+ 129           *
+ 130           * 描述 :画校正图形
+ 131           *
+ 132           * 参数 :unsigned char select: select=0  预设值 select =1 表示强制重新校正
+ 133           *
+ 134           * 回传值 :无
+ 135           *
+ 136           * 注意 : 无
+ 137          */
+ 138          void drawtarget(unsigned char select)
+ 139          {
+ 140   1        unsigned char x=0;
+ 141   1        unsigned char y=0;
+ 142   1        unsigned char data temp, O_LSB, O_MSB=0;
+ 143   1        unsigned short save[5]={0,0,0,0,0}; 
+ 144   1          int rc = 0;
+ 145   1      
+ 146   1      #ifndef ENABLE_EX_MCU
+ 147   1        if (((LAYOUT_TP_FINISH&0x0F)==1) && (select==0))
+ 148   1        {
+ 149   2          tp_left= LAYOUT_TP_LEFT;
+ 150   2          tp_right= LAYOUT_TP_RIGHT;
+ 151   2          tp_up= LAYOUT_TP_UP;
+ 152   2          tp_down= LAYOUT_TP_DOWN;
+ 153   2          calibration_finish=1;
+ 154   2          tp_mode = LAYOUT_TP_FINISH>>4;
+ 155   2          dbg(0, (" tp_left = 0x%X \r\n", tp_left));
+ 156   2          dbg(0, (" tp_right = 0x%X \r\n", tp_right));
+ 157   2          dbg(0, (" tp_up = 0x%X \r\n", tp_up));
+ 158   2          dbg(0, (" tp_down = 0x%X \r\n", tp_down));  
+ 159   2          dbg(0, (" tp_mode = 0x%X \r\n", (int)tp_mode));
+ 160   2          return;
+ 161   2        } else {
+ 162   2          calibration_finish= 0;
+ 163   2        }
+ 164   1      #else
+                select= select;
+              #endif
+ 167   1      
+ 168   1        osd_disable();
+ 169   1      
+ 170   1        /* Load Main Color LUT */
+ 171   1        osd_cfg_wr(0x08, 0x00); // OSD LUT address start point
+ 172   1        IC_WritByte(TWIC_P0, 0xA8, 0x09);
+ 173   1      
+ 174   1        IC_WritByte(TWIC_P0, 0xA9, 0xFF); // A
+ 175   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // B
+ 176   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // G
+ 177   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // R
+ 178   1      
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 4   
+
+ 179   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // A
+ 180   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // B
+ 181   1        IC_WritByte(TWIC_P0, 0xA9, 0xFF); // G
+ 182   1        IC_WritByte(TWIC_P0, 0xA9, 0x00); // R
+ 183   1      
+ 184   1        /* Set BMP Color LUT Base Address */
+ 185   1        osd_cfg_wr(0x2C, 0x00);
+ 186   1      
+ 187   1        /* Set BMP Width */
+ 188   1        osd_cfg_wr(0x24, 0x0A);
+ 189   1        osd_cfg_wr(0x25, 0x00);
+ 190   1        /* Set BMP Height */
+ 191   1        osd_cfg_wr(0x26, 0x28);
+ 192   1        osd_cfg_wr(0x27, 0x00);
+ 193   1        /* Set BMP Horizintal Start Position */
+ 194   1        osd_cfg_wr(0x28, 0x15);
+ 195   1        osd_cfg_wr(0x29, 0x00);
+ 196   1        /* Set BMP Vertical Start Position */
+ 197   1        osd_cfg_wr(0x2A, 0x00);
+ 198   1        osd_cfg_wr(0x2B, 0x00);
+ 199   1        /* Set OSD RAM Base Address */
+ 200   1        osd_set_ram_addr(0x0000);
+ 201   1        /* Load BMP Index to OSDRAM */
+ 202   1        for(y=0; y<40; y++) {
+ 203   2          for(x=0; x<40; x++) {
+ 204   3            if(x==19||y==19)
+ 205   3              temp = 0x01;
+ 206   3            else
+ 207   3              temp = 0x00;
+ 208   3            
+ 209   3            switch((x%4)) {
+ 210   4              case 0:
+ 211   4                O_MSB=(temp<<4);
+ 212   4                break;
+ 213   4              case 1:
+ 214   4                O_MSB|=temp;
+ 215   4                break;
+ 216   4              case 2:
+ 217   4                O_LSB=(temp<<4);
+ 218   4                break;
+ 219   4              case 3:
+ 220   4                O_LSB|=temp;
+ 221   4                OSD_SET_RAM_DATA_BYTE(O_LSB);
+ 222   4                OSD_SET_RAM_DATA_BYTE(O_MSB);
+ 223   4                break;
+ 224   4            }
+ 225   3          }
+ 226   2        }
+ 227   1        /* Set BMP Data Address in OSDRAM */
+ 228   1        osd_cfg_wr(0x21, 0x00);
+ 229   1        osd_cfg_wr(0x22, 0x00);
+ 230   1      
+ 231   1        /* Set BMP Configuration */
+ 232   1        osd_cfg_wr(0x0B, 0x00);
+ 233   1        osd_cfg_wr(0x0E, 0x07);
+ 234   1        osd_cfg_wr(0x20, 0xC0);
+ 235   1          
+ 236   1        //osd_enable();
+ 237   1      
+ 238   1        //dbg(2, ("Calibration OSD Draw Final\r\n"));
+ 239   1      }
+ 240          /*
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 5   
+
+ 241           * 摘要 :void touch_queue(unsigned short avgx,unsigned short avgy,unsigned char status)
+ 242           *
+ 243           * 描述 :使用queue buffer 储存touch panel资料
+ 244           *
+ 245           * 参数 :unsigned short avgx  (x座标)
+ 246           *       unsigned short avgy  (y座标)
+ 247           *       unsigned char status (状态)
+ 248           *
+ 249           * 回传值 :无
+ 250           *
+ 251           * 注意 : 无
+ 252          */
+ 253          void touch_queue(unsigned short avgx,unsigned short avgy,unsigned char status)
+ 254          {
+ 255   1        if((avgx!=0||avgy!=0)&&(status>=0)&&(status<=2))
+ 256   1        {
+ 257   2          trear=(trear+1)%TOUCH_BUFF_SIZE;
+ 258   2          if(trear==tfront)
+ 259   2          {
+ 260   3            #if 0
+                    if(trear==0)
+                    {
+                      trear=TOUCH_BUFF_SIZE-1;//max value
+                    }
+                    else
+                    {
+                      trear=trear-1;
+                    }
+                    #endif
+ 270   3            trear=TOUCH_BUFF_SIZE-1;
+ 271   3            trear=TOUCH_BUFF_SIZE-1;
+ 272   3            trear=(trear+1)%TOUCH_BUFF_SIZE;
+ 273   3            txqueue[trear]=avgx;
+ 274   3            tyqueue[trear]=avgy;
+ 275   3            tstatus[trear]=status;
+ 276   3          }
+ 277   2          else
+ 278   2          {
+ 279   3            txqueue[trear]=avgx;
+ 280   3            tyqueue[trear]=avgy;
+ 281   3            tstatus[trear]=status;
+ 282   3          }
+ 283   2        }
+ 284   1      }
+ 285          void touch_auto_switch(unsigned long *avgx, unsigned long *avgy, unsigned char tp_mode)
+ 286          {
+ 287   1          unsigned short temp;
+ 288   1        
+ 289   1          switch(tp_mode)
+ 290   1        {     
+ 291   2            case 0x01:
+ 292   2            *avgx=*avgx;
+ 293   2            *avgy=*avgy;  
+ 294   2            //DBG_PRINT(" doTouch_choice1\n");  
+ 295   2            break;
+ 296   2          case 0x02:
+ 297   2              *avgx=Calibration_MAX-*avgx;
+ 298   2              //DBG_PRINT(" doTouch_choice2\n");
+ 299   2              break; 
+ 300   2            case 0x03:
+ 301   2            *avgy=Calibration_MAX-*avgy;
+ 302   2            //DBG_PRINT(" doTouch_choice3\n"); 
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 6   
+
+ 303   2            break;
+ 304   2          case 0x04:
+ 305   2            *avgx=Calibration_MAX-*avgx;
+ 306   2            *avgy=Calibration_MAX-*avgy;  
+ 307   2            //DBG_PRINT(" doTouch_choice4\n"); 
+ 308   2            break;
+ 309   2          case 0x05:
+ 310   2            temp=*avgx;
+ 311   2            *avgx=*avgy;
+ 312   2            *avgy=temp;
+ 313   2            //DBG_PRINT(" doTouch_choice5\n"); 
+ 314   2            break;
+ 315   2          case 0x06:
+ 316   2            temp=*avgx;
+ 317   2            *avgx=*avgy;
+ 318   2            *avgy=temp;
+ 319   2                  *avgy=Calibration_MAX-*avgy;
+ 320   2            //DBG_PRINT(" doTouch_choice6\n"); 
+ 321   2            break;  
+ 322   2              case 0x07:
+ 323   2            temp=*avgx;
+ 324   2            *avgx=*avgy;
+ 325   2            *avgy=temp;
+ 326   2                  *avgx=Calibration_MAX-*avgx;
+ 327   2            *avgy=Calibration_MAX-*avgy;            
+ 328   2            //DBG_PRINT(" doTouch_choice7\n"); 
+ 329   2            break;
+ 330   2          case 0x08:
+ 331   2            temp=*avgx;
+ 332   2            *avgx=*avgy;
+ 333   2            *avgy=temp;
+ 334   2                  *avgx=Calibration_MAX-*avgx;            
+ 335   2            //DBG_PRINT(" doTouch_choice8\n"); 
+ 336   2            break;  
+ 337   2          default:
+ 338   2            break;
+ 339   2          }
+ 340   1      }
+ 341          /*
+ 342           * 摘要 :void doTouch(unsigned char choice)
+ 343           *
+ 344           * 描述 :执行 touch panel 取点动作
+ 345           *
+ 346           * 参数 :unsigned char choice => choice =0 (校正完毕后使用) choice = 1 (初始校正用) 
+ 347           *
+ 348           * 回传值 :无
+ 349           *
+ 350           * 注意 : 无
+ 351          */
+ 352          void doTouch(unsigned char choice)
+ 353          {
+ 354   1          unsigned long avgx=0;
+ 355   1          unsigned long avgy=0;
+ 356   1          unsigned char status;
+ 357   1          
+ 358   1              unsigned long temp=0;
+ 359   1            #define Calibration_MAX     512
+ 360   1          
+ 361   1          if((IC_ReadByte_INT(TWIC_P3,SAR0_STATUS)&0x10)==0X10&&(IC_ReadByte_INT(TWIC_P3,SAR0_TRIG_STATUS)&0x40)!=
+             -0x40)//pendown
+ 362   1          {
+ 363   2              TP_TIME=0x00;
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 7   
+
+ 364   2              status=pen_down;
+ 365   2              
+ 366   2          }
+ 367   1          else if(IC_ReadByte_INT(TWIC_P3,SAR0_STATUS)&0x20)//release
+ 368   1          {
+ 369   2              status=pen_release;
+ 370   2          }
+ 371   1          else if((IC_ReadByte_INT(TWIC_P3,SAR0_STATUS)&0x10)==0X10&&(IC_ReadByte_INT(TWIC_P3,SAR0_TRIG_STATUS)&0x
+             -40)==0x40)//move
+ 372   1          {
+ 373   2              status=pen_move;
+ 374   2          }
+ 375   1            
+ 376   1          avgx=IC_ReadByte_INT(TWIC_P3,SAR0_VALUE_LOWXY)&0x0f;//read avgx [7:4] 0xb04065d0
+ 377   1          avgx=(IC_ReadByte_INT(TWIC_P3,SAR0_VALUE_HIGHX)<<4)|avgx;//read avgx [11:4] 0xb04065e0
+ 378   1          avgy=IC_ReadByte_INT(TWIC_P3,SAR0_VALUE_LOWXY)>>4;//read avgy [3:0] 0xb04065d0
+ 379   1          avgy=(IC_ReadByte_INT(TWIC_P3,SAR0_VALUE_HIGHY)<<4)|avgy;//read avgy avgx[11:4] 0xb04065f0
+ 380   1          avgx=avgx>>3;
+ 381   1          avgy=avgy>>3;
+ 382   1          switch (choice)
+ 383   1          {
+ 384   2            case 0:
+ 385   2              touch_queue(avgx,avgy,status);
+ 386   2              break;      
+ 387   2            case 1:
+ 388   2                  touch_auto_switch(&avgx, &avgy, tp_mode);
+ 389   2            if((avgx!=0) || (avgy!=0))//(((avgx>=tp_right)&&(avgx<=tp_left))&&((avgy>=tp_down)&&(avgy<=tp_up)))
+ 390   2            {
+ 391   3              if(t_fset.enable)
+ 392   3              {
+ 393   4                avgx=c_w-(((avgx-tp_right)*c_w)/(tp_left-tp_right));
+ 394   4                avgy=c_h-((avgy-tp_down)*c_h)/(tp_up-tp_down);
+ 395   4                if(status==0)//pen down
+ 396   4                {
+ 397   5                  t_coord.x=avgx;
+ 398   5                  t_coord.y=avgy;
+ 399   5                  t_fset.type=0x01;
+ 400   5                }
+ 401   4                else if(status==2) //pen release
+ 402   4                {
+ 403   5                  if(t_fset.type==0x01&&TP_TIME>=(t_fset.time))
+ 404   5                  {
+ 405   6                    touch_queue(t_coord.x,t_coord.y,0); 
+ 406   6                  }
+ 407   5                  else if(t_fset.type==0x01)
+ 408   5                  {
+ 409   6                    t_fset.type=2;
+ 410   6                    return;
+ 411   6                  } 
+ 412   5                  touch_queue(avgx,avgy,status);
+ 413   5                  t_fset.type=2;
+ 414   5                }
+ 415   4                else if(status==1)// pen motion
+ 416   4                {
+ 417   5                  #if 0
+                          if(t_fset.type==0x01)
+                          {
+                            touch_queue(t_coord.x,t_coord.y,0); 
+                          }
+                          touch_queue(avgx,avgy,status);
+                          t_fset.type=2;
+                          #endif//#else
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 8   
+
+ 425   5                  if(t_fset.type==0x01&&TP_TIME<t_fset.time)
+ 426   5                  {
+ 427   6                    return;
+ 428   6                  }
+ 429   5                  else if(t_fset.type==0x01)
+ 430   5                  {
+ 431   6                    touch_queue(t_coord.x,t_coord.y,0);
+ 432   6                  }
+ 433   5                  t_fset.type=2;
+ 434   5                  switch(t_fset.speed)
+ 435   5                  {
+ 436   6                    case 0:
+ 437   6                      touch_queue(avgx,avgy,status);
+ 438   6                      break;
+ 439   6                    case 1:
+ 440   6                      if(old_time!=TP_TIME)
+ 441   6                      {
+ 442   7                        touch_queue(avgx,avgy,status);
+ 443   7                        old_time=TP_TIME;
+ 444   7                      }
+ 445   6                      break;
+ 446   6                    case 2:
+ 447   6                      if(TP_TIME%2==0)
+ 448   6                      {
+ 449   7                        touch_queue(avgx,avgy,status);  
+ 450   7                      }
+ 451   6                      break;
+ 452   6                    case 3:
+ 453   6                      if(TP_TIME%3==0)
+ 454   6                      {
+ 455   7                        touch_queue(avgx,avgy,status);  
+ 456   7                      }
+ 457   6                      break;
+ 458   6                  }
+ 459   5                  //#endif
+ 460   5                }
+ 461   4              }
+ 462   3              else
+ 463   3              {                                                               
+ 464   4                avgx=c_w-(((avgx-tp_right)*c_w)/(tp_left-tp_right));
+ 465   4                avgy=c_h-((avgy-tp_down)*c_h)/(tp_up-tp_down);
+ 466   4      
+ 467   4                
+ 468   4                if(status!=2)
+ 469   4                {
+ 470   5                  t_coord.x=avgx;
+ 471   5                  t_coord.y=avgy;
+ 472   5                }
+ 473   4                else if(status==2)
+ 474   4                {
+ 475   5                  avgx=t_coord.x;
+ 476   5                  avgy=t_coord.y; 
+ 477   5                }
+ 478   4                touch_queue(avgx,avgy,status);
+ 479   4              }
+ 480   3            }
+ 481   2            else
+ 482   2            {
+ 483   3              return;
+ 484   3            }
+ 485   2            break;
+ 486   2          } 
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 9   
+
+ 487   1      }
+ 488          /*
+ 489           * 摘要 :bit calibration (unsigned short int *x,unsigned short int *y)
+ 490           *
+ 491           * 描述 :根据传过来的点 执行校正判断
+ 492           *
+ 493           * 参数 :unsigned char choice => choice =0 (校正完毕后使用) choice = 1 (初始校正用) 
+ 494           *
+ 495           * 回传值 : 1:成功 0:失败
+ 496           *
+ 497           * 注意 : 无
+ 498          */
+ 499          bit calibration (unsigned short int *x,unsigned short int *y)
+ 500          {
+ 501   1        unsigned short int xa,xb,ya,yc;
+ 502   1        unsigned char tempx=0x00;
+ 503   1        unsigned char tempy=0x00;
+ 504   1          //unsigned short temp1=0x00;
+ 505   1             
+ 506   1        xa=c_x;
+ 507   1        xb=c_w-c_x;
+ 508   1        ya=c_h-c_y;
+ 509   1        yc=c_y;
+ 510   1        tempx= sub(sub(x[0],x[1]),sub(x[2],x[3]));
+ 511   1        tempy= sub(sub(y[0],y[1]),sub(y[2],y[3]));
+ 512   1        //DBG_PRINT("tempx=%d tempy=%d",(int)tempx,(int)tempy);
+ 513   1        if(tempx<=0x05&&tempy<=0x05)
+ 514   1        {
+ 515   2            if(sub(x[0],x[1])>200)
+ 516   2            {
+ 517   3                if((x[0]>x[1])&&(y[0]>y[2]))
+ 518   3                {
+ 519   4                tp_mode=0x01;
+ 520   4                //DBG_PRINT("bit calibration1\n");
+ 521   4              }
+ 522   3              else if((x[0]<x[1])&&(y[0]>y[2]))
+ 523   3              {
+ 524   4                    x[0]=512-x[0];
+ 525   4                x[1]=512-x[1];
+ 526   4                x[2]=512-x[2];
+ 527   4                x[3]=512-x[3];
+ 528   4                tp_mode=0x02;
+ 529   4                //DBG_PRINT("bit calibration2\n");
+ 530   4              }
+ 531   3              else if((x[0]>x[1])&&(y[0]<y[2]))
+ 532   3                { 
+ 533   4                    y[0]=512-y[0];
+ 534   4                y[1]=512-y[1];
+ 535   4                y[2]=512-y[2];
+ 536   4                y[3]=512-y[3];
+ 537   4                tp_mode=0x03;
+ 538   4                //DBG_PRINT("bit calibration3\n");
+ 539   4              }
+ 540   3              else if((x[0]<x[1])&&(y[0]<y[2]))
+ 541   3              {
+ 542   4                    x[0]=512-x[0];
+ 543   4                x[1]=512-x[1];
+ 544   4                x[2]=512-x[2];
+ 545   4                x[3]=512-x[3];
+ 546   4                    y[0]=512-y[0];
+ 547   4                y[1]=512-y[1];
+ 548   4                y[2]=512-y[2];
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 10  
+
+ 549   4                y[3]=512-y[3];      
+ 550   4                tp_mode=0x04;
+ 551   4                //DBG_PRINT("bit calibration4\n");
+ 552   4              }
+ 553   3          }
+ 554   2              else if(sub(y[0],y[1])>200)
+ 555   2              {  
+ 556   3                  unsigned short temp1=0x00;       
+ 557   3                  if((y[0]>y[1])&&(x[0]>x[2]))
+ 558   3                  { 
+ 559   4                  #if 1
+ 560   4                      temp1=x[0];  /* x0,y0交换位置  */
+ 561   4                  x[0]=y[0];
+ 562   4                  y[0]=temp1;
+ 563   4                  temp1=x[1]; /* x1,y1交换位置  */
+ 564   4                  x[1]=y[1];
+ 565   4                  y[1]=temp1;
+ 566   4                  temp1=x[2]; /* x2,y2交换位置  */
+ 567   4                  x[2]=y[2];
+ 568   4                  y[2]=temp1;
+ 569   4                  temp1=x[3];
+ 570   4                  x[3]=y[3];
+ 571   4                  y[3]=temp1;   /* x3,y3相互交换位置*/
+ 572   4                 #endif
+ 573   4                  tp_mode=0x05;
+ 574   4                //DBG_PRINT("bit calibration5\n");
+ 575   4                }
+ 576   3                  else  if((y[0]>y[1])&&(x[0]<x[2]))
+ 577   3                  {
+ 578   4                  #if 1
+ 579   4                      temp1=x[0];  /* x0,y0交换位置  */
+ 580   4                  x[0]=y[0];
+ 581   4                  y[0]=temp1;
+ 582   4                  temp1=x[1]; /* x1,y1交换位置  */
+ 583   4                  x[1]=y[1];
+ 584   4                  y[1]=temp1;
+ 585   4                  temp1=x[2]; /* x2,y2交换位置  */
+ 586   4                  x[2]=y[2];
+ 587   4                  y[2]=temp1;
+ 588   4                  temp1=x[3];
+ 589   4                  x[3]=y[3];
+ 590   4                  y[3]=temp1;   /* x3,y3相互交换位置*/
+ 591   4                  #endif
+ 592   4                  y[0]=512-y[0];  /*y0,y1,y2,y3取补 */
+ 593   4                  y[1]=512-y[1];
+ 594   4                  y[2]=512-y[2];
+ 595   4                  y[3]=512-y[3];
+ 596   4                      tp_mode=0x06;
+ 597   4                //DBG_PRINT("bit calibration6\n");
+ 598   4                }      
+ 599   3                else  if((y[0]<y[1])&&(x[0]<x[2]))
+ 600   3                  { 
+ 601   4                  #if 1
+ 602   4                      temp1=x[0];  /* x0,y0交换位置  */
+ 603   4                  x[0]=y[0];
+ 604   4                  y[0]=temp1;
+ 605   4                  temp1=x[1];   /* x1,y1交换位置  */
+ 606   4                  x[1]=y[1];
+ 607   4                  y[1]=temp1;
+ 608   4                  temp1=x[2]; /* x2,y2交换位置  */
+ 609   4                  x[2]=y[2];
+ 610   4                  y[2]=temp1;
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 11  
+
+ 611   4                  temp1=x[3];
+ 612   4                  x[3]=y[3];
+ 613   4                  y[3]=temp1;    /* x3,y3相互交换位置*/
+ 614   4                  #endif
+ 615   4                  x[0]=512-x[0];  /*x0,x1,x2,x3取补 */
+ 616   4                  x[1]=512-x[1];
+ 617   4                  x[2]=512-x[2];
+ 618   4                  x[3]=512-x[3];
+ 619   4      
+ 620   4                  y[0]=512-y[0];  /*y0,y1,y2,y3取补 */
+ 621   4                  y[1]=512-y[1];
+ 622   4                  y[2]=512-y[2];
+ 623   4                  y[3]=512-y[3];
+ 624   4                      tp_mode=0x07;
+ 625   4                    //DBG_PRINT("bit calibration7\n");    
+ 626   4                }
+ 627   3                else  if((y[0]<y[1])&&(x[0]>x[2]))
+ 628   3                  { 
+ 629   4                  #if 1
+ 630   4                      temp1=x[0];   /* x0,y0交换位置  */
+ 631   4                  x[0]=y[0];
+ 632   4                  y[0]=temp1;
+ 633   4      
+ 634   4                  temp1=x[1];   /* x1,y1交换位置  */
+ 635   4                  x[1]=y[1];
+ 636   4                  y[1]=temp1;
+ 637   4      
+ 638   4                  temp1=x[2];  /* x2,y2交换位置  */
+ 639   4                  x[2]=y[2];
+ 640   4                  y[2]=temp1;
+ 641   4      
+ 642   4                  temp1=x[3];
+ 643   4                  x[3]=y[3];
+ 644   4                  y[3]=temp1;   /* x3,y3相互交换位置*/
+ 645   4                  #endif
+ 646   4                  x[0]=512-x[0];  /*x0,x1,x2,x3取补 */
+ 647   4                  x[1]=512-x[1];
+ 648   4                  x[2]=512-x[2];
+ 649   4                  x[3]=512-x[3];
+ 650   4                  tp_mode=0x08;
+ 651   4                    //DBG_PRINT("bit calibration8\n");
+ 652   4                }    
+ 653   3            }
+ 654   2          x[0]=(x[0]+x[2])/2;
+ 655   2          x[1]=(x[1]+x[3])/2;
+ 656   2          y[0]=(y[0]+y[1])/2;
+ 657   2          y[2]=(y[2]+y[3])/2;
+ 658   2          tp_left=x[0]+((x[0]-x[1])*c_x)/(xb-xa);
+ 659   2          tp_right=x[1]-((x[0]-x[1])*c_x)/(xb-xa);    
+ 660   2          tp_up=y[0]+((y[0]-y[2])*c_y)/(ya-yc);
+ 661   2          tp_down=y[2]-((y[0]-y[2])*c_y)/(ya-yc);
+ 662   2          dbg(0, (" tp_mode = 0x%X \r\n", (int)tp_mode));
+ 663   2          return 1;
+ 664   2        }
+ 665   1        else
+ 666   1        {
+ 667   2          return 0;
+ 668   2        }
+ 669   1      }
+ 670          /*
+ 671           * 摘要 :void do_calibration(unsigned char select)
+ 672           *
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 12  
+
+ 673           * 描述 :进行校正
+ 674           *
+ 675           * 参数 :unsigned char select => select =0 表示若校正完毕 不会在校正一次 select =1 若已经校正完毕 可以强制
+             -再校正一次
+ 676           *
+ 677           * 回传值 : 
+ 678           *
+ 679           * 注意 : 无
+ 680          */
+ 681          void do_calibration(unsigned char select)
+ 682          {
+ 683   1        bit rc=0;
+ 684   1        unsigned short x[4]={0};
+ 685   1        unsigned short y[4]={0};
+ 686   1        unsigned char count=0x00;
+ 687   1        unsigned char i=0x00;
+ 688   1        unsigned short x_l,x_r,y_u,y_d;
+ 689   1        static unsigned short re_x;
+ 690   1        static unsigned short re_y;
+ 691   1        touchd co_value={0,0,0};
+ 692   1      
+ 693   1        c_w=IC_ReadByte(TWIC_P0,0xb5)<<8|IC_ReadByte(TWIC_P0,0xb4);//get panel width
+ 694   1        c_h=IC_ReadByte(TWIC_P0,0xb7)<<8|IC_ReadByte(TWIC_P0,0xb6);//get panel heigh
+ 695   1      
+ 696   1        drawtarget(select);
+ 697   1        
+ 698   1        x_l=c_x;  //200
+ 699   1        x_r=c_w-c_x;   //600
+ 700   1        y_u=c_y;    //120
+ 701   1        y_d=c_h-c_y;  //360
+ 702   1        //DBG_PRINT("x_l=%d x_r=%d y_u=%d y_d=%d c_w=%d c_h=%d",(int)x_l,(int)x_r,(int)y_u,(int)y_d,(int)c_w,(int
+             -)c_h);
+ 703   1        if(calibration_finish==1)
+ 704   1          return;
+ 705   1        
+ 706   1        tw_timer_open(2000);
+ 707   1      
+ 708   1      #ifdef OSD_SELECT_SPIOSD
+                sosd_disable();
+                _sosd_pLUT_addr((unsigned long)TOUCH_BASE_ADDRESS);
+                _sosd_img_addr((unsigned long)TOUCH_BASE_DATA);
+                _sosd_img_window(0x29,0x29);
+                _sosd_img_ls(0x29);
+                _sosd_img_loca(x_l-diff,y_u-diff);//first point  180 100
+                _sosd_load_plut();
+                sosd_enable(LOAD_LUT);
+              #else
+ 718   1        /* Set BMP H/V Start Position */
+ 719   1        _osd_bmp_pos((x_l-diff)+0x15, (y_u-diff));
+ 720   1        osd_enable();
+ 721   1      #endif
+ 722   1        
+ 723   1        while(count<=4)
+ 724   1        {
+ 725   2          co_value=touch_read();
+ 726   2          if(TW_TIMER_OUT_FLAG) {
+ 727   3            tw_timer_close();
+ 728   3      #ifdef OSD_SELECT_SPIOSD
+                    sosd_disable();
+              #else
+ 731   3            osd_disable();
+ 732   3            osd_bmp_disable();
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 13  
+
+ 733   3      #endif
+ 734   3            return;
+ 735   3          }
+ 736   2          if(((co_value.x!=0) || (co_value.y!=0)) && (co_value.status==0))
+ 737   2          {
+ 738   3            count++;
+ 739   3            switch(count)
+ 740   3            {
+ 741   4              case 1:
+ 742   4                x[0]=co_value.x;
+ 743   4                y[0]=co_value.y;
+ 744   4                re_x=co_value.x;
+ 745   4                re_y=co_value.y;
+ 746   4      #ifdef OSD_SELECT_SPIOSD
+                        sosd_set_img_location(x_r-diff,y_u-diff);//for second points 
+              #else         
+ 749   4                osd_bmp_star_position((x_r-diff)+0x15,y_u-diff);//for second points 
+ 750   4      #endif
+ 751   4                //DBG_PRINT("first point x=%d y=%d\r\n",(int)x[0],(int)y[0]);
+ 752   4                break;
+ 753   4              case 2:
+ 754   4                if((sub(co_value.x,re_x)>=50)||(sub(co_value.y,re_y)>=50))
+ 755   4                {
+ 756   5                  x[1]=co_value.x;
+ 757   5                  y[1]=co_value.y;
+ 758   5                  re_x=co_value.x;
+ 759   5                  re_y=co_value.y;
+ 760   5      #ifdef OSD_SELECT_SPIOSD
+                          sosd_set_img_location(x_l-diff,y_d-diff);//for third points
+              #else
+ 763   5                  osd_bmp_star_position((x_l-diff)+0x15,y_d-diff);//for third points
+ 764   5      #endif
+ 765   5                  //DBG_PRINT("second point x=%d y=%d\r\n",(int)x[1],(int)y[1]);
+ 766   5                }
+ 767   4                else
+ 768   4                {
+ 769   5                  count=1;
+ 770   5                  //DBG_PRINT("back=%d\r\n",count);
+ 771   5                }
+ 772   4                break;
+ 773   4              case 3:
+ 774   4                if((sub(co_value.x,re_x)>=50)||(sub(co_value.y,re_y)>=50))
+ 775   4                {
+ 776   5                  x[2]=co_value.x;
+ 777   5                  y[2]=co_value.y;
+ 778   5                  re_x=co_value.x;
+ 779   5                  re_y=co_value.y;
+ 780   5      #ifdef OSD_SELECT_SPIOSD
+                          sosd_set_img_location(x_r-diff,y_d-diff);//for fourth points
+              #else
+ 783   5                  osd_bmp_star_position((x_r-diff)+0x15,y_d-diff);//for fourth points
+ 784   5      #endif
+ 785   5                  //DBG_PRINT("third point x=%d y=%d\r\n",(int)x[2],(int)y[2]);
+ 786   5                }
+ 787   4                else
+ 788   4                {
+ 789   5                  count=2;
+ 790   5                //  DBG_PRINT("back=%d\r\n",count);
+ 791   5                }
+ 792   4                break;
+ 793   4              case 4:
+ 794   4                if((sub(co_value.x,re_x)>=50)||(sub(co_value.y,re_y)>=50))
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 14  
+
+ 795   4                {
+ 796   5                  x[3]=co_value.x;
+ 797   5                  y[3]=co_value.y;
+ 798   5                  //DBG_PRINT("fourth point x=%d y=%d\r\n",(int)x[3],(int)y[3]);
+ 799   5                  rc=calibration(x,y);
+ 800   5                  if(rc!=0)
+ 801   5                  {
+ 802   6                    //DBG_PRINT("successful\r\n");
+ 803   6                    //DBG_PRINT("tp_left=%d tp_right=%d tp_up=%d tp_down=%d\r\n",(int)tp_left,(int)tp_right,(int)tp_up,
+             -(int)tp_down);
+ 804   6                    count=5;
+ 805   6                    //IC_WritByte(TWIC_P3, 0x9E,0x00);
+ 806   6                    tw_timer_close();
+ 807   6      #ifdef OSD_SELECT_SPIOSD
+                            sosd_disable();
+              #else
+ 810   6                    osd_disable();
+ 811   6                    osd_bmp_disable();
+ 812   6      #endif
+ 813   6                    //spi_dma_write(TOUCH_BASE_SAVE,(unsigned short)save,sizeof(save));
+ 814   6                    calibration_finish=1;
+ 815   6      #ifndef ENABLE_EX_MCU
+ 816   6                    if(0x00 == select)
+ 817   6                      TouchSave();
+ 818   6      #endif
+ 819   6                  }
+ 820   5                  else
+ 821   5                  {
+ 822   6                    //DBG_PRINT("try again\r\n");
+ 823   6                    count=0;
+ 824   6      #ifdef OSD_SELECT_SPIOSD              
+                            sosd_set_img_location(x_l-diff,y_u-diff);//first point
+              #else
+ 827   6                    osd_bmp_star_position((x_l-diff)+0x15,(y_u-diff));//first point
+ 828   6      #endif
+ 829   6                  }
+ 830   5                  re_x=co_value.x;
+ 831   5                  re_y=co_value.y;
+ 832   5                }
+ 833   4                else
+ 834   4                {
+ 835   5                  count=3;
+ 836   5                  //DBG_PRINT("back=%d\r\n",count);
+ 837   5                }
+ 838   4                break;
+ 839   4            }
+ 840   3          }
+ 841   2        }
+ 842   1        tw_timer_close();
+ 843   1      
+ 844   1      #ifdef OSD_SELECT_SPIOSD
+                sosd_disable();
+              #else
+ 847   1        osd_disable();
+ 848   1        osd_bmp_disable();
+ 849   1      #endif
+ 850   1      }
+ 851          /*
+ 852           * 摘要 :touchd touch_read(void)
+ 853           *
+ 854           * 描述 :进行touch panel 资料读取
+ 855           *
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 15  
+
+ 856           * 参数 :unsigned char select => select =0 表示若校正完毕 不会在校正一次 select =1 若已经校正完毕 可以强制
+             -再校正一次
+ 857           *
+ 858           * 回传值 : touch=> 回传 touch 座标 状态 结构体
+ 859           *
+ 860           * 注意 : 无
+ 861          */
+ 862          touchd touch_read(void)
+ 863          {
+ 864   1        touchd result={0,0,0};//Initial 
+ 865   1        if(tfront==trear)
+ 866   1        {
+ 867   2          result.x=0;
+ 868   2          result.y=0;
+ 869   2          result.status=pen_noack;
+ 870   2          return result;
+ 871   2        }
+ 872   1        else
+ 873   1        {
+ 874   2          tfront=(tfront+1)%TOUCH_BUFF_SIZE;
+ 875   2          result.x=txqueue[tfront];
+ 876   2          result.y=tyqueue[tfront];
+ 877   2          result.status=tstatus[tfront];
+ 878   2          return result;
+ 879   2        }
+ 880   1      }
+ 881          /*
+ 882           * 摘要 :touch_clear(void)
+ 883           *
+ 884           * 描述 :清除touch buffer 资料
+ 885           *
+ 886           * 参数 :无
+ 887           *
+ 888           * 回传值 : 无
+ 889           *
+ 890           * 注意 : 无
+ 891          */
+ 892          void touch_clear(void)
+ 893          {
+ 894   1        tfront=TOUCH_BUFF_SIZE-1;
+ 895   1        trear=TOUCH_BUFF_SIZE-1;
+ 896   1      }
+ 897          /*
+ 898           * 摘要 :touch_isr(void)
+ 899           *
+ 900           * 描述 :touch panel 中断处理程序
+ 901           *
+ 902           * 参数 :无
+ 903           *
+ 904           * 回传值 : 无
+ 905           *
+ 906           * 注意 : 无
+ 907          */
+ 908          void touch_isr(void)
+ 909          {
+ 910   1        if(calibration_finish==0)
+ 911   1          doTouch(0);
+ 912   1        else
+ 913   1          doTouch(1);
+ 914   1        repeat_count=0x00;
+ 915   1        clear_tw_irq(IRQ_SAR0_TOGGLE);
+ 916   1      }
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 16  
+
+ 917          /*
+ 918           * 摘要 :touch_init(void)
+ 919           *
+ 920           * 描述 :touch panel 初使化设定
+ 921           *
+ 922           * 参数 :无
+ 923           *
+ 924           * 回传值 : 无
+ 925           *
+ 926           * 注意 : 无
+ 927          */
+ 928          void touch_init(void)
+ 929          {
+ 930   1      #if 0
+                IC_WritByte(TWIC_P3,SAR0_THRESHOLD_LOW,0x0f);//sar 0 threshold 0xb0406410
+                
+                IC_WritByte(TWIC_P3,SAR0_THRESHOLD_HIGH,0x01);//sar 0 threshold 0xb0406420
+                //IC_WritByte(TWIC_P3,0x00,0xb0406480);//sar 0 select 00 p6_48 0xb0406480
+                IC_WritByte(TWIC_P6,SAR0_INTERRUPT,0xf1);//clear sar interrupt and unmask sar 0 interrupt 0xb0400e70
+                IC_WritByte(TWIC_P3,SAR0_INITIAL_SETTING,0x2f);//power up sar 0 0xb0406400//default 0xcd  
+                IC_WritByte(TWIC_P3,SAR0_TRIG_STATUS,0x03);//enable touch panel pendown trig and move trig 0xb04064d0
+                IC_WritByte(TWIC_P3,SAR0_TOUCH_CLOCK,0x24);//touch panel clock //default 0xc4
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREHX,0x09);//bounce threshold x//default 0x0a
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREHY,0x09);//bounce threshold y//default 0x0a 
+                 
+                IC_WritByte(TWIC_P3,SAR0_TIMES_XY,0x05);//x y value times count//default 0x05
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREH0,0xf2);//bounce for pendown penrelease
+                
+                //setup measure gap parameter
+                IC_WritByte(TWIC_P3,SAR0_TPMEASURE_GAP,0xff);//tp_measure_gap 0xb0406510
+                IC_WritByte(TWIC_P3,SAR0_PDDMEASURE_GAP,0xff);//pdd_measure_gap 0xb0406600
+                IC_WritByte(TWIC_P3,SAR0_MEASURE_GAP,0xff);//measure_gap 0xb0406610
+              
+                enable_tw_irq(IRQ_SAR0_TOGGLE);
+              
+                touch_clear();
+              #endif
+ 954   1      
+ 955   1      #if 0
+                IC_WritByte(TWIC_P3,SAR0_THRESHOLD_LOW,0x0f);//sar 0 threshold 0xb0406410
+                
+                IC_WritByte(TWIC_P3,SAR0_THRESHOLD_HIGH,0x01);//sar 0 threshold 0xb0406420
+                IC_WritByte(TWIC_P6,SAR0_INTERRUPT,0xf1);//clear sar interrupt and unmask sar 0 interrupt 0xb0400e70
+                IC_WritByte(TWIC_P3,SAR0_INITIAL_SETTING,0x4F);//power up sar 0 0xb0406400//default 0xcd  
+                IC_WritByte(TWIC_P3,SAR0_TRIG_STATUS,0x03);//enable touch panel pendown trig and move trig 0xb04064d0
+                IC_WritByte(TWIC_P3,SAR0_TOUCH_CLOCK,0x24);//touch panel clock //default 0xc4
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREHX,0x09);//bounce threshold x//default 0x0a
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREHY,0x09);//bounce threshold y//default 0x0a 
+                 
+                IC_WritByte(TWIC_P3,SAR0_TIMES_XY,0x0A);//x y value times count//default 0x05
+                IC_WritByte(TWIC_P3,SAR0_BOUN_THREH0,0xF3);//bounce for pendown penrelease
+                
+                //setup measure gap parameter
+                IC_WritByte(TWIC_P3,SAR0_TPMEASURE_GAP,0xff);//tp_measure_gap 0xb0406510
+                IC_WritByte(TWIC_P3,SAR0_PDDMEASURE_GAP,0xff);//pdd_measure_gap 0xb0406600
+                IC_WritByte(TWIC_P3,SAR0_MEASURE_GAP,0xff);//measure_gap 0xb0406610
+              #endif
+ 974   1      
+ 975   1        WriteTouchTable(HANSTER_TOUCH_INIT_TBL);
+ 976   1      
+ 977   1        enable_tw_irq(IRQ_SAR0_TOGGLE);
+ 978   1      
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 17  
+
+ 979   1        touch_clear();
+ 980   1        
+ 981   1      }
+ 982          
+ 983          #if 0
+              void TouchSet(unsigned short _left,unsigned short _right,unsigned short _up,unsigned short _down,unsigned 
+             -char _calibration_finish)
+              {
+                tp_left = _left;
+                tp_right = _right;
+                tp_up = _up;
+                tp_down = _down;
+                calibration_finish = _calibration_finish;
+              }
+              #endif
+ 993          /*
+ 994           * 摘要 :touchd check_repeat(unsigned short threshold)
+ 995           *
+ 996           * 描述 :确认touch panel是否为repeat状态 并且发出event通知
+ 997           *
+ 998           * 参数 :unsigned short threshold =>多少repeat次数后 算为一次repeat
+ 999           *
+1000           * 回传值 : touch 结构体
+1001           *
+1002           * 注意 : 无
+1003          */
+1004          touchd check_repeat(unsigned short threshold)
+1005          {
+1006   1        touchd result={0,0,0};//Initial 
+1007   1        if((IC_ReadByte(TWIC_P3,SAR0_TRIG_STATUS)&0x80>0)&&(IC_ReadByte(TWIC_P3,SAR0_STATUS)!=0x04))
+1008   1        {
+1009   2          repeat_count++;
+1010   2          if(repeat_value==0xFFFF)
+1011   2            repeat_value=0x00;
+1012   2          else
+1013   2            repeat_value++;
+1014   2          if((t_fset.type==0x01)&&(TP_TIME>t_fset.time))//satisfy 
+1015   2          {
+1016   3            t_fset.type=2;//meet the condition
+1017   3            //touch_queue(t_coord.x,t_coord.y,0);
+1018   3            trear=(trear+1)%TOUCH_BUFF_SIZE;
+1019   3            txqueue[trear]=t_coord.x;
+1020   3            tyqueue[trear]=t_coord.y;
+1021   3            tstatus[trear]=0;
+1022   3          }
+1023   2          else if(repeat_count>=threshold)
+1024   2          {
+1025   3            repeat_count=0x00;
+1026   3            result.x=txqueue[tfront];
+1027   3            result.y=tyqueue[tfront];;
+1028   3          }
+1029   2        }
+1030   1        return result;
+1031   1      }
+1032          /*
+1033           * 摘要 :void TouchSave(void)
+1034           *
+1035           * 描述 :touch panel 校正存档
+1036           *
+1037           * 参数 :无
+1038           *
+1039           * 回传值 :无
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 18  
+
+1040           *
+1041           * 注意 : 无
+1042          */
+1043          #ifndef ENABLE_EX_MCU
+1044          void TouchSave(void)
+1045          {
+1046   1      #if (defined(WIN_QUAD_NOR) || defined(AMIC_QUAD_NOR))
+                spi_wrsr(0x00,QUAD_ENABLE_WIN);
+              #elif (defined(GD_128M_QUAD_NOR)||defined(WQ_25Q_128_QUAD_NOR))
+1049   1        spi_wrsr(0x00,WS_REG0_GD128M);
+1050   1      #else
+                spi_wrsr(QUAD_ENABLE,0x00);
+              #endif
+1053   1        spi_dma_write(LAYOUT_TP_LEFT_ADDR     +_dfu_offset, (unsigned short)(&tp_left), 2);
+1054   1        spi_dma_write(LAYOUT_TP_RIGHT_ADDR    +_dfu_offset, (unsigned short)(&tp_right), 2);
+1055   1        spi_dma_write(LAYOUT_TP_UP_ADDR       +_dfu_offset, (unsigned short)(&tp_up), 2);
+1056   1        spi_dma_write(LAYOUT_TP_DOWN_ADDR     +_dfu_offset, (unsigned short)(&tp_down), 2);
+1057   1        spi_write_byte(LAYOUT_TP_FINISH_ADDR  +_dfu_offset, (tp_mode<<4)|0x01);
+1058   1      #if (defined(WIN_QUAD_NOR) || defined(AMIC_QUAD_NOR))
+                spi_wrsr(BLOCK_PROTECT,QUAD_ENABLE_WIN);
+              #elif (defined(GD_128M_QUAD_NOR)||defined(WQ_25Q_128_QUAD_NOR))
+1061   1        spi_wrsr(BLOCK_PROTECT,RS_REG0_GD);
+1062   1      #else
+                spi_wrsr(QUAD_ENABLE|BLOCK_PROTECT,0x00);
+              #endif
+1065   1      
+1066   1        dbg(3, (" tp_left = 0x%X \r\n", tp_left));
+1067   1        dbg(3, (" tp_right = 0x%X \r\n", tp_right));
+1068   1        dbg(3, (" tp_up = 0x%X \r\n", tp_up));
+1069   1        dbg(3, (" tp_down = 0x%X \r\n", tp_down));
+1070   1        dbg(0, (" layout_tp_finish = 0x%X \r\n", (int)LAYOUT_TP_FINISH));
+1071   1        dbg(0, ("tp_mode=0x%X \r\n",(int)tp_mode));
+1072   1      }
+1073          #endif
+1074          /*
+1075           * 摘要 :void touch_filter(unsigned char enable,unsigned char time,unsigned char speed)
+1076           *
+1077           * 描述 :设定touch panel filter 取样次数
+1078           *
+1079           * 参数 :无
+1080           *
+1081           * 回传值 :无
+1082           *
+1083           * 注意 : 无
+1084          */
+1085          void touch_filter(unsigned char enable,unsigned char time,unsigned char speed)
+1086          {
+1087   1        t_fset.enable=enable;
+1088   1        t_fset.time=time;
+1089   1        t_fset.speed=speed;
+1090   1        tw_timer_open(100);   
+1091   1      }
+1092          /*
+1093           * 摘要 :void touch_covalue(unsigned short *left,unsigned short *right,unsigned short *up,unsigned short *
+             -down)
+1094           *
+1095           * 描述 :读取touch panel 校正后的参数
+1096           *
+1097           * 参数 :无
+1098           *
+1099           * 回传值 :无
+1100           *
+C51 COMPILER V9.00   TOUCH                                                                 09/18/2015 14:53:04 PAGE 19  
+
+1101           * 注意 : 无
+1102          */
+1103          void touch_covalue(unsigned short *left,unsigned short *right,unsigned short *up,unsigned short *down)
+1104          {
+1105   1        *left=tp_left;
+1106   1        *right=tp_right;
+1107   1        *up=tp_up;
+1108   1        *down=tp_down;
+1109   1      }
+1110          /*
+1111           * 摘要 :touch_coset(unsigned short left,unsigned short right,unsigned short up,unsigned short down)
+1112           *
+1113           * 描述 :储存touch panel 校正后的参数
+1114           *
+1115           * 参数 :unsigned short left  (左边参数)
+1116           *       unsigned short right (右边参数)
+1117           *       unsigned short up    (上边参数)
+1118           *       unsigned short down  (左边参数)
+1119           *
+1120           * 回传值 :无
+1121           *
+1122           * 注意 : 无
+1123          */
+1124          void touch_coset(unsigned short left,unsigned short right,unsigned short up,unsigned short down)
+1125          {
+1126   1        tp_left=left;
+1127   1        tp_right=right;
+1128   1        tp_up=up;
+1129   1        tp_down=down;
+1130   1        calibration_finish=1;
+1131   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   8535    ----
+   CONSTANT SIZE    =    238    ----
+   XDATA SIZE       =    131     127
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2       1
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

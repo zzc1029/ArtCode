@@ -1,0 +1,5 @@
+---- tms_fault_code Matches (4 in 3 files) ----
+Display.c (t123_demo_code\sourcefile):	displayu16 (10, 9, tms.tms_fault_code, 4, 0, GREEN, FULLSPACE, FONT_SMALL); //TMSπ ’œ¬Î
+Display.c (t123_demo_code\sourcefile):	tms_fault_code = 0;
+Uart.c (t123_demo_code\sourcefile):	tms_fault_code = rev_buf[8];
+Uart.h (t123_demo_code\includefile):extern unsigned int xudianchi_voltage,system_code,xushi_trip,motor_zhuansu,tms_fault_code;
